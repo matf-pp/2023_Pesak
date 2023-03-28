@@ -3,7 +3,8 @@ package main
 import 
 (
 	"github.com/veandco/go-sdl2/sdl"
-	//"math/rand"
+	"math/rand"
+	"math"
 	//"time"
 	"fmt"
 )
@@ -39,11 +40,22 @@ func main() {
 		// 	}
 		// }
 
-		for i := 0; i < 800-3; i++ {
+		for i := 1; i < 800-3; i++ {
 			for j := 600-2; j >= 0; j-- {
-				if(matrix[i][j] == 1 && matrix[i][j+1] == 0) {
+				r := rand.Float64()
+				sign := -1
+				if math.Mod(r, 2) == 0 {
+					sign = 1
+				}
+				if matrix[i][j] == 1 && matrix[i][j+1] == 0 {
 					matrix[i][j] = 0
 					matrix[i][j+1] = 1
+				} else if matrix[i][j] == 1 && matrix[i+sign][j+1] == 0 {
+					matrix[i][j] = 0
+					matrix[i+sign][j+1] = 1
+				} else if matrix[i][j] == 1 && matrix[i-sign][j+1] == 0 {
+					matrix[i][j] = 0
+					matrix[i-sign][j+1] = 1
 				}
 			}
 		}
