@@ -4,7 +4,7 @@ import
 (
 	"github.com/veandco/go-sdl2/sdl"
 	"math/rand"
-//	"math"
+	"math"
 //	"time"
 	"fmt"
 //	"app/mat"
@@ -31,11 +31,12 @@ var boja = map[Materijal]uint32{
 }
 
 const sirinaKanvasa, visinaKanvasa = 240, 144
-const brojPikselaPoCestici = 8
+const brojPikselaPoCestici = 4
 //golang nema makroe pa koristimo globalne konst (za sada?) -s
 
 var trenutniMat Materijal = Pesak
-var velicinaKursora int32 = 4
+var velicinaKursora int32 = 0
+var maxKursor int32 = 8
 
 var keystates = sdl.GetKeyboardState()
 
@@ -85,36 +86,21 @@ func main() {
 
 func clampCoords(x int32, y int32) (int32, int32) {
 	//osigurava da tacka ne izleti iz ekrana sto se desava u raznim slucajevima -s
-	if x < 0 {
-		x = 0
-	} else if x > sirinaKanvasa - 1 {
-		x = sirinaKanvasa - 1
-	}
-	if y < 0 {
-		y = 0
-	} else if y > visinaKanvasa - 1 {
-		y = visinaKanvasa - 1
-	}
-	return x, y
+	// radi isto kao što piše iznad, samo u jednoj liniji /limun
+	return int32(math.Min(math.Max(float64(x), 0), sirinaKanvasa - 1)), int32(math.Min(math.Max(float64(y), 0), visinaKanvasa - 1))
 }
 
 func brush(matrix [][]Materijal, x int32, y int32, state uint32) {
-	if state == 1 {
-		for i := -(velicinaKursora/2); i < velicinaKursora/2; i++ {
-			for j := -(velicinaKursora/2); j < velicinaKursora/2; j++{
-				tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
-				if matrix[tx][ty] == Prazno {
-					matrix[tx][ty] = trenutniMat
-				}
+	// zamenio redosled if-a i for-a /limun
+	// dole se povećavala veličina kursora za 2, a ovde delila sa 2, pa sam sklonio /2 i +2 na +1 /limun
+	for i := -velicinaKursora; i <= velicinaKursora; i++ {
+		for j := -velicinaKursora; j <= velicinaKursora; j++{
+			tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
+			if state == 1 && matrix[tx][ty] == Prazno {
+				matrix[tx][ty] = trenutniMat
 			}
-		}
-	} else if state == 4 {
-		for i := -(velicinaKursora/2); i < velicinaKursora/2; i++ {
-			for j := -(velicinaKursora/2); j < velicinaKursora/2; j++{
-				tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
-				if matrix[tx][ty] != Zid {
-					matrix[tx][ty] = Prazno
-				}
+			if state == 4 && matrix[tx][ty] != Zid {
+				matrix[tx][ty] = Prazno
 			}
 		}
 	}
@@ -148,10 +134,15 @@ func pollEvents(matrix [][]Materijal) bool {
 					trenutniMat = Metal
 				}
 				if keystates[sdl.SCANCODE_DOWN] != 0 {
-					velicinaKursora = velicinaKursora - 2
+					// povećavalo se za 2, a onda delilo sa 2 u petlji gore, pa sam smanjio na -1 i skinuo /2 /limun
+					if velicinaKursora > 0 {
+						velicinaKursora = velicinaKursora - 1
+					}
 				}
 				if keystates[sdl.SCANCODE_UP] != 0 {
-					velicinaKursora = velicinaKursora + 2
+					if velicinaKursora < maxKursor {
+						velicinaKursora = velicinaKursora + 1
+					}
 				}
 			default:
 				//null
