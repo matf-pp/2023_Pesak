@@ -7,54 +7,40 @@ import
 //	"math"
 //	"time"
 	"fmt"
+//	"app/mat"
 )
-
-//(lenguedž kolega) molim vas dvojicu kada stignete i kada odlucite da nam vise nisu potrebni,
-//obrisete sve zakomentarisane delove koda jer ovo sada izgleda uzasno
-//a mislim da ima potencijala da bude relativno uredno i sazeto, makar mejn
 
 type Materijal int
 
 const (
-    Zid Materijal = -1
-    Prazno Materijal = 0
-    Pesak Materijal = 1
-    Voda Materijal = 2
-    Kamen Materijal = 3
-    Metal Materijal = 4
+	Zid Materijal = -1
+	Prazno Materijal = 0
+	Pesak Materijal = 1
+	Voda Materijal = 2
+	Metal Materijal = 3
+	//itd
 )
 
 var boja = map[Materijal]uint32{
-    Zid : 0xffffff,
-    Prazno : 0x000000,
-    Pesak : 0xffff66,
-    Voda : 0x3333ff,
-    Kamen : 0x666666,
-    Metal : 0x33334b,
-}
-
-type Cestica struct{
-
-    materijal Materijal
-
+	Zid : 0xffffff,
+	Prazno : 0x000000,
+	Pesak : 0xffff66,
+	Voda : 0x3333ff,
+	Metal : 0x33334b,
+//	Kamen : 0x666666,
 }
 
 const sirinaKanvasa, visinaKanvasa = 240, 144
-const brojPikselaPoCestici = 4
-	//golang nema makroe i ne moze praviti nizove/matrice dinamicke duzine
-	//ali jedna fantasticna stvar je ta sto konstante rade poso makroa:
-	//	niz moze primiti konstantnu promenjivu (ironican termin) za dimenziju
-	//	dovoljno su zilave da ne moramo vise ni raditi kastovanje tipova, sirina prolazi za int, uint, int32, float, itd itd
-	// B)
-	//e sad sta mislimo o globalnim varijablama je druga prica...
+const brojPikselaPoCestici = 8
+//golang nema makroe pa koristimo globalne konst (za sada?) -s
 
-// materijal koji nastaje levim klikom
-// 0-vazduh 1-pesak 2-kamen 3-voda
-var mat Materijal
+var trenutniMat Materijal = Pesak
+var velicinaKursora int32 = 4
+
 var keystates = sdl.GetKeyboardState()
+
 func main() {
-	// pesak default
-	mat = Pesak
+
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(err)
 	}
@@ -76,14 +62,15 @@ func main() {
 	var matrix[sirinaKanvasa][visinaKanvasa]Materijal
 	slajs := matrixToSlice(matrix)
 
+	//TODO izdvojiti ove dve ruzne petlje van mejna? `void zidaj(slajs);` npr -s
 	for i := 0; i < sirinaKanvasa; i++ {
-        slajs[i][0] = Zid
-        slajs[i][visinaKanvasa-1] = Zid
-    }
-    for j := 0; j < visinaKanvasa; j++ {
-        slajs[0][j] = Zid
-        slajs[sirinaKanvasa-1][j] = Zid
-    }
+		slajs[i][0] = Zid
+		slajs[i][visinaKanvasa-1] = Zid
+	}
+	for j := 0; j < visinaKanvasa; j++ {
+		slajs[0][j] = Zid
+		slajs[sirinaKanvasa-1][j] = Zid
+	}
 
 	running := true
 	for running {
@@ -94,6 +81,43 @@ func main() {
 		window.UpdateSurface()
 	}
 
+}
+
+func clampCoords(x int32, y int32) (int32, int32) {
+	//osigurava da tacka ne izleti iz ekrana sto se desava u raznim slucajevima -s
+	if x < 0 {
+		x = 0
+	} else if x > sirinaKanvasa - 1 {
+		x = sirinaKanvasa - 1
+	}
+	if y < 0 {
+		y = 0
+	} else if y > visinaKanvasa - 1 {
+		y = visinaKanvasa - 1
+	}
+	return x, y
+}
+
+func brush(matrix [][]Materijal, x int32, y int32, state uint32) {
+	if state == 1 {
+		for i := -(velicinaKursora/2); i < velicinaKursora/2; i++ {
+			for j := -(velicinaKursora/2); j < velicinaKursora/2; j++{
+				tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
+				if matrix[tx][ty] == Prazno {
+					matrix[tx][ty] = trenutniMat
+				}
+			}
+		}
+	} else if state == 4 {
+		for i := -(velicinaKursora/2); i < velicinaKursora/2; i++ {
+			for j := -(velicinaKursora/2); j < velicinaKursora/2; j++{
+				tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
+				if matrix[tx][ty] != Zid {
+					matrix[tx][ty] = Prazno
+				}
+			}
+		}
+	}
 }
 
 func pollEvents(matrix [][]Materijal) bool {
@@ -107,45 +131,45 @@ func pollEvents(matrix [][]Materijal) bool {
 				break
 			case *sdl.KeyboardEvent:
 				// može ovo lepše #TODO
+				// kako si to zamisljao lepse? -s
 				if keystates[sdl.SCANCODE_ESCAPE] != 0 {
 					running = false
 				}
 				if keystates[sdl.SCANCODE_0] != 0 {
-					mat = 0
+					trenutniMat = Prazno
 				}
 				if keystates[sdl.SCANCODE_1] != 0 {
-					mat = 1
+					trenutniMat = Pesak
 				}
 				if keystates[sdl.SCANCODE_2] != 0 {
-					mat = 2
+					trenutniMat = Voda
 				}
 				if keystates[sdl.SCANCODE_3] != 0 {
-					mat = 3
+					trenutniMat = Metal
+				}
+				if keystates[sdl.SCANCODE_DOWN] != 0 {
+					velicinaKursora = velicinaKursora - 2
+				}
+				if keystates[sdl.SCANCODE_UP] != 0 {
+					velicinaKursora = velicinaKursora + 2
 				}
 			default:
-				/* code */
+				//null
 		}
 	}
 
 	var x, y int32
 	var state uint32
 	x, y, state = sdl.GetMouseState()
-	fmt.Printf("%d %d %d\n", x, y, state)
-	if x < 0 {
-		x = 0
-	} else if x > sirinaKanvasa * brojPikselaPoCestici-1 {
-		x = sirinaKanvasa * brojPikselaPoCestici-1
-	}
-	if y < 0 {
-		y = 0
-	} else if y > visinaKanvasa * brojPikselaPoCestici-1 {
-		y = visinaKanvasa * brojPikselaPoCestici-1
-	}
-	if state == 1 {
-		if matrix[x/brojPikselaPoCestici][y/brojPikselaPoCestici] == 0 {
-			matrix[x/brojPikselaPoCestici][y/brojPikselaPoCestici] = mat
-		}
-	}
+	fmt.Printf("x: %d\t", x)
+	fmt.Printf("y: %d\t", y)
+	fmt.Printf("xpx: %d\t", x/brojPikselaPoCestici)
+	fmt.Printf("ypx: %d\t", y/brojPikselaPoCestici)
+	fmt.Printf("mb: %d\t", state)
+	fmt.Printf("materijal: %d\t", trenutniMat)
+	fmt.Printf("velicina: %d\n", velicinaKursora)
+
+	brush(matrix, x, y, state)	
 
 	return running
 
@@ -157,14 +181,15 @@ func update(matrix [][]Materijal) {
 
 			// pesak
 			if matrix[i][j] == Pesak {
-				flutter := rand.Intn(2)
-				if matrix[i][j+1] == Prazno {
-					if flutter == 1 {
-						matrix[i][j], matrix[i][j+1] = Prazno, Pesak
-					}
-					//ako moze pasti direkt neka padne
+				//flutter := rand.Intn(2)
+				//predlazem da lelujanje ostavimo za malo kasnije da pojednostavimo ovo dok ne sredimo lepo -s
+				if matrix[i][j+1] == Prazno || matrix[i][j+1] == Voda{
+//					if flutter == 1 {
+						matrix[i][j], matrix[i][j+1] = matrix[i][j+1], matrix[i][j]
+//					}//	ovde prvi put a nadalje puno puta postaje ocigledna potreba za nekom swap
+					// funkcijom ali ionako ovome slede radikalne promene, ne bih trosio vreme
+					// sada na to... -s 
 				} else {
-					//u suprotnom gleda moze li dijagonalu
 					var sgn int
 					if rand.Intn(2) == 1 {
 						sgn = 1
@@ -172,37 +197,34 @@ func update(matrix [][]Materijal) {
 						sgn = -1
 					}//nasumice biramo na koju stranu prvo ide da izbegnemo pristrasno padanje
 
-					if (matrix[i+sgn][j+1] == Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
-						matrix[i][j], matrix[i+sgn][j+1] = Prazno, Pesak
-					} else if (matrix[i-sgn][j+1] == Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
-						matrix[i][j], matrix[i-sgn][j+1] = Prazno, Pesak
+					if (matrix[i+sgn][j+1] == Prazno || matrix[i+sgn][j+1] == Voda) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
+						matrix[i][j], matrix[i+sgn][j+1] = matrix[i+sgn][j+1], matrix[i][j]
+					} else if (matrix[i-sgn][j+1] == Prazno || matrix[i-sgn][j+1] == Voda) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
+						matrix[i][j], matrix[i-sgn][j+1] = matrix[i-sgn][j+1], matrix[i][j]
 					} 
 				}
 			}
 			// voda
 			// ovo je teže nego što smo mislili
+			//mozda teze nego sto si /ti/ mislio -s
 			if matrix[i][j] == Voda {
-				flutter := rand.Intn(2)
+//				flutter := rand.Intn(2)
 				if matrix[i][j+1] == Prazno {
-					if flutter == 1 {
+//					if flutter == 1 {
 						matrix[i][j], matrix[i][j+1] = Prazno, Voda
-					}
-					//ako moze pasti direkt neka padne
+//					}
 				} else {
-					var sgn int
-					if rand.Intn(2) == 1 {
-						sgn = 1
-					} else {
-						sgn = -1
-					}
+					var sgn int = rand.Intn(3)
+					sgn = sgn - 1
+					// -1, 0, 1
 
 					if (matrix[i+sgn][j+1] == Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
 						matrix[i][j], matrix[i+sgn][j+1] = Prazno, Voda
-					} else if (matrix[i-sgn][j+1] == Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
+					} else if (matrix[i-sgn][j+1] == Prazno) && (i-sgn > 0) && (i-sgn < sirinaKanvasa) {
 						matrix[i][j], matrix[i-sgn][j+1] = Prazno, Voda
 					} else if (matrix[i+sgn][j] == Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
 						matrix[i][j], matrix[i+sgn][j] = Prazno, Voda
-					} else if (matrix[i-sgn][j] == Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
+					} else if (matrix[i-sgn][j] == Prazno) && (i-sgn > 0) && (i-sgn < sirinaKanvasa) {
 						matrix[i][j], matrix[i-sgn][j] = Prazno, Voda
 					}
 				}
@@ -215,14 +237,13 @@ func render(matrix [][]Materijal, surface *sdl.Surface) {
 	for i := 0; i < sirinaKanvasa; i++ {
 		for j := 0; j < visinaKanvasa; j++ {
 			rect := sdl.Rect{int32(i*brojPikselaPoCestici), int32(j*brojPikselaPoCestici), brojPikselaPoCestici,brojPikselaPoCestici}
-			// ovo je lepo
 			surface.FillRect(&rect, boja[matrix[i][j]])
 		}
 	}
 }
 
 func matrixToSlice(matrix [sirinaKanvasa][visinaKanvasa]Materijal) [][]Materijal {
-	// ma biće dobro
+
 	slajs := make([][]Materijal, len(matrix))
 
 	for i := 0; i < len(matrix); i++ {
@@ -234,10 +255,5 @@ func matrixToSlice(matrix [sirinaKanvasa][visinaKanvasa]Materijal) [][]Materijal
 	}
 
 	return slajs
-	//dakle poenta je pravimo slajs cele matrice na pocetku mejna
-	//i dalje sve sto radimo radimo sa slajsom
-	//jer ne znam ni ja valja onda radi poreferenci a ne vrednosti
-	//pa mozemo imati izdvojene funkcije majku mu njegovu
-	//nakon kratkog razmatranja kapiram da bi redosled ova dva komentara trebalo biti zamenjen, #TODO
-
+	
 }
