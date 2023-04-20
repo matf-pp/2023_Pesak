@@ -7,54 +7,20 @@ import
 //	"math"
 //	"time"
 	"fmt"
+	"github.com/matf-pp/2023_Pesak/mat"
 )
-
-//(lenguedž kolega) molim vas dvojicu kada stignete i kada odlucite da nam vise nisu potrebni,
-//obrisete sve zakomentarisane delove koda jer ovo sada izgleda uzasno
-//a mislim da ima potencijala da bude relativno uredno i sazeto, makar mejn
-
-type Materijal int
-
-const (
-    Zid Materijal = -1
-    Prazno Materijal = 0
-    Pesak Materijal = 1
-    Voda Materijal = 2
-    Kamen Materijal = 3
-    Metal Materijal = 4
-)
-
-var boja = map[Materijal]uint32{
-    Zid : 0xffffff,
-    Prazno : 0x000000,
-    Pesak : 0xffff66,
-    Voda : 0x3333ff,
-    Kamen : 0x666666,
-    Metal : 0x33334b,
-}
-
-type Cestica struct{
-
-    materijal Materijal
-
-}
 
 const sirinaKanvasa, visinaKanvasa = 240, 144
 const brojPikselaPoCestici = 4
-	//golang nema makroe i ne moze praviti nizove/matrice dinamicke duzine
-	//ali jedna fantasticna stvar je ta sto konstante rade poso makroa:
-	//	niz moze primiti konstantnu promenjivu (ironican termin) za dimenziju
-	//	dovoljno su zilave da ne moramo vise ni raditi kastovanje tipova, sirina prolazi za int, uint, int32, float, itd itd
-	// B)
-	//e sad sta mislimo o globalnim varijablama je druga prica...
+	//golang nema makroe pa koristimo globalne konstante (za sada?)
 
 // materijal koji nastaje levim klikom
-// 0-vazduh 1-pesak 2-kamen 3-voda
-var mat Materijal
+// 0-vazduh 1-pesak 2-voda 3-kamen
+var mat Materijal = Pesak
 var keystates = sdl.GetKeyboardState()
+
 func main() {
-	// pesak default
-	mat = Pesak
+
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(err)
 	}
@@ -76,6 +42,7 @@ func main() {
 	var matrix[sirinaKanvasa][visinaKanvasa]Materijal
 	slajs := matrixToSlice(matrix)
 
+	//mozda ovo izbaciti u funkciju staznam ruzna petlja za mejn
 	for i := 0; i < sirinaKanvasa; i++ {
         slajs[i][0] = Zid
         slajs[i][visinaKanvasa-1] = Zid
