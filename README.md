@@ -1,2 +1,2 @@
 # 2023_Pesak
-Simulator čestica
+Simulator čestica različitih materijala i agregatnih stanja
