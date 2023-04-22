@@ -2,9 +2,10 @@ package main
 
 import (
 	"github.com/veandco/go-sdl2/sdl"
-	//	"math/rand"
+	"math/rand"
 	"math"
 	//	"time"
+	"fmt"
 
 	"main/mat"
 )
@@ -35,7 +36,7 @@ var trenutniMat mat.Materijal = mat.Pesak
 // var velicinaKursora int32 = 0
 var velicinaKursora int32 = 4
 var maxKursor int32 = 32
-var pause bool = true
+var pause bool = false
 
 // njanja: ovo mi treba da bih znao gde da displejujem konture kursora dok se ne pomera
 var kursorPoslednjiX = int32(sirinaEkrana / 2)
@@ -72,20 +73,16 @@ func main() {
 	// njanja: proverite grešku ako hoćete štreberi
 	renderer, _ := window.GetRenderer()
 
+	// zašto bafer? /limun
 	var matrix [sirinaKanvasa][visinaKanvasa]mat.Cestica
 	slajs := matrixToSlice(matrix)
 	var bafer [sirinaKanvasa][visinaKanvasa]mat.Cestica
 	bajs := matrixToSlice(bafer)
 
 	//TODO izdvojiti ove dve ruzne petlje van mejna? `void mat.Zidaj(slajs);` npr -s
-	for i := 0; i < sirinaKanvasa; i++ {
-		slajs[i][0] = mat.NewCestica(mat.Zid)
-		slajs[i][visinaKanvasa-1] = mat.NewCestica(mat.Zid)
-	}
-	for j := 0; j < visinaKanvasa; j++ {
-		slajs[0][j] = mat.NewCestica(mat.Zid)
-		slajs[sirinaKanvasa-1][j] = mat.NewCestica(mat.Zid)
-	}
+	// zašto bafer nema zidove? /limun
+	slajs = zazidajMatricu(slajs)
+	bajs = zazidajMatricu(bajs)
 
 	running := true
 	for running {
@@ -128,6 +125,21 @@ func main() {
 		renderer.Present()
 	}
 
+}
+
+// jesi li na ovo mislio? /limun
+// "slice" da se ne bi mešao sa postojećim "slajs" /limun
+func zazidajMatricu(slice [][]mat.Cestica) [][]mat.Cestica {
+	for i := 0; i < sirinaKanvasa; i++ {
+		slice[i][0] = mat.NewCestica(mat.Zid)
+		slice[i][visinaKanvasa-1] = mat.NewCestica(mat.Zid)
+	}
+	for j := 0; j < visinaKanvasa; j++ {
+		slice[0][j] = mat.NewCestica(mat.Zid)
+		slice[sirinaKanvasa-1][j] = mat.NewCestica(mat.Zid)
+	}
+
+	return slice
 }
 
 func clampCoords(x int32, y int32) (int32, int32) {
@@ -173,6 +185,7 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 			// može ovo lepše #TODO
 			// kako si to zamisljao lepse? -s
 			// ignorisite ovo, mislim da pricam sam sa sobom (nz ciji je prvi kom)
+			// prvi kom je moj, tako da ne moraš da ga ignorišeš -s
 			if keystates[sdl.SCANCODE_ESCAPE] != 0 {
 				running = false
 			}
@@ -216,6 +229,11 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 
 		// njanja: za ovo mi je potreban diskretan klik a ne frejm sa dugmetom dole
 		// p.s. hoćemo da ostavimo komentare ristoviću da ih vidi
+		// paa, barem imajte naznaku za svaku liniju čiji je čiji /limun
+		/*
+			ili prosto napravi višelinijski komentar pa na početku/kraju stavi ime
+			/limun
+		*/
 		case *sdl.MouseButtonEvent:
 			if t.State == sdl.PRESSED {
 				proveriPritisakNaGumb(t.X, t.Y)
@@ -233,14 +251,15 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 	kursorPoslednjiY = y
 
 	// njanja: ovo sam zakomentarisao da me ne smara
-	//fmt.Printf("x: %d\t", x)
-	//fmt.Printf("y: %d\t", y)
-	//fmt.Printf("xpx: %d\t", x/brojPikselaPoCestici)
-	//fmt.Printf("ypx: %d\t", y/brojPikselaPoCestici)
-	//fmt.Printf("mb: %d\t", state)
-	//fmt.Printf("mat.Materijal: %d\t", trenutniMat)
-	//fmt.Printf("velicina: %d\t", velicinaKursora)
-	//fmt.Printf("pauza: %t\n", pause)
+	// ovo sam odkomentarisao da me smara /limun
+	fmt.Printf("x: %d\t", x)
+	fmt.Printf("y: %d\t", y)
+	fmt.Printf("xpx: %d\t", x/brojPikselaPoCestici)
+	fmt.Printf("ypx: %d\t", y/brojPikselaPoCestici)
+	fmt.Printf("mb: %d\t", state)
+	fmt.Printf("mat.Materijal: %d\t", trenutniMat)
+	fmt.Printf("velicina: %d\t", velicinaKursora)
+	fmt.Printf("pauza: %t\n", pause)
 
 	brush(matrix, bafer, x, y, state)
 
@@ -274,11 +293,11 @@ func updateCanvas(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
 		for i := 1; i < sirinaKanvasa-2; i++ {
 			mat.Update(matrix, bafer, i, j)
 
-			/**			// mat.Pesak
-			  			if matrix[i][j] == mat.Pesak {
+						// mat.Pesak
+			  			if matrix[i][j].Materijal == mat.Pesak {
 			  				//flutter := rand.Intn(2)
 			  				//predlazem da lelujanje ostavimo za malo kasnije da pojednostavimo ovo dok ne sredimo lepo -s
-			  				if matrix[i][j+1] == mat.Prazno || matrix[i][j+1] == mat.Voda{
+			  				if matrix[i][j+1].Materijal == mat.Prazno || matrix[i][j+1].Materijal == mat.Voda{
 			  //					if flutter == 1 {
 			  						matrix[i][j], matrix[i][j+1] = matrix[i][j+1], matrix[i][j]
 			  //					}//	ovde prvi put a nadalje puno puta postaje ocigledna potreba za nekom swap
@@ -292,9 +311,9 @@ func updateCanvas(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
 			  						sgn = -1
 			  					}//nasumice biramo na koju stranu prvo ide da izbegnemo pristrasno padanje
 
-			  					if (matrix[i+sgn][j+1] == mat.Prazno || matrix[i+sgn][j+1] == mat.Voda) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
+			  					if (matrix[i+sgn][j+1].Materijal == mat.Prazno || matrix[i+sgn][j+1].Materijal == mat.Voda) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
 			  						matrix[i][j], matrix[i+sgn][j+1] = matrix[i+sgn][j+1], matrix[i][j]
-			  					} else if (matrix[i-sgn][j+1] == mat.Prazno || matrix[i-sgn][j+1] == mat.Voda) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
+			  					} else if (matrix[i-sgn][j+1].Materijal == mat.Prazno || matrix[i-sgn][j+1].Materijal == mat.Voda) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
 			  						matrix[i][j], matrix[i-sgn][j+1] = matrix[i-sgn][j+1], matrix[i][j]
 			  					}
 			  				}
@@ -302,28 +321,28 @@ func updateCanvas(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
 			  			// mat.Voda
 			  			// ovo je teže nego što smo mislili
 			  			//mozda teze nego sto si /ti/ mislio -s
-			  			if matrix[i][j] == mat.Voda {
+			  			if matrix[i][j].Materijal == mat.Voda {
 			  //				flutter := rand.Intn(2)
-			  				if matrix[i][j+1] == mat.Prazno {
+			  				if matrix[i][j+1].Materijal == mat.Prazno {
 			  //					if flutter == 1 {
-			  						matrix[i][j], matrix[i][j+1] = mat.Prazno, mat.Voda
+			  						matrix[i][j].Materijal, matrix[i][j+1].Materijal = mat.Prazno, mat.Voda
 			  //					}
 			  				} else {
 			  					var sgn int = rand.Intn(3)
 			  					sgn = sgn - 1
 			  					// -1, 0, 1
 
-			  					if (matrix[i+sgn][j+1] == mat.Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
-			  						matrix[i][j], matrix[i+sgn][j+1] = mat.Prazno, mat.Voda
-			  					} else if (matrix[i-sgn][j+1] == mat.Prazno) && (i-sgn > 0) && (i-sgn < sirinaKanvasa) {
-			  						matrix[i][j], matrix[i-sgn][j+1] = mat.Prazno, mat.Voda
-			  					} else if (matrix[i+sgn][j] == mat.Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
-			  						matrix[i][j], matrix[i+sgn][j] = mat.Prazno, mat.Voda
-			  					} else if (matrix[i-sgn][j] == mat.Prazno) && (i-sgn > 0) && (i-sgn < sirinaKanvasa) {
-			  						matrix[i][j], matrix[i-sgn][j] = mat.Prazno, mat.Voda
+			  					if (matrix[i+sgn][j+1].Materijal == mat.Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
+			  						matrix[i][j].Materijal, matrix[i+sgn][j+1].Materijal = mat.Prazno, mat.Voda
+			  					} else if (matrix[i-sgn][j+1].Materijal == mat.Prazno) && (i-sgn > 0) && (i-sgn < sirinaKanvasa) {
+			  						matrix[i][j].Materijal, matrix[i-sgn][j+1].Materijal = mat.Prazno, mat.Voda
+			  					} else if (matrix[i+sgn][j].Materijal == mat.Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
+			  						matrix[i][j].Materijal, matrix[i+sgn][j].Materijal = mat.Prazno, mat.Voda
+			  					} else if (matrix[i-sgn][j].Materijal == mat.Prazno) && (i-sgn > 0) && (i-sgn < sirinaKanvasa) {
+			  						matrix[i][j].Materijal, matrix[i-sgn][j].Materijal = mat.Prazno, mat.Voda
 			  					}
 			  				}
-			  			}/**/
+			  			}
 		}
 	}
 
