@@ -70,10 +70,7 @@ func main() {
 	surface.FillRect(nil, 0)
 
 	// njanja: proverite grešku ako hoćete štreberi
-	renderer, err := window.GetRenderer()
-	if err != nil {
-		panic(err)
-	}
+	renderer, _ := window.GetRenderer()
 
 	var matrix [sirinaKanvasa][visinaKanvasa]mat.Cestica
 	slajs := matrixToSlice(matrix)
@@ -124,8 +121,7 @@ func main() {
 		// njanja: ovo renderuje krug oko četkice, ne može u brush fju jer se ona ne zove u svakom frejmu
 		// takođe kursor flikeruje jer bude na kratko izbrisan kad se pozove updatesurface par linija iznad pa dok ne bude ponovo nacrtan
 		// ako mene pitate mislim da daje odličan retro look
-
-		// njanja++: pored toga što treperi takođe čini da uvidim problem da se displejuje preko UIja a slobodno probajte da selektujete materijal baš baš velikom četkicom
+		// pored toga što treperi takođe čini da uvidim problem da se displejuje preko UIja a slobodno probajte da selektujete materijal baš baš velikom četkicom
 		cetkica := sdl.Rect{kursorPoslednjiX - velicinaKursora*brojPikselaPoCestici, kursorPoslednjiY - velicinaKursora*brojPikselaPoCestici, int32(2 * velicinaKursora * brojPikselaPoCestici), int32(2 * velicinaKursora * brojPikselaPoCestici)}
 		renderer.SetDrawColor(255, 255, 255, 255)
 		renderer.DrawRect(&cetkica)
@@ -253,9 +249,7 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 }
 
 func proveriPritisakNaGumb(x int32, y int32) {
-	//njanja: ovo ću ispod iako možda ima smisla da je iznad
-	//ovo je detekcija klika na gumb
-	//nz što ovo ovde rekao sam to već negde u kodu
+	//njanja: ovo je detekcija klika na gumb
 	if x > sirinaProzora-marginaZaGumbad+sirinaUIMargine && x < sirinaProzora-sirinaUIMargine {
 		// materijali
 		if y < (visinaUIMargine+visinaDugmeta)*int32(len(boja)-1) && y%(visinaUIMargine+visinaDugmeta) > visinaUIMargine {
