@@ -6,6 +6,14 @@ import (
 
 type Materijal int
 
+const tempRadius = 3
+const tezinaTempCestice = 1000
+const tezinaTempOkoline = 1
+const delilacTezina = tezinaTempCestice + tezinaTempOkoline
+// treba mi bolje rešenje, npr da paket za pravljenje kanvasa sadrži širinu i visinu i f-je za kanvas /limun
+const sirinaKanvasa, visinaKanvasa = 240, 144
+var velicinaKursora float64 = 4
+
 const (
 	Zid    Materijal = 256
 	Prazno Materijal = 0
@@ -58,17 +66,17 @@ var AStanje = map[Materijal]int{
 	Para:   0b0111,
 }
 
-var FaznaPromena = map[Materijal][4]uint32{
+var FaznaPromena = map[Materijal][4]int32{
 	//TODO pretvoriti [4]int u struct{Materijal, int, int,Materijal}
-	Zid:    {uint32(Zid), 0, math.MaxUint32, uint32(Zid)},
-	Prazno: {uint32(Prazno), 0, math.MaxUint32, uint32(Zid)},
-	Pesak:  {uint32(Pesak), 0, 1986, uint32(Lava)}, //1986
-	Voda:   {uint32(Led), 273, 373, uint32(Para)},
-	Metal:  {uint32(Metal), 0, 1811, uint32(Lava)}, //1811
-	Kamen:  {uint32(Kamen), 0, 1473, uint32(Lava)}, //1473
-	Lava:   {uint32(Lava), 1300, math.MaxUint32, uint32(Lava)},
-	Led:    {uint32(Led), 0, 273, uint32(Voda)},
-	Para:   {uint32(Voda), 373, math.MaxUint32, uint32(Para)},
+	Zid:    {int32(Zid), 0, math.MaxInt32, int32(Zid)},
+	Prazno: {int32(Prazno), 0, math.MaxInt32, int32(Zid)},
+	Pesak:  {int32(Pesak), 0, 1986, int32(Lava)}, //1986
+	Voda:   {int32(Led), 273, 373, int32(Para)},
+	Metal:  {int32(Metal), 0, 1811, int32(Lava)}, //1811
+	Kamen:  {int32(Kamen), 0, 1473, int32(Lava)}, //1473
+	Lava:   {int32(Lava), 1300, math.MaxInt32, int32(Lava)},
+	Led:    {int32(Led), 0, 273, int32(Voda)},
+	Para:   {int32(Voda), 373, math.MaxInt32, int32(Para)},
 }
 
 var Zapaljiv = map[Materijal]bool{
@@ -114,27 +122,27 @@ func noviPesakk() Pesakk {
 
 type Cestica struct {
 	Materijal   Materijal
-	Temperatura uint32
+	Temperatura float64
 	SekMat      Materijal
 }
 
 func NewCestica(materijal Materijal) Cestica {
 	zrno := Cestica{
 		Materijal:   materijal,
-		Temperatura: 293, //20 celzijusa
+		Temperatura: 20,
 		SekMat:      Prazno,
 	} //ovaj deo if materijal je uzasno ruzan -s
 	if materijal == Led {
 		zrno.SekMat = Voda
-		zrno.Temperatura = 253 //-20
+		zrno.Temperatura = -20
 	}
 	if materijal == Para {
 		zrno.SekMat = Voda
-		zrno.Temperatura = 383 //110
+		zrno.Temperatura = 110
 	}
 	if materijal == Lava {
 		zrno.SekMat = Kamen
-		zrno.Temperatura = 1400
+		zrno.Temperatura = 1000 // nije 1400 -> 1000 ali... /limun
 	}
 	return zrno
 }
@@ -148,25 +156,36 @@ func Update(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 	}
 
 	materijal := matrix[i][j].Materijal
-	temperatura := matrix[i][j].Temperatura
-	//	sekmat := matrix[i][j].SekMat
 
-	//faza
-	if materijal != Lava {
-		if temperatura < FaznaPromena[materijal][1] {
-			matrix[i][j].Materijal = Materijal(FaznaPromena[materijal][1])
-			matrix[i][j].Temperatura = matrix[i][j].Temperatura
-			matrix[i][j].SekMat = materijal
-		} else if temperatura > FaznaPromena[materijal][2] {
-			matrix[i][j].Materijal = Materijal(FaznaPromena[materijal][3])
-			matrix[i][j].Temperatura = matrix[i][j].Temperatura
-			matrix[i][j].SekMat = materijal
-		}
-	} else {
-		if temperatura < FaznaPromena[materijal][1] {
-			matrix[i][j].Materijal = matrix[i][j].SekMat
+	// temperatura
+	temperatura := matrix[i][j].Temperatura
+	for k := int(math.Max(float64(i-tempRadius), velicinaKursora)); k < int(math.Min(float64(i+tempRadius), sirinaKanvasa-velicinaKursora)); k++ {
+		for l := int(math.Max(float64(j-tempRadius), velicinaKursora)); l < int(math.Min(float64(j+tempRadius), visinaKanvasa-velicinaKursora)); l++ {
+			temperatura = (tezinaTempCestice * temperatura + matrix[k][l].Temperatura * tezinaTempOkoline)/delilacTezina
 		}
 	}
+	matrix[i][j].Temperatura = temperatura
+	bafer[i][j].Temperatura = temperatura
+
+	//	sekmat := matrix[i][j].SekMat
+
+	// nisam siguran kako utiče na ostatak pa sam sve zakomentarisao /limun
+	//faza
+	// if materijal != Lava {
+	// 	if temperatura < FaznaPromena[materijal][1] {
+	// 		matrix[i][j].Materijal = Materijal(FaznaPromena[materijal][1])
+	// 		matrix[i][j].Temperatura = matrix[i][j].Temperatura
+	// 		matrix[i][j].SekMat = materijal
+	// 	} else if temperatura > FaznaPromena[materijal][2] {
+	// 		matrix[i][j].Materijal = Materijal(FaznaPromena[materijal][3])
+	// 		matrix[i][j].Temperatura = matrix[i][j].Temperatura
+	// 		matrix[i][j].SekMat = materijal
+	// 	}
+	// } else {
+	// 	if temperatura < FaznaPromena[materijal][1] {
+	// 		matrix[i][j].Materijal = matrix[i][j].SekMat
+	// 	}
+	// }
 
 	//gorenje
 	if Zapaljiv[materijal] {
@@ -183,24 +202,15 @@ func Update(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 		donji := matrix[i][j+1]
 		donjiMat := donji.Materijal
 		if AStanje[gornjiMat]&0b0001 != 0 && Gustina[gornjiMat] > Gustina[materijal] {
-			// Molim? Kako ovo radi? /limun
-			bafer[i][j].Materijal, bafer[i][j-1].Materijal = bafer[i][j].Materijal, bafer[i][j-1].Materijal
-			bafer[i][j].Temperatura, bafer[i][j-1].Temperatura = bafer[i][j].Temperatura, bafer[i][j-1].Temperatura
-			bafer[i][j].SekMat, bafer[i][j-1].SekMat = bafer[i][j].SekMat, bafer[i][j-1].SekMat
-			// ovo ništa ne radi, bafer[i][j] = bafer[i][j-1] = bafer[i][j]... /limun
-			//			bafer[i][j-1].Materijal = bafer[i][j].Materijal
-			//			bafer[i][j-1].Temperatura = bafer[i][j].Temperatura
-			//			bafer[i][j-1].SekMat = bafer[i][j].SekMat
+			// opet greška /limun
+			bafer[i][j].Materijal, bafer[i][j-1].Materijal = bafer[i][j-1].Materijal, bafer[i][j].Materijal
+			bafer[i][j].Temperatura, bafer[i][j-1].Temperatura = bafer[i][j-1].Temperatura, bafer[i][j].Temperatura
+			bafer[i][j].SekMat, bafer[i][j-1].SekMat = bafer[i][j-1].SekMat, bafer[i][j].SekMat
 			pomeren = true
 		} else if AStanje[donjiMat] != 0b0000 && Gustina[donjiMat] < Gustina[materijal] {
-			// isti problem ovde /limun
 			bafer[i][j].Materijal, bafer[i][j+1].Materijal = bafer[i][j+1].Materijal, bafer[i][j].Materijal
 			bafer[i][j].Temperatura, bafer[i][j+1].Temperatura = bafer[i][j+1].Temperatura, bafer[i][j].Temperatura
 			bafer[i][j].SekMat, bafer[i][j+1].SekMat = bafer[i][j+1].SekMat, bafer[i][j].SekMat
-			// isto, isto, isto /limun
-			//			bafer[i][j+1].Materijal = bafer[i][j].Materijal
-			//			bafer[i][j+1].Temperatura = bafer[i][j].Temperatura
-			//			bafer[i][j+1].SekMat = bafer[i][j].SekMat
 			pomeren = true
 		}
 	}
