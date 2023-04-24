@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/veandco/go-sdl2/sdl"
-	"math/rand"
 	"math"
+
+	"github.com/veandco/go-sdl2/sdl"
+
 	//	"time"
 	"fmt"
 
@@ -292,57 +293,57 @@ func updateCanvas(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
 	for j := 1; j < visinaKanvasa-2; j++ {
 		for i := 1; i < sirinaKanvasa-2; i++ {
 			mat.Update(matrix, bafer, i, j)
+			/**
+			// mat.Pesak
+			if matrix[i][j].Materijal == mat.Pesak {
+				//flutter := rand.Intn(2)
+				//predlazem da lelujanje ostavimo za malo kasnije da pojednostavimo ovo dok ne sredimo lepo -s
+				if matrix[i][j+1].Materijal == mat.Prazno || matrix[i][j+1].Materijal == mat.Voda {
+					//					if flutter == 1 {
+					matrix[i][j], matrix[i][j+1] = matrix[i][j+1], matrix[i][j]
+					//					}//	ovde prvi put a nadalje puno puta postaje ocigledna potreba za nekom swap
+					// funkcijom ali ionako ovome slede radikalne promene, ne bih trosio vreme
+					// sada na to... -s
+				} else {
+					var sgn int
+					if rand.Intn(2) == 1 {
+						sgn = 1
+					} else {
+						sgn = -1
+					} //nasumice biramo na koju stranu prvo ide da izbegnemo pristrasno padanje
 
-						// mat.Pesak
-			  			if matrix[i][j].Materijal == mat.Pesak {
-			  				//flutter := rand.Intn(2)
-			  				//predlazem da lelujanje ostavimo za malo kasnije da pojednostavimo ovo dok ne sredimo lepo -s
-			  				if matrix[i][j+1].Materijal == mat.Prazno || matrix[i][j+1].Materijal == mat.Voda{
-			  //					if flutter == 1 {
-			  						matrix[i][j], matrix[i][j+1] = matrix[i][j+1], matrix[i][j]
-			  //					}//	ovde prvi put a nadalje puno puta postaje ocigledna potreba za nekom swap
-			  					// funkcijom ali ionako ovome slede radikalne promene, ne bih trosio vreme
-			  					// sada na to... -s
-			  				} else {
-			  					var sgn int
-			  					if rand.Intn(2) == 1 {
-			  						sgn = 1
-			  					} else {
-			  						sgn = -1
-			  					}//nasumice biramo na koju stranu prvo ide da izbegnemo pristrasno padanje
+					if (matrix[i+sgn][j+1].Materijal == mat.Prazno || matrix[i+sgn][j+1].Materijal == mat.Voda) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
+						matrix[i][j], matrix[i+sgn][j+1] = matrix[i+sgn][j+1], matrix[i][j]
+					} else if (matrix[i-sgn][j+1].Materijal == mat.Prazno || matrix[i-sgn][j+1].Materijal == mat.Voda) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
+						matrix[i][j], matrix[i-sgn][j+1] = matrix[i-sgn][j+1], matrix[i][j]
+					}
+				}
+			}
+			// mat.Voda
+			// ovo je teže nego što smo mislili
+			//mozda teze nego sto si /ti/ mislio -s
+			if matrix[i][j].Materijal == mat.Voda {
+				//				flutter := rand.Intn(2)
+				if matrix[i][j+1].Materijal == mat.Prazno {
+					//					if flutter == 1 {
+					matrix[i][j].Materijal, matrix[i][j+1].Materijal = mat.Prazno, mat.Voda
+					//					}
+				} else {
+					var sgn int = rand.Intn(3)
+					sgn = sgn - 1
+					// -1, 0, 1
 
-			  					if (matrix[i+sgn][j+1].Materijal == mat.Prazno || matrix[i+sgn][j+1].Materijal == mat.Voda) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
-			  						matrix[i][j], matrix[i+sgn][j+1] = matrix[i+sgn][j+1], matrix[i][j]
-			  					} else if (matrix[i-sgn][j+1].Materijal == mat.Prazno || matrix[i-sgn][j+1].Materijal == mat.Voda) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
-			  						matrix[i][j], matrix[i-sgn][j+1] = matrix[i-sgn][j+1], matrix[i][j]
-			  					}
-			  				}
-			  			}
-			  			// mat.Voda
-			  			// ovo je teže nego što smo mislili
-			  			//mozda teze nego sto si /ti/ mislio -s
-			  			if matrix[i][j].Materijal == mat.Voda {
-			  //				flutter := rand.Intn(2)
-			  				if matrix[i][j+1].Materijal == mat.Prazno {
-			  //					if flutter == 1 {
-			  						matrix[i][j].Materijal, matrix[i][j+1].Materijal = mat.Prazno, mat.Voda
-			  //					}
-			  				} else {
-			  					var sgn int = rand.Intn(3)
-			  					sgn = sgn - 1
-			  					// -1, 0, 1
-
-			  					if (matrix[i+sgn][j+1].Materijal == mat.Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
-			  						matrix[i][j].Materijal, matrix[i+sgn][j+1].Materijal = mat.Prazno, mat.Voda
-			  					} else if (matrix[i-sgn][j+1].Materijal == mat.Prazno) && (i-sgn > 0) && (i-sgn < sirinaKanvasa) {
-			  						matrix[i][j].Materijal, matrix[i-sgn][j+1].Materijal = mat.Prazno, mat.Voda
-			  					} else if (matrix[i+sgn][j].Materijal == mat.Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
-			  						matrix[i][j].Materijal, matrix[i+sgn][j].Materijal = mat.Prazno, mat.Voda
-			  					} else if (matrix[i-sgn][j].Materijal == mat.Prazno) && (i-sgn > 0) && (i-sgn < sirinaKanvasa) {
-			  						matrix[i][j].Materijal, matrix[i-sgn][j].Materijal = mat.Prazno, mat.Voda
-			  					}
-			  				}
-			  			}
+					if (matrix[i+sgn][j+1].Materijal == mat.Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
+						matrix[i][j].Materijal, matrix[i+sgn][j+1].Materijal = mat.Prazno, mat.Voda
+					} else if (matrix[i-sgn][j+1].Materijal == mat.Prazno) && (i-sgn > 0) && (i-sgn < sirinaKanvasa) {
+						matrix[i][j].Materijal, matrix[i-sgn][j+1].Materijal = mat.Prazno, mat.Voda
+					} else if (matrix[i+sgn][j].Materijal == mat.Prazno) && (i+sgn > 0) && (i+sgn < sirinaKanvasa) {
+						matrix[i][j].Materijal, matrix[i+sgn][j].Materijal = mat.Prazno, mat.Voda
+					} else if (matrix[i-sgn][j].Materijal == mat.Prazno) && (i-sgn > 0) && (i-sgn < sirinaKanvasa) {
+						matrix[i][j].Materijal, matrix[i-sgn][j].Materijal = mat.Prazno, mat.Voda
+					}
+				}
+			}/**/
 		}
 	}
 

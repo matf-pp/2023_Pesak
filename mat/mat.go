@@ -182,25 +182,25 @@ func Update(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 		gornjiMat := gornji.Materijal
 		donji := matrix[i][j+1]
 		donjiMat := donji.Materijal
-		if AStanje[gornjiMat] & 0b0001 != 0 && Gustina[gornjiMat] > Gustina[materijal] {
+		if AStanje[gornjiMat]&0b0001 != 0 && Gustina[gornjiMat] > Gustina[materijal] {
 			// Molim? Kako ovo radi? /limun
-			bafer[i][j].Materijal = bafer[i][j-1].Materijal
-			bafer[i][j].Temperatura = bafer[i][j-1].Temperatura
-			bafer[i][j].SekMat = bafer[i][j-1].SekMat
+			bafer[i][j].Materijal, bafer[i][j-1].Materijal = bafer[i][j].Materijal, bafer[i][j-1].Materijal
+			bafer[i][j].Temperatura, bafer[i][j-1].Temperatura = bafer[i][j].Temperatura, bafer[i][j-1].Temperatura
+			bafer[i][j].SekMat, bafer[i][j-1].SekMat = bafer[i][j].SekMat, bafer[i][j-1].SekMat
 			// ovo ništa ne radi, bafer[i][j] = bafer[i][j-1] = bafer[i][j]... /limun
-			bafer[i][j-1].Materijal = bafer[i][j].Materijal
-			bafer[i][j-1].Temperatura = bafer[i][j].Temperatura
-			bafer[i][j-1].SekMat = bafer[i][j].SekMat
+			//			bafer[i][j-1].Materijal = bafer[i][j].Materijal
+			//			bafer[i][j-1].Temperatura = bafer[i][j].Temperatura
+			//			bafer[i][j-1].SekMat = bafer[i][j].SekMat
 			pomeren = true
 		} else if AStanje[donjiMat] != 0b0000 && Gustina[donjiMat] < Gustina[materijal] {
 			// isti problem ovde /limun
-			bafer[i][j].Materijal = bafer[i][j+1].Materijal
-			bafer[i][j].Temperatura = bafer[i][j+1].Temperatura
-			bafer[i][j].SekMat = bafer[i][j+1].SekMat
+			bafer[i][j].Materijal, bafer[i][j+1].Materijal = bafer[i][j+1].Materijal, bafer[i][j].Materijal
+			bafer[i][j].Temperatura, bafer[i][j+1].Temperatura = bafer[i][j+1].Temperatura, bafer[i][j].Temperatura
+			bafer[i][j].SekMat, bafer[i][j+1].SekMat = bafer[i][j+1].SekMat, bafer[i][j].SekMat
 			// isto, isto, isto /limun
-			bafer[i][j+1].Materijal = bafer[i][j].Materijal
-			bafer[i][j+1].Temperatura = bafer[i][j].Temperatura
-			bafer[i][j+1].SekMat = bafer[i][j].SekMat
+			//			bafer[i][j+1].Materijal = bafer[i][j].Materijal
+			//			bafer[i][j+1].Temperatura = bafer[i][j].Temperatura
+			//			bafer[i][j+1].SekMat = bafer[i][j].SekMat
 			pomeren = true
 		}
 	}
