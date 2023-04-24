@@ -1,14 +1,19 @@
 package main
 
 import (
-	"math"
-	"github.com/veandco/go-sdl2/sdl"
-	//	"time"
 	"fmt"
 	"main/mat"
+	"math"
 	"strconv"
+
+	"github.com/veandco/go-sdl2/sdl"
+
+	"time"
+
+	"github.com/hugolgst/rich-go/client"
 )
 
+// njanja: ovo je loša praksa majmuni
 var boja = mat.Boja
 
 const sirinaKanvasa, visinaKanvasa = 240, 144
@@ -32,8 +37,9 @@ const visinaProzora = visinaKanvasa * brojPikselaPoCestici
 
 var trenutniMat mat.Materijal = mat.Pesak
 
-// var velicinaKursora int32 = 0
-var velicinaKursora int32 = 4
+var velicinaKursora int32 = 0
+
+// var velicinaKursora int32 = 4
 var maxKursor int32 = 32
 var pause bool = false
 
@@ -75,12 +81,42 @@ func main() {
 	// njanja: proverite grešku ako hoćete štreberi
 	renderer, _ := window.GetRenderer()
 
+	// njanja: diskord integracija smislićemo šta ćemo s njom
+	err = client.Login("1100118057147437207")
+	if err != nil {
+		panic(err)
+	}
+
+	now := time.Now()
+	client.SetActivity(client.Activity{
+		State:      "bleja",
+		Details:    "kontemplira pesak",
+		LargeImage: "bleja",
+		LargeText:  "je l se učitalo ovo",
+		Timestamps: &client.Timestamps{
+			Start: &now,
+		},
+		Buttons: []*client.Button{
+			&client.Button{
+				Label: "priključi se",
+				Url:   "https://github.com/matf-pp/2023_Pesak",
+			},
+		},
+	})
+
+	// zašto bafer? /limun
 	var matrix [sirinaKanvasa][visinaKanvasa]mat.Cestica
 	slajs := matrixToSlice(matrix)
 	var bafer [sirinaKanvasa][visinaKanvasa]mat.Cestica
 	bajs := matrixToSlice(bafer)
 
+	//TODO izdvojiti ove dve ruzne petlje van mejna? `void mat.Zidaj(slajs);` npr -s
+	// zašto bafer nema zidove? /limun
+	// njanja: obrišite komentar ako ste izdvojili petlje slatkiši
 	slajs = zazidajMatricu(slajs)
+
+	// enejblujemo dropove, stavite ovo gde hoćete
+	sdl.EventState(sdl.DROPFILE, sdl.ENABLE)
 
 	running := true
 	for running {
@@ -232,9 +268,16 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 		*/
 		case *sdl.MouseButtonEvent:
 			if t.State == sdl.PRESSED {
-				proveriPritisakNaGumb(t.X, t.Y)
+				proveriPritisakNaGumb(matrix, bafer, t.X, t.Y)
 			}
 
+		// drag and drop slike je odmah učitava
+		case *sdl.DropEvent:
+			dropEvent := event.(*sdl.DropEvent)
+			if dropEvent.Type == sdl.DROPFILE {
+				filePath := string(dropEvent.File)
+				obradiSliku(filePath, sirinaKanvasa, visinaKanvasa, matrix, bafer)
+			}
 		default:
 			//null
 		}
@@ -262,32 +305,44 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 
 }
 
-func proveriPritisakNaGumb(x int32, y int32) {
+func proveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 	//njanja: ovo je detekcija klika na gumb
 	if x > sirinaProzora-marginaZaGumbad+sirinaUIMargine && x < sirinaProzora-sirinaUIMargine {
+		// njanja: TODO namestiti da se ređaju u više kolona ako baš mora
 		// materijali
 		if y < (visinaUIMargine+visinaDugmeta)*int32(len(boja)-1) && y%(visinaUIMargine+visinaDugmeta) > visinaUIMargine {
 			trenutniMat = mat.Materijal(y / (visinaUIMargine + visinaDugmeta))
 		}
 
 		// njanja: hardkodovan broj specijalnih dugmića
+		// PAUZA
 		if y > visinaProzora-3*(visinaDugmeta+visinaUIMargine) && y < visinaProzora-3*(visinaDugmeta+visinaUIMargine)+visinaDugmeta {
 			pause = !pause
 		}
+		// njanja: neki medvedić dobrog srca nek rinejmuje ovu funkciju da prati konvenciju kamilju ili ću ja sutra dobro ajde TODO
+		// SEJV
 		if y > visinaProzora-2*(visinaDugmeta+visinaUIMargine) && y < visinaProzora-2*(visinaDugmeta+visinaUIMargine)+visinaDugmeta {
-			// sejv
+			save_image(matrix, sirinaKanvasa, visinaKanvasa)
 		}
+		// njanja: nz je l ovo najpametniji način ali radi
+		// RESET
 		if y > visinaProzora-1*(visinaDugmeta+visinaUIMargine) && y < visinaProzora-1*(visinaDugmeta+visinaUIMargine)+visinaDugmeta {
-			// reset
+			for j := 0; j < visinaKanvasa; j++ {
+				for i := 0; i < sirinaKanvasa; i++ {
+					matrix[i][j] = mat.NewCestica(mat.Prazno)
+					bafer[i][j] = matrix[i][j]
+				}
+			}
+			zazidajMatricu(matrix)
+			zazidajMatricu(bafer)
 		}
 	}
 }
-
 func updateCanvas(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
 	/* Problem rešen! Imali smo bag gde se čestice ne iscrtavaju kako treba skroz
 	   dole i skroz desno; pisalo je visinaKanvasa-2 a ne visinaKanvasa-1
 	   /limun
-	*/ 
+	*/
 	for j := 1; j < visinaKanvasa-1; j++ {
 		for i := 1; i < sirinaKanvasa-1; i++ {
 			mat.Update(matrix, bafer, i, j)
@@ -318,13 +373,13 @@ func izracunajTempBoju(temp float64) uint32 {
 	temp *= tempColorMultiplier
 	if temp > 0 {
 		temp = math.Min(float64(temp), 255)
-		temp = float64(int32(256 - temp) << 8) + (255 << 16)
-	} else if temp < 0{
+		temp = float64(int32(256-temp)<<8) + (255 << 16)
+	} else if temp < 0 {
 		temp *= -3
 		temp = math.Min(float64(temp), 255)
-		temp = float64(int32(256 - temp) << 8) + 255
+		temp = float64(int32(256-temp)<<8) + 255
 	}
-	
+
 	hexadeca := strconv.FormatUint(uint64(temp), 16)
 	tempBoja, err := strconv.ParseUint(hexadeca, 16, 32)
 	if err != nil {
