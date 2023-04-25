@@ -1,15 +1,15 @@
 package mat
 
 import (
+//	"fmt"
 	"math"
 	"math/rand"
-//	"fmt"
 )
 
 type Materijal int
 
-const tempRadius = 4
-const usporenje = 10000
+const tempRadius = 3
+const usporenje = 1000
 // const tezinaTempCestice = 1000
 // const tezinaTempOkoline = 1
 // const delilacTezina = tezinaTempCestice + tezinaTempOkoline
@@ -40,16 +40,16 @@ var Boja = map[Materijal]uint32{
 	Para:   0x9999cc,
 }
 
-var Gustina = map[Materijal]float64{
+var Gustina = map[Materijal]int32 {
 	Zid:    0,
-	Prazno: 0.0122, // 0.01225 0
-	Pesak:  1.631, // 1.631 5
-	Voda:   1, // 1 3
-	Metal:  7.860, // 7.860 (čelik) 0
-	Kamen:  2.600, // 2.600 5
-	Lava:   3.100, // 3.100 4
-	Led:    0.917 , // 0.917 0
-	Para:   0.00598, // 0 (5.98 × 10^(–4) g cm^(–3)) -5
+	Prazno: 1220, 	// 0.01225 						0
+	Pesak:  163100, // 1.631 						5
+	Voda:   100000, // 1 							3
+	Metal:  786000, // 7.860 						(čelik) 0
+	Kamen:  260000, // 2.600 						5
+	Lava:   310000, // 3.100 						4
+	Led:    91700, 	// 0.917 						0
+	Para:   598, 	// 0 (5.98 × 10^(–4) g cm^(–3)) -5
 }
 
 // 0000 nece on nidje
@@ -104,7 +104,6 @@ var Zapaljiv = map[Materijal]bool{
 type Cestica struct {
 	Materijal   Materijal
 	Temperatura float64
-	Gustina		float64
 	SekMat      Materijal
 	Ticker		int8
 }
@@ -113,7 +112,6 @@ func NewCestica(materijal Materijal) Cestica {
 	zrno := Cestica{
 		Materijal:   materijal,
 		Temperatura: 40,
-		Gustina:	 Gustina[materijal],
 		SekMat:      Prazno,
 		Ticker:		 8,	//za rdju gorivo itd, opada po principu nuklearnog raspada (svaki frejm ima x% sanse da ga dekrementira, na 0 prelazi u drugo stanje)
 	}
@@ -144,7 +142,12 @@ func Update(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 	temperatura := trenutna.Temperatura
 	for k := int(math.Max(float64(i-tempRadius), 0)); k < int(math.Min(float64(i+tempRadius), sirinaKanvasa)); k++ {
 		for l := int(math.Max(float64(j-tempRadius), 0)); l < int(math.Min(float64(j+tempRadius), visinaKanvasa)); l++ {
-			ostatak := (trenutna.Gustina * temperatura + matrix[k][l].Gustina * matrix[k][l].Temperatura)/(trenutna.Gustina + matrix[k][l].Gustina) - temperatura
+			if math.Abs(float64(k-i)) + math.Abs(float64(l-j)) >= tempRadius || temperatura == matrix[k][l].Temperatura {
+				continue
+			}
+			gusTrenutna := float64(Gustina[trenutna.Materijal])
+			gusSused := float64(Gustina[matrix[k][l].Materijal])
+			ostatak := (gusTrenutna * temperatura + gusSused * matrix[k][l].Temperatura)/(gusTrenutna + gusSused) - temperatura
 			temperatura += ostatak/usporenje
 			matrix[k][l].Temperatura -= ostatak/usporenje
 			bafer[k][l].Temperatura -= ostatak/usporenje
@@ -189,15 +192,11 @@ func Update(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 	} else {
 		if temperaturaZaFaze < MapaFaza[materijal].TackaTopljenja {
 			matrix[i][j].Materijal = MapaFaza[materijal].Nize
-			matrix[i][j].Gustina = Gustina[MapaFaza[materijal].Nize]
 			bafer[i][j].Materijal = MapaFaza[materijal].Nize
-			bafer[i][j].Gustina = Gustina[MapaFaza[materijal].Nize]
 		} else if temperaturaZaFaze > MapaFaza[materijal].TackaKljucanja {
 			matrix[i][j].Materijal = MapaFaza[materijal].Vise
-			matrix[i][j].Gustina = Gustina[MapaFaza[materijal].Vise]
 			matrix[i][j].SekMat = materijal
 			bafer[i][j].Materijal = MapaFaza[materijal].Vise
-			bafer[i][j].Gustina = Gustina[MapaFaza[materijal].Vise]
 			bafer[i][j].SekMat = materijal
 		}		
 	}

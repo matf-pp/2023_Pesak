@@ -2,18 +2,18 @@ package main
 
 import (
 	"fmt"
-	"main/mat"
 	"math"
-	"strconv"
 	"time"
-
-	"github.com/hugolgst/rich-go/client"
+	"strconv"
+	"main/mat"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/hugolgst/rich-go/client"
 )
 
 // njanja: ovo je loša praksa majmuni
 // e a reci je l si provalio bukvalno je kao `using` u cpp -s
 var boja = mat.Boja
+var gus = mat.Gustina
 
 const sirinaKanvasa, visinaKanvasa = 240, 144
 
@@ -42,7 +42,6 @@ var keystates = sdl.GetKeyboardState()
 
 var trenutniMat mat.Materijal = mat.Pesak
 
-// var velicinaKursora int32 = 0
 var velicinaKursora int32 = 4
 var maxKursor int32 = 32
 
@@ -80,8 +79,10 @@ func main() {
 	}
 	surface.FillRect(nil, 0)
 
-	// njanja: proverite grešku ako hoćete štreberi //vajdugamunemaj
-	renderer, _ := window.GetRenderer()
+	renderer, err := window.GetRenderer()
+	if err != nil {
+		panic(err)
+	}
 
 	// njanja: diskord integracija smislićemo šta ćemo s njom
 	//	err = client.Login("1100118057147437207")
@@ -309,17 +310,16 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 	kursorPoslednjiY = y
 	//nemanja molim te reci mi sto ne koristimo ovde t.X i t.Y? -s
 	// njanja: zato što je van petlje i t nije definisano
-	/*
-		fmt.Printf("x: %d\t", x)
-		fmt.Printf("y: %d\t", y)
-		fmt.Printf("xpx: %d\t", x/brojPikselaPoCestici)
-		fmt.Printf("ypx: %d\t", y/brojPikselaPoCestici)
-		fmt.Printf("mb: %d\t", state)
-		fmt.Printf("mat.Materijal: %d\t", trenutniMat)
-		fmt.Printf("velicina: %d\t", velicinaKursora)
-		fmt.Printf("pauza: %t\n", pause)
-		fmt.Printf("tempMode: %t\n", tempMode)
-	*/
+
+	fmt.Printf("x: %d\t", x)
+	fmt.Printf("y: %d\t", y)
+	fmt.Printf("xpx: %d\t", x/brojPikselaPoCestici)
+	fmt.Printf("ypx: %d\t", y/brojPikselaPoCestici)
+	fmt.Printf("mb: %d\t", state)
+	fmt.Printf("mat.Materijal: %d\t", trenutniMat)
+	fmt.Printf("velicina: %d\t", velicinaKursora)
+	fmt.Printf("pauza: %t\n", pause)
+
 	brush(matrix, bafer, x, y, state)
 
 	return running
@@ -380,7 +380,7 @@ func render(matrix [][]mat.Cestica, surface *sdl.Surface) {
 				bojaTemp := izracunajTempBoju(matrix[i][j].Temperatura)
 				surface.FillRect(&rect, bojaTemp)
 			} else if densityMode {
-				gustTemp := izracunajGustBoju(matrix[i][j].Gustina)
+				gustTemp := izracunajGustBoju(float64(gus[matrix[i][j].Materijal]))
 				surface.FillRect(&rect, gustTemp)
 			} else {
 				surface.FillRect(&rect, boja[matrix[i][j].Materijal])
@@ -395,11 +395,11 @@ func izracunajTempBoju(temp float64) uint32 {
 	temp *= tempColorMultiplier
 	if temp > 0 {
 		temp = math.Min(float64(temp), 255)
-		temp = float64(int32(256-temp)<<8) + (255 << 16)
+		temp = float64(int32(256-temp) << 8) + (255 << 16)
 	} else if temp < 0 {
 		temp *= -3
 		temp = math.Min(float64(temp), 255)
-		temp = float64(int32(256-temp)<<8) + 255
+		temp = float64(int32(256-temp) << 8) + 255
 	} else {
 		temp = 230
 		temp += (230 << 8) + (230 << 16)
@@ -414,12 +414,12 @@ func izracunajTempBoju(temp float64) uint32 {
 	return uint32(tempBoja)
 }
 func izracunajGustBoju(gust float64) uint32 {
-	if gust > 0.0122 {
-		gustInt := int32(math.Max(math.Min(gust*255/4, 255), 0))
+	if gust > 1220 {
+		gustInt := int32(math.Max(math.Min(gust*255/400000, 255), 0))
 		gustInt = (gustInt << 8)
 		gust = float64(gustInt)
-	} else if gust < 0.0122 {
-		gust = math.Min(gust*25500, 255)
+	} else if gust < 1220 {
+		gust = math.Min(gust*255/1000, 255)
 		gust += float64(int32(gust) << 16)
 	} else {
 		gust = (200 << 16) + (200 << 8) + 200
