@@ -14,19 +14,16 @@ import (
 )
 
 // njanja: ovo je loša praksa majmuni
+// e a reci je l si provalio bukvalno je kao `using` u cpp -s
 var boja = mat.Boja
 
 const sirinaKanvasa, visinaKanvasa = 240, 144
-const brojPikselaPoCestici = 6
-
-// const brojPikselaPoCestici = 8
-// TODO automatska detekcija rezolucije ekrana
-// njanja: može ali na početku maina i ne ovde tkd vidi šta ćeš sa njom npr možemo da pomerimo sve constove u mejn nz je l bi se vama to svidelo :creepysmirk
-// njanja: tld vidi šestu liniju u mejnu
+//const brojPikselaPoCestici = 6
+const brojPikselaPoCestici = 8
+// nemanja pitao da pomerimo const u mejn i da li bi nam se svidelo
+// ne bi -s
 var sirinaEkrana = 0
 var visinaEkrana = 0
-
-// njanja: mislim da je ovo korisno bar meni jeste
 const sirinaUIMargine = 10
 const visinaUIMargine = 20
 const sirinaDugmeta = 60
@@ -34,25 +31,23 @@ const visinaDugmeta = 30
 const marginaZaGumbad = 2*sirinaUIMargine + sirinaDugmeta
 const sirinaProzora = sirinaKanvasa*brojPikselaPoCestici + marginaZaGumbad
 const visinaProzora = visinaKanvasa * brojPikselaPoCestici
-
-var trenutniMat mat.Materijal = mat.Pesak
-
-var velicinaKursora int32 = 0
-
-// var velicinaKursora int32 = 4
-var maxKursor int32 = 32
-var pause bool = false
-
-var tempMode bool = false
-var tempColorMultiplier float64 = 3
-
-// njanja: ovo mi treba da bih znao gde da displejujem konture kursora dok se ne pomera
 var kursorPoslednjiX = int32(sirinaEkrana / 2)
 var kursorPoslednjiY = int32(sirinaEkrana / 2)
 
 var keystates = sdl.GetKeyboardState()
 
+var trenutniMat mat.Materijal = mat.Pesak
+//var velicinaKursora int32 = 0
+var velicinaKursora int32 = 4
+var maxKursor int32 = 32
+
+var pause bool = false
+var tempMode bool = false
+
+var tempColorMultiplier float64 = 3
+
 func main() {
+
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(err)
 	}
@@ -78,21 +73,21 @@ func main() {
 	}
 	surface.FillRect(nil, 0)
 
-	// njanja: proverite grešku ako hoćete štreberi
+	// njanja: proverite grešku ako hoćete štreberi //vajdugamunemaj
 	renderer, _ := window.GetRenderer()
 
 	// njanja: diskord integracija smislićemo šta ćemo s njom
-	err = client.Login("1100118057147437207")
-	if err != nil {
-		panic(err)
-	}
+//	err = client.Login("1100118057147437207")
+//	if err != nil {
+//		panic(err)
+//	}
 
 	now := time.Now()
 	client.SetActivity(client.Activity{
 		State:      "bleja",
 		Details:    "kontemplira pesak",
 		LargeImage: "bleja",
-		LargeText:  "je l se učitalo ovo",
+		LargeText:  "je l se učitalo ovo",	//xDDD -s
 		Timestamps: &client.Timestamps{
 			Start: &now,
 		},
@@ -104,27 +99,23 @@ func main() {
 		},
 	})
 
-	// zašto bafer? /limun
-	var matrix [sirinaKanvasa][visinaKanvasa]mat.Cestica
-	slajs := matrixToSlice(matrix)
-	var bafer [sirinaKanvasa][visinaKanvasa]mat.Cestica
-	bajs := matrixToSlice(bafer)
 
-	//TODO izdvojiti ove dve ruzne petlje van mejna? `void mat.Zidaj(slajs);` npr -s
-	// zašto bafer nema zidove? /limun
-	// njanja: obrišite komentar ako ste izdvojili petlje slatkiši
-	slajs = zazidajMatricu(slajs)
+
+	var matrica [][]mat.Cestica = napraviSlajs()
+	var bafer [][]mat.Cestica = napraviSlajs()
+
+	matrica = zazidajMatricu(matrica)
 
 	// enejblujemo dropove, stavite ovo gde hoćete
 	sdl.EventState(sdl.DROPFILE, sdl.ENABLE)
 
 	running := true
 	for running {
-		running = pollEvents(slajs, bajs)
+		running = pollEvents(matrica, bafer)
 		if !pause {
-			updateCanvas(slajs, bajs)
+			updateCanvas(matrica, bafer)
 		}
-		render(slajs, surface)
+		render(matrica, surface)
 
 		// njanja: ovo renderuje gumbad za sve materijale
 		for i, _ := range boja {
@@ -165,39 +156,53 @@ func main() {
 // dodaje zidove oko matrice /limun
 func zazidajMatricu(matrix [][]mat.Cestica) [][]mat.Cestica {
 	for i := 0; i < sirinaKanvasa; i++ {
-		matrix[i][0] = mat.NewCestica(mat.Zid)
-		matrix[i][visinaKanvasa-1] = mat.NewCestica(mat.Zid)
+		matrix[i][0], matrix[i][visinaKanvasa-1] = mat.NewCestica(mat.Zid), mat.NewCestica(mat.Zid)
 	}
 	for j := 0; j < visinaKanvasa; j++ {
-		matrix[0][j] = mat.NewCestica(mat.Zid)
-		matrix[sirinaKanvasa-1][j] = mat.NewCestica(mat.Zid)
+		matrix[0][j], matrix[sirinaKanvasa-1][j] = mat.NewCestica(mat.Zid), mat.NewCestica(mat.Zid)
 	}
-
 	return matrix
 }
 
 // menja i vraća (x, y) koordinate tako da se nalaze na ekranu /limun
 func clampCoords(x int32, y int32) (int32, int32) {
-	return int32(math.Min(math.Max(float64(x), 0), sirinaKanvasa-1)), int32(math.Min(math.Max(float64(y), 0), visinaKanvasa-1))
+	return int32(math.Min(math.Max(float64(x), 0), sirinaKanvasa-1)), 
+		   int32(math.Min(math.Max(float64(y), 0), visinaKanvasa-1))
 }
 
 func brush(matrix [][]mat.Cestica, bafer [][]mat.Cestica, x int32, y int32, state uint32) {
 	//TODO za srednji klik da uzme materijal na koj mis trenutno pokazuje i postavi ga kao trenutni
 	//ukoliko nije u pitanju Zid ili Prazno. Nije mi pri ruci mis, mrzi me da trazim koj je to stejt -s
-	for i := -velicinaKursora; i <= velicinaKursora; i++ {
-		for j := -velicinaKursora; j <= velicinaKursora; j++ {
-			tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
-			if state == 1 && matrix[tx][ty].Materijal == mat.Prazno {
-				matrix[tx][ty] = mat.NewCestica(trenutniMat)
-				bafer[tx][ty] = matrix[tx][ty]
+	//a jeste sabani mogli ste ovo trideset puta uraditi danas -s
+	if state != 1 && state != 4 {
+		return
+	}
 
-			}
-			if (state == 4 || (state == 1 && trenutniMat == mat.Prazno)) && matrix[tx][ty].Materijal != mat.Zid && matrix[tx][ty].Materijal != mat.Prazno {
-				matrix[tx][ty] = mat.NewCestica(mat.Prazno)
-				bafer[tx][ty] = matrix[tx][ty]
+	if state == 1 {
+		for i := -velicinaKursora; i <= velicinaKursora; i++ {
+			for j := -velicinaKursora; j <= velicinaKursora; j++ {
+				tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
+				if matrix[tx][ty].Materijal == mat.Prazno {
+					matrix[tx][ty] = mat.NewCestica(trenutniMat)
+					bafer[tx][ty] = matrix[tx][ty]
+				}
 			}
 		}
 	}
+
+	if state == 4 {
+		for i := -velicinaKursora; i <= velicinaKursora; i++ {
+			for j := -velicinaKursora; j <= velicinaKursora; j++ {
+				tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
+				if matrix[tx][ty].Materijal != mat.Zid {
+					matrix[tx][ty] = mat.NewCestica(mat.Prazno)
+					bafer[tx][ty] = matrix[tx][ty]
+				}
+
+			}
+		}
+	}
+
 }
 
 func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
@@ -212,10 +217,6 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 			break
 
 		case *sdl.KeyboardEvent:
-			// može ovo lepše #TODO
-			// kako si to zamisljao lepse? -s
-			// ignorisite ovo, mislim da pricam sam sa sobom (nz ciji je prvi kom)
-			// prvi kom je moj, tako da ne moraš da ga ignorišeš -s
 			if keystates[sdl.SCANCODE_ESCAPE] != 0 {
 				running = false
 			}
@@ -261,11 +262,8 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 			}
 		// njanja: za ovo mi je potreban diskretan klik a ne frejm sa dugmetom dole
 		// p.s. hoćemo da ostavimo komentare ristoviću da ih vidi
+		//boze pomogi -s
 		// paa, barem imajte naznaku za svaku liniju čiji je čiji /limun
-		/*
-			ili prosto napravi višelinijski komentar pa na početku/kraju stavi ime
-			/limun
-		*/
 		case *sdl.MouseButtonEvent:
 			if t.State == sdl.PRESSED {
 				proveriPritisakNaGumb(matrix, bafer, t.X, t.Y)
@@ -288,6 +286,8 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 	x, y, state = sdl.GetMouseState()
 	kursorPoslednjiX = x
 	kursorPoslednjiY = y
+	//nemanja molim te reci mi sto ne koristimo ovde t.X i t.Y? -s
+
 
 	fmt.Printf("x: %d\t", x)
 	fmt.Printf("y: %d\t", y)
@@ -308,7 +308,7 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 func proveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 	//njanja: ovo je detekcija klika na gumb
 	if x > sirinaProzora-marginaZaGumbad+sirinaUIMargine && x < sirinaProzora-sirinaUIMargine {
-		// njanja: TODO namestiti da se ređaju u više kolona ako baš mora
+		// njanja: TODO namestiti da se ređaju u više kolona ako baš mora //mora
 		// materijali
 		if y < (visinaUIMargine+visinaDugmeta)*int32(len(boja)-1) && y%(visinaUIMargine+visinaDugmeta) > visinaUIMargine {
 			trenutniMat = mat.Materijal(y / (visinaUIMargine + visinaDugmeta))
@@ -334,7 +334,7 @@ func proveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 				}
 			}
 			zazidajMatricu(matrix)
-			zazidajMatricu(bafer)
+			zazidajMatricu(bafer)//ova linija suvisna, takodje razmisli da koristis f ju napraviSlajs (na dnu fajla), takodje mozda da zazidavanje zovemo u njoj? pa izbacimo iz mejna i odavde, takodje ovo je naaaaaaajduzi komentar poput one Ivonine naaaaajduze lasice na celom svetu samocekam da mu eksplodiraju oci -s
 		}
 	}
 }
@@ -369,6 +369,7 @@ func render(matrix [][]mat.Cestica, surface *sdl.Surface) {
 	}
 }
 
+//todo probao bih alternativu da napravim -s
 func izracunajTempBoju(temp float64) uint32 {
 	temp *= tempColorMultiplier
 	if temp > 0 {
@@ -389,17 +390,14 @@ func izracunajTempBoju(temp float64) uint32 {
 	return uint32(tempBoja)
 }
 
-func matrixToSlice(matrix [sirinaKanvasa][visinaKanvasa]mat.Cestica) [][]mat.Cestica {
-
-	slajs := make([][]mat.Cestica, len(matrix))
-
-	for i := 0; i < len(matrix); i++ {
-		kolona := make([]mat.Cestica, len(matrix[i]))
-		for j := 0; j < len(matrix[i]); j++ {
-			kolona[j] = matrix[i][j]
+func napraviSlajs() [][]mat.Cestica {
+	slajs := make([][]mat.Cestica, sirinaKanvasa)
+	for i := 0; i < sirinaKanvasa; i++ {
+		kolona := make([]mat.Cestica, visinaKanvasa)
+		for j := 0; j < visinaKanvasa; j++ {
+			kolona[j] = mat.NewCestica(mat.Prazno)
 		}
 		slajs[i] = kolona
 	}
-
 	return slajs
 }
