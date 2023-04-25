@@ -2,8 +2,6 @@
 # 2023_Pesak
 Pesak je simulator čestica i mislim da nam treba više kul opis
 
-![GUI](https://i.imgur.com/JoI7s4I.png)
-
 ## Get yourself a Pesak
 ```
 $ go get github.com/matf-pp/2023_Pesak
@@ -22,7 +20,7 @@ $ ./main
 * Enjoy the scenery
 * Save the scenery as a png file to share with friends
 * Load that same (or any other) image back into Pesak 
- 
+  
 ## Controls
 - LMB  -  paint
 - RMB  -  clear
@@ -32,3 +30,5 @@ $ ./main
 - G  -  gustina mode
 - up/down arrows  -  resize brush
 - esc  -  exit
+
+ ![GUI](https://i.imgur.com/JoI7s4I.png)
