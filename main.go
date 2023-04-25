@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"time"
+	"main/mat"
 	"math"
 	"strconv"
-	"main/mat"
-	"github.com/veandco/go-sdl2/sdl"
+	"time"
+
 	"github.com/hugolgst/rich-go/client"
+	"github.com/veandco/go-sdl2/sdl"
 )
 
 // njanja: ovo je loša praksa majmuni
@@ -15,12 +16,17 @@ import (
 var boja = mat.Boja
 
 const sirinaKanvasa, visinaKanvasa = 240, 144
-//const brojPikselaPoCestici = 8
+
+// const brojPikselaPoCestici = 8
 const brojPikselaPoCestici = 6
+
 // nemanja pitao da pomerimo const u mejn i da li bi nam se svidelo
 // ne bi -s
+// njanja: 	pa majmune kako planiraš da radimo detekciju ekrana + ovo je loša praksa :creepysmirk:
+// prokleti luzer voli svoje c makroe i sad ih rolplejuje u gou
 var sirinaEkrana = 0
 var visinaEkrana = 0
+
 const sirinaUIMargine = 10
 const visinaUIMargine = 20
 const sirinaDugmeta = 60
@@ -28,13 +34,15 @@ const visinaDugmeta = 30
 const marginaZaGumbad = 2*sirinaUIMargine + sirinaDugmeta
 const sirinaProzora = sirinaKanvasa*brojPikselaPoCestici + marginaZaGumbad
 const visinaProzora = visinaKanvasa * brojPikselaPoCestici
+
 var kursorPoslednjiX = int32(sirinaEkrana / 2)
 var kursorPoslednjiY = int32(sirinaEkrana / 2)
 
 var keystates = sdl.GetKeyboardState()
 
 var trenutniMat mat.Materijal = mat.Pesak
-//var velicinaKursora int32 = 0
+
+// var velicinaKursora int32 = 0
 var velicinaKursora int32 = 4
 var maxKursor int32 = 32
 
@@ -76,17 +84,17 @@ func main() {
 	renderer, _ := window.GetRenderer()
 
 	// njanja: diskord integracija smislićemo šta ćemo s njom
-//	err = client.Login("1100118057147437207")
-//	if err != nil {
-//		panic(err)
-//	}
+	//	err = client.Login("1100118057147437207")
+	//	if err != nil {
+	//		panic(err)
+	//	}
 
 	now := time.Now()
 	client.SetActivity(client.Activity{
 		State:      "bleja",
 		Details:    "kontemplira pesak",
 		LargeImage: "bleja",
-		LargeText:  "je l se učitalo ovo",	//xDDD -s
+		LargeText:  "je l se učitalo ovo", //xDDD -s
 		Timestamps: &client.Timestamps{
 			Start: &now,
 		},
@@ -98,8 +106,6 @@ func main() {
 		},
 	})
 
-
-
 	var matrica [][]mat.Cestica = napraviSlajs()
 	var bafer [][]mat.Cestica = napraviSlajs()
 
@@ -110,6 +116,8 @@ func main() {
 
 	running := true
 	for running {
+		// fps counter
+		var startTime = sdl.GetTicks64()
 		running = pollEvents(matrica, bafer)
 		if !pause {
 			updateCanvas(matrica, bafer)
@@ -148,6 +156,8 @@ func main() {
 		renderer.SetDrawColor(255, 255, 255, 255)
 		renderer.DrawRect(&cetkica)
 		renderer.Present()
+
+		fmt.Printf("FPS: %f\n", 1000.0/float64((sdl.GetTicks64()-startTime)))
 	}
 
 }
@@ -165,8 +175,8 @@ func zazidajMatricu(matrix [][]mat.Cestica) [][]mat.Cestica {
 
 // menja i vraća (x, y) koordinate tako da se nalaze na ekranu /limun
 func clampCoords(x int32, y int32) (int32, int32) {
-	return int32(math.Min(math.Max(float64(x), 0), sirinaKanvasa-1)), 
-		   int32(math.Min(math.Max(float64(y), 0), visinaKanvasa-1))
+	return int32(math.Min(math.Max(float64(x), 0), sirinaKanvasa-1)),
+		int32(math.Min(math.Max(float64(y), 0), visinaKanvasa-1))
 }
 
 func brush(matrix [][]mat.Cestica, bafer [][]mat.Cestica, x int32, y int32, state uint32) {
@@ -298,18 +308,18 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 	kursorPoslednjiX = x
 	kursorPoslednjiY = y
 	//nemanja molim te reci mi sto ne koristimo ovde t.X i t.Y? -s
-
-
-	fmt.Printf("x: %d\t", x)
-	fmt.Printf("y: %d\t", y)
-	fmt.Printf("xpx: %d\t", x/brojPikselaPoCestici)
-	fmt.Printf("ypx: %d\t", y/brojPikselaPoCestici)
-	fmt.Printf("mb: %d\t", state)
-	fmt.Printf("mat.Materijal: %d\t", trenutniMat)
-	fmt.Printf("velicina: %d\t", velicinaKursora)
-	fmt.Printf("pauza: %t\n", pause)
-	fmt.Printf("tempMode: %t\n", tempMode)
-
+	// njanja: zato što je van petlje i t nije definisano
+	/*
+		fmt.Printf("x: %d\t", x)
+		fmt.Printf("y: %d\t", y)
+		fmt.Printf("xpx: %d\t", x/brojPikselaPoCestici)
+		fmt.Printf("ypx: %d\t", y/brojPikselaPoCestici)
+		fmt.Printf("mb: %d\t", state)
+		fmt.Printf("mat.Materijal: %d\t", trenutniMat)
+		fmt.Printf("velicina: %d\t", velicinaKursora)
+		fmt.Printf("pauza: %t\n", pause)
+		fmt.Printf("tempMode: %t\n", tempMode)
+	*/
 	brush(matrix, bafer, x, y, state)
 
 	return running
@@ -345,7 +355,7 @@ func proveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 				}
 			}
 			zazidajMatricu(matrix)
-			zazidajMatricu(bafer)//ova linija suvisna, takodje razmisli da koristis f ju napraviSlajs (na dnu fajla), takodje mozda da zazidavanje zovemo u njoj? pa izbacimo iz mejna i odavde, takodje ovo je naaaaaaajduzi komentar poput one Ivonine naaaaajduze lasice na celom svetu samocekam da mu eksplodiraju oci -s
+			zazidajMatricu(bafer) //ova linija suvisna, takodje razmisli da koristis f ju napraviSlajs (na dnu fajla), takodje mozda da zazidavanje zovemo u njoj? pa izbacimo iz mejna i odavde, takodje ovo je naaaaaaajduzi komentar poput one Ivonine naaaaajduze lasice na celom svetu samocekam da mu eksplodiraju oci -s
 		}
 	}
 }
@@ -379,17 +389,17 @@ func render(matrix [][]mat.Cestica, surface *sdl.Surface) {
 	}
 }
 
-//todo probao bih alternativu da napravim -s
+// todo probao bih alternativu da napravim -s
 // onda stavi pravi #TODO, kolega /limun
 func izracunajTempBoju(temp float64) uint32 {
 	temp *= tempColorMultiplier
 	if temp > 0 {
 		temp = math.Min(float64(temp), 255)
-		temp = float64(int32(256-temp) << 8) + (255 << 16)
+		temp = float64(int32(256-temp)<<8) + (255 << 16)
 	} else if temp < 0 {
 		temp *= -3
 		temp = math.Min(float64(temp), 255)
-		temp = float64(int32(256-temp) << 8) + 255
+		temp = float64(int32(256-temp)<<8) + 255
 	} else {
 		temp = 230
 		temp += (230 << 8) + (230 << 16)
@@ -405,16 +415,16 @@ func izracunajTempBoju(temp float64) uint32 {
 }
 func izracunajGustBoju(gust float64) uint32 {
 	if gust > 0.0122 {
-		gustInt := int32(math.Max(math.Min(gust * 255/4, 255), 0))
+		gustInt := int32(math.Max(math.Min(gust*255/4, 255), 0))
 		gustInt = (gustInt << 8)
 		gust = float64(gustInt)
 	} else if gust < 0.0122 {
-		gust = math.Min(gust * 25500, 255)
+		gust = math.Min(gust*25500, 255)
 		gust += float64(int32(gust) << 16)
 	} else {
 		gust = (200 << 16) + (200 << 8) + 200
 	}
-	
+
 	hexadeca := strconv.FormatUint(uint64(gust), 16)
 	gustBoja, err := strconv.ParseUint(hexadeca, 16, 32)
 	if err != nil {
