@@ -2,14 +2,11 @@ package main
 
 import (
 	"fmt"
-	"main/mat"
+	"time"
 	"math"
 	"strconv"
-
+	"main/mat"
 	"github.com/veandco/go-sdl2/sdl"
-
-	"time"
-
 	"github.com/hugolgst/rich-go/client"
 )
 
@@ -18,8 +15,8 @@ import (
 var boja = mat.Boja
 
 const sirinaKanvasa, visinaKanvasa = 240, 144
-//const brojPikselaPoCestici = 6
-const brojPikselaPoCestici = 8
+//const brojPikselaPoCestici = 8
+const brojPikselaPoCestici = 6
 // nemanja pitao da pomerimo const u mejn i da li bi nam se svidelo
 // ne bi -s
 var sirinaEkrana = 0
@@ -43,6 +40,8 @@ var maxKursor int32 = 32
 
 var pause bool = false
 var tempMode bool = false
+var normalMode bool = false
+var densityMode bool = false
 
 var tempColorMultiplier float64 = 3
 
@@ -258,7 +257,19 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 				pause = !pause
 			}
 			if keystates[sdl.SCANCODE_T] != 0 {
-				tempMode = !tempMode
+				normalMode = false
+				tempMode = true
+				densityMode = false
+			}
+			if keystates[sdl.SCANCODE_D] != 0 {
+				normalMode = false
+				tempMode = false
+				densityMode = true
+			}
+			if keystates[sdl.SCANCODE_N] != 0 {
+				normalMode = true
+				tempMode = false
+				densityMode = false
 			}
 		// njanja: za ovo mi je potreban diskretan klik a ne frejm sa dugmetom dole
 		// p.s. hoćemo da ostavimo komentare ristoviću da ih vidi
@@ -339,10 +350,6 @@ func proveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 	}
 }
 func updateCanvas(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
-	/* Problem rešen! Imali smo bag gde se čestice ne iscrtavaju kako treba skroz
-	   dole i skroz desno; pisalo je visinaKanvasa-2 a ne visinaKanvasa-1
-	   /limun
-	*/
 	for j := 1; j < visinaKanvasa-1; j++ {
 		for i := 1; i < sirinaKanvasa-1; i++ {
 			mat.Update(matrix, bafer, i, j)
@@ -359,26 +366,33 @@ func render(matrix [][]mat.Cestica, surface *sdl.Surface) {
 	for i := 0; i < sirinaKanvasa; i++ {
 		for j := 0; j < visinaKanvasa; j++ {
 			rect := sdl.Rect{int32(i * brojPikselaPoCestici), int32(j * brojPikselaPoCestici), brojPikselaPoCestici, brojPikselaPoCestici}
-			if !tempMode {
-				surface.FillRect(&rect, boja[matrix[i][j].Materijal])
-			} else {
+			if tempMode {
 				bojaTemp := izracunajTempBoju(matrix[i][j].Temperatura)
 				surface.FillRect(&rect, bojaTemp)
+			} else if densityMode {
+				gustTemp := izracunajGustBoju(matrix[i][j].Gustina)
+				surface.FillRect(&rect, gustTemp)
+			} else {
+				surface.FillRect(&rect, boja[matrix[i][j].Materijal])
 			}
 		}
 	}
 }
 
 //todo probao bih alternativu da napravim -s
+// onda stavi pravi #TODO, kolega /limun
 func izracunajTempBoju(temp float64) uint32 {
 	temp *= tempColorMultiplier
 	if temp > 0 {
 		temp = math.Min(float64(temp), 255)
-		temp = float64(int32(256-temp)<<8) + (255 << 16)
+		temp = float64(int32(256-temp) << 8) + (255 << 16)
 	} else if temp < 0 {
 		temp *= -3
 		temp = math.Min(float64(temp), 255)
-		temp = float64(int32(256-temp)<<8) + 255
+		temp = float64(int32(256-temp) << 8) + 255
+	} else {
+		temp = 230
+		temp += (230 << 8) + (230 << 16)
 	}
 
 	hexadeca := strconv.FormatUint(uint64(temp), 16)
@@ -388,6 +402,26 @@ func izracunajTempBoju(temp float64) uint32 {
 	}
 
 	return uint32(tempBoja)
+}
+func izracunajGustBoju(gust float64) uint32 {
+	if gust > 0.0122 {
+		gustInt := int32(math.Max(math.Min(gust * 255/4, 255), 0))
+		gustInt = (gustInt << 8)
+		gust = float64(gustInt)
+	} else if gust < 0.0122 {
+		gust = math.Min(gust * 25500, 255)
+		gust += float64(int32(gust) << 16)
+	} else {
+		gust = (200 << 16) + (200 << 8) + 200
+	}
+	
+	hexadeca := strconv.FormatUint(uint64(gust), 16)
+	gustBoja, err := strconv.ParseUint(hexadeca, 16, 32)
+	if err != nil {
+		panic(err)
+	}
+
+	return uint32(gustBoja)
 }
 
 func napraviSlajs() [][]mat.Cestica {
