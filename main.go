@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"math"
-	"time"
 	"strconv"
+
 	"main/mat"
+
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/hugolgst/rich-go/client"
 )
 
 // njanja: ovo je loša praksa majmuni
@@ -15,10 +15,11 @@ import (
 var boja = mat.Boja
 var gus = mat.Gustina
 
+// njanja: pesak krešuje na 160x100 ili 220x144 itd itd (4 ppč), pogledajte zašto jer msm da je do apdejt fje
 const sirinaKanvasa, visinaKanvasa = 240, 144
 
 // const brojPikselaPoCestici = 8
-const brojPikselaPoCestici = 6
+const brojPikselaPoCestici = 4
 
 // nemanja pitao da pomerimo const u mejn i da li bi nam se svidelo
 // ne bi -s
@@ -84,28 +85,9 @@ func main() {
 		panic(err)
 	}
 
-	// njanja: diskord integracija smislićemo šta ćemo s njom
-	//	err = client.Login("1100118057147437207")
-	//	if err != nil {
-	//		panic(err)
-	//	}
-
-	now := time.Now()
-	client.SetActivity(client.Activity{
-		State:      "bleja",
-		Details:    "kontemplira pesak",
-		LargeImage: "bleja",
-		LargeText:  "je l se učitalo ovo", //xDDD -s
-		Timestamps: &client.Timestamps{
-			Start: &now,
-		},
-		Buttons: []*client.Button{
-			&client.Button{
-				Label: "priključi se",
-				Url:   "https://github.com/matf-pp/2023_Pesak",
-			},
-		},
-	})
+	// njanja: diskord integracija oterana u poseban fajl jer je mrvicu čonki
+	// ume da pravi probleme i male blek skrinove na početku dok se ne konektuje ili ne tajmautuje pa ga pozivam kao korutinu
+	go connectToDiscord()
 
 	var matrica [][]mat.Cestica = napraviSlajs()
 	var bafer [][]mat.Cestica = napraviSlajs()
@@ -184,6 +166,9 @@ func brush(matrix [][]mat.Cestica, bafer [][]mat.Cestica, x int32, y int32, stat
 	//TODO za srednji klik da uzme materijal na koj mis trenutno pokazuje i postavi ga kao trenutni
 	//ukoliko nije u pitanju Zid ili Prazno. Nije mi pri ruci mis, mrzi me da trazim koj je to stejt -s
 	//a jeste sabani mogli ste ovo trideset puta uraditi danas -s
+	if x > sirinaKanvasa*brojPikselaPoCestici {
+		return
+	}
 	if state != 1 && state != 4 {
 		return
 	}
@@ -282,6 +267,7 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 				tempMode = false
 				densityMode = false
 			}
+
 		// njanja: za ovo mi je potreban diskretan klik a ne frejm sa dugmetom dole
 		// p.s. hoćemo da ostavimo komentare ristoviću da ih vidi
 		//boze pomogi -s
@@ -340,10 +326,10 @@ func proveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 		if y > visinaProzora-3*(visinaDugmeta+visinaUIMargine) && y < visinaProzora-3*(visinaDugmeta+visinaUIMargine)+visinaDugmeta {
 			pause = !pause
 		}
-		// njanja: neki medvedić dobrog srca nek rinejmuje ovu funkciju da prati konvenciju kamilju ili ću ja sutra dobro ajde TODO
 		// SEJV
 		if y > visinaProzora-2*(visinaDugmeta+visinaUIMargine) && y < visinaProzora-2*(visinaDugmeta+visinaUIMargine)+visinaDugmeta {
-			save_image(matrix, sirinaKanvasa, visinaKanvasa)
+			saveImage(matrix, brojPikselaPoCestici)
+			sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "pesak", "sačuvan B)", nil)
 		}
 		// njanja: nz je l ovo najpametniji način ali radi
 		// RESET
@@ -395,11 +381,11 @@ func izracunajTempBoju(temp float64) uint32 {
 	temp *= tempColorMultiplier
 	if temp > 0 {
 		temp = math.Min(float64(temp), 255)
-		temp = float64(int32(256-temp) << 8) + (255 << 16)
+		temp = float64(int32(256-temp)<<8) + (255 << 16)
 	} else if temp < 0 {
 		temp *= -3
 		temp = math.Min(float64(temp), 255)
-		temp = float64(int32(256-temp) << 8) + 255
+		temp = float64(int32(256-temp)<<8) + 255
 	} else {
 		temp = 230
 		temp += (230 << 8) + (230 << 16)

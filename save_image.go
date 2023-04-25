@@ -11,16 +11,19 @@ import (
 	"path/filepath"
 )
 
-// TODO SAVING prompt može da piše do not turn off the console ili tako nešto smešno ali nek piše
-// TODO nek neko obeleži sve komentare ovde kao moje - njanja (umem da koristim find and replace ali sam malo nervozan sada već)
-
-// TODO skejl apovati rezoluciju slike tako da mečuje rezoluciju ekrana
-func save_image(matrix [][]mat.Cestica, width, height int) {
+// čuva kanvas kao sliku apskejlovanu na veličinu ekrana
+func saveImage(matrix [][]mat.Cestica, scaleFactor int) {
 	// pravimo praznu sliku pa je popunjavamo
-	newImg := image.NewRGBA(image.Rect(0, 0, width, height))
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			var hexColor = mat.Boja[matrix[x][y].Materijal]
+	width := len(matrix)
+	height := len(matrix[0])
+
+	targetWidth := width * scaleFactor
+	targetHeight := height * scaleFactor
+
+	newImg := image.NewRGBA(image.Rect(0, 0, targetWidth, targetHeight))
+	for y := 0; y < targetHeight; y++ {
+		for x := 0; x < targetWidth; x++ {
+			var hexColor = mat.Boja[matrix[x/scaleFactor][y/scaleFactor].Materijal]
 			var RGBColor color.RGBA
 			RGBColor.R = uint8((hexColor >> 16) & 0xFF)
 			RGBColor.G = uint8((hexColor >> 8) & 0xFF)
@@ -30,8 +33,7 @@ func save_image(matrix [][]mat.Cestica, width, height int) {
 		}
 	}
 
-	// sejv deo
-	// ako nemamo dir
+	// pravimo dir za sejv ako ga nemamo
 	imgDir := "images"
 	if err := os.MkdirAll(imgDir, os.ModePerm); err != nil {
 		fmt.Println("Failed to create image directory:", err)
