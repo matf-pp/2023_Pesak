@@ -21,7 +21,7 @@ const korisnikJeLimun = false
 // njanja: ovo je loša praksa majmuni
 // e a reci je l si provalio bukvalno je kao `using` u cpp -s
 var boja = mat.Boja
-var gus = mat.ToplotnaProvodljivost
+var gus = mat.Lambda
 
 //inace mislim da jeovo znak da ove dve mape treba da budu u ovom fajlu
 //jer se tamo ionako nekoriste? ako se ne varam -s
@@ -30,7 +30,7 @@ var gus = mat.ToplotnaProvodljivost
 const sirinaKanvasa, visinaKanvasa = 400, 300
 
 // FPS cap, kontam da je zgodno za testiranje staviti neki nizak, 0 = unlimited
-var fpsCap = 10
+var fpsCap = 60
 
 // njanja: ako hoćete da eksperimentišete samo stavite ovo na false ali mislim da nema razloga samo promenite veličinu kanvasa
 var autoFitScreen = true
@@ -66,7 +66,7 @@ var normalMode bool = false
 var densityMode bool = false
 var textMode bool = true
 
-var tempColorMultiplier float64 = 3
+var tempColorMultiplier int32 = 3
 
 const fontPath = "./assets/Minecraft.ttf"
 
@@ -235,7 +235,7 @@ func main() {
 // ako ovo ikada u praksi izbaci nešto što ne staje u ekran javite mi da ga sredim ali mislim da je to besmislen posao
 func fitToScreen(screenPercentage int) (int32, int32, int32) {
 	resolution := screenresolution.GetPrimary()
-	adjustedScale := int32(screenPercentage*resolution.Height/100) / visinaKanvasa
+	adjustedScale := int32(screenPercentage*resolution.Height/200) / visinaKanvasa
 	return adjustedScale, sirinaKanvasa*adjustedScale + marginaZaGumbad, visinaKanvasa * adjustedScale
 }
 
@@ -523,16 +523,17 @@ func render(matrix [][]mat.Cestica, surface *sdl.Surface) {
 // todo probao bih alternativu da napravim -s
 // onda stavi pravi #TODO, kolega /limun
 // xDDD
-/**
+/*
 func izracunajTempBoju(temp int32) uint32 {
 	temp *= tempColorMultiplier
+	temp /= 100
 	if temp > 0 {
-		temp = math.Min(float64(temp), 255)
-		temp = float64(int32(256-temp)<<8) + (255 << 16)
+		temp = int32Min(temp, 255)
+		temp = (255-temp) << 8 + (255 << 16)
 	} else if temp < 0 {
-		temp *= -3
-		temp = math.Min(float64(temp), 255)
-		temp = float64(int32(256-temp)<<8) + 255
+		temp *= -1
+		temp = int32Min(temp, 255)
+		temp = (255-temp) << 8  + 255
 	} else {
 		temp = 230
 		temp += (230 << 8) + (230 << 16)
@@ -545,9 +546,8 @@ func izracunajTempBoju(temp int32) uint32 {
 	}
 
 	return uint32(tempBoja)
-	/**/
-
-/**/
+}
+*/
 var minTempRendered int32 = 20
 var maxTempRendered int32 = 21
 

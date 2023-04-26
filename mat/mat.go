@@ -54,27 +54,28 @@ var Boja = map[Materijal]uint32{
 	Para:   0x9999cc,
 }
 
-var Gustina = map[Materijal]int32{
-	Zid:    0,
-	Prazno: 0,
-	Pesak:  5,
-	Voda:   3,
-	Metal:  0,
-	Kamen:  6,
-	Lava:   4,
-	Led:    0,
-	Para:   -5,
+var Gustina = map[Materijal]int32 {
+	Zid:	0,
+	Prazno: 1225, 	// 0.01225 			0
+	Pesak:  163100, // 1.631 			5
+	Voda:   100000, // 1 				3
+	Metal:  786000, // 7.860 	(čelik) 0
+	Kamen:  260000, // 2.600 			5
+	Lava:   310000, // 3.100 			4
+	Led:    91700, 	// 0.917 			0
+	Para:   598, 	// 0.005.98	   	   -5
 }
 
-var ToplotnaProvodljivost = map[Materijal]int32{
-	Prazno: 1220,   // 0.01225 						0
-	Pesak:  163100, // 1.631 						5
-	Voda:   100000, // 1 							3
-	Metal:  786000, // 7.860 						(čelik) 0
-	Kamen:  260000, // 2.600 						5
-	Lava:   310000, // 3.100 						4
-	Led:    91700,  // 0.917 						0
-	Para:   598,    // 0 (5.98 × 10^(–4) g cm^(–3)) -5
+// ToplotnaProvodljivost
+var Lambda = map[Materijal]int32 {
+	Prazno: 26,			// 0,026
+	Pesak:  2050,		// 2.05
+	Voda:   600,		// 0,6
+	Metal:  50200,		// 50.2
+	Kamen:  288800,		// 288.8
+	Lava:   1300000,	// 1300
+	Led:    1600,		// 1,6
+	Para:   16,			// 0.016
 }
 
 // 0000 nece on nidje
@@ -304,7 +305,7 @@ func UpdatePosition(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 	pomeren := false
 	astanje := AStanje[trenutna.Materijal]
 	smer := 0
-	if Gustina[trenutna.Materijal] > 1 {
+	if Gustina[trenutna.Materijal] > 1225 {
 		smer = 1
 	} else {
 		smer = -1
