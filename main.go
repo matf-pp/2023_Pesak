@@ -27,7 +27,7 @@ var gus = mat.Lambda
 //jer se tamo ionako nekoriste? ako se ne varam -s
 // njanja: neeeeee ovaj fajl je već dovoljno veliki
 
-const sirinaKanvasa, visinaKanvasa = 400, 300
+const sirinaKanvasa, visinaKanvasa = 240, 144
 
 // FPS cap, kontam da je zgodno za testiranje staviti neki nizak, 0 = unlimited
 var fpsCap = 60
@@ -39,10 +39,12 @@ var autoFitScreen = true
 var brojPikselaPoCestici int32 = 9000
 
 const sirinaUIMargine = 10
-const visinaUIMargine = 20
-const sirinaDugmeta = 60
-const visinaDugmeta = 30
-const marginaZaGumbad = 2*sirinaUIMargine + sirinaDugmeta
+const visinaUIMargine = 10
+const sirinaDugmeta = 40
+const visinaDugmeta = 20
+
+// njanja: ovo ćemo da menjamo ako treba
+var marginaZaGumbad int32 = 2*sirinaUIMargine + sirinaDugmeta
 
 var sirinaProzora = sirinaKanvasa*brojPikselaPoCestici + marginaZaGumbad
 var visinaProzora = visinaKanvasa * brojPikselaPoCestici
@@ -76,8 +78,17 @@ const fontSize = 40
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
 	if autoFitScreen {
-		brojPikselaPoCestici, sirinaProzora, visinaProzora = fitToScreen(70)
+		brojPikselaPoCestici, sirinaProzora, visinaProzora = fitToScreen(50)
 	}
+
+	// njanja: gumb magija ne radi kad nije u mejnu stignite ako hoćete
+	// ja sada: https://cdn.discordapp.com/emojis/1068966756556738590.webp
+	var brojMaterijala = len(mat.Boja) + 2
+	var brojSpecijalnihGumbadi int32 = 3
+	var brojGumbadiPoKoloni int32 = visinaProzora/(visinaDugmeta+visinaUIMargine) - (brojSpecijalnihGumbadi)
+	var brojKolona int32 = int32(math.Ceil(float64(brojMaterijala) / float64(brojGumbadiPoKoloni)))
+	marginaZaGumbad = brojKolona*(sirinaDugmeta+sirinaUIMargine) + sirinaUIMargine
+	sirinaProzora += marginaZaGumbad
 
 	// njanja: da vidimo hoće li ovo raditi lepo
 	var font *ttf.Font
@@ -143,9 +154,11 @@ func main() {
 		render(matrica, surface)
 
 		// njanja: ovo renderuje gumbad za sve materijale
+		var counter int32 = 1
 		for i, _ := range boja {
-			gumb := sdl.Rect{int32(sirinaProzora - sirinaUIMargine - sirinaDugmeta), int32(visinaUIMargine + i*(visinaDugmeta+visinaUIMargine)), sirinaDugmeta, visinaDugmeta}
+			gumb := sdl.Rect{int32(sirinaProzora - marginaZaGumbad + ((int32(i)%brojKolona)*(sirinaDugmeta+sirinaUIMargine) + sirinaUIMargine)), int32(visinaUIMargine + int32(i)/brojKolona*(visinaDugmeta+visinaUIMargine)), sirinaDugmeta, visinaDugmeta}
 			surface.FillRect(&gumb, boja[i])
+			counter++
 		}
 
 		// njanja: ovo renderuje dodatnu gumbad
@@ -222,11 +235,10 @@ func main() {
 			realFrameTime := sdl.GetTicks64() - startTime
 			if expectedFrameTime > realFrameTime {
 				// o moj bože molim vas jedan jedini int ko je mislio da je ovo dobra ideja
-				print("hehe")
 				sdl.Delay(uint32(expectedFrameTime - realFrameTime))
 			}
 		}
-		fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
+		//fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
 	}
 
 }
@@ -235,8 +247,8 @@ func main() {
 // ako ovo ikada u praksi izbaci nešto što ne staje u ekran javite mi da ga sredim ali mislim da je to besmislen posao
 func fitToScreen(screenPercentage int) (int32, int32, int32) {
 	resolution := screenresolution.GetPrimary()
-	adjustedScale := int32(screenPercentage*resolution.Height/200) / visinaKanvasa
-	return adjustedScale, sirinaKanvasa*adjustedScale + marginaZaGumbad, visinaKanvasa * adjustedScale
+	adjustedScale := int32((float64(screenPercentage) / float64(100)) * float64(resolution.Height) / float64(visinaKanvasa))
+	return adjustedScale, sirinaKanvasa * adjustedScale, visinaKanvasa * adjustedScale
 }
 
 // dodaje zidove oko matrice /limun
@@ -361,6 +373,9 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 				tempMode = false
 				densityMode = false
 			}
+			if keystates[sdl.SCANCODE_V] != 0 {
+				textMode = !textMode
+			}
 
 		// njanja: za ovo mi je potreban diskretan klik a ne frejm sa dugmetom dole
 		// p.s. hoćemo da ostavimo komentare ristoviću da ih vidi
@@ -392,8 +407,12 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 	var x, y int32
 	var state uint32
 	x, y, state = sdl.GetMouseState()
-	kursorPoslednjiX = x
-	kursorPoslednjiY = y
+	if x > 0 && x < sirinaProzora {
+		kursorPoslednjiX = x
+	}
+	if y > 0 && y < visinaProzora {
+		kursorPoslednjiY = y
+	}
 
 	if korisnikJeLimun {
 		fmt.Printf("x: %d ", x)
