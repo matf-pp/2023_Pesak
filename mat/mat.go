@@ -2,7 +2,7 @@ package mat
 
 import (
 //	"fmt"
-	"math"
+//	"math"
 	"math/rand"
 )
 
@@ -14,6 +14,7 @@ const usporenje = 1000
 // const tezinaTempOkoline = 1
 // const delilacTezina = tezinaTempCestice + tezinaTempOkoline
 // treba mi bolje rešenje, npr da paket za pravljenje kanvasa sadrži širinu i visinu i f-je za kanvas /limun
+// mogu li se ovi kom sada obrisati ako su suvisni? malo je sizofreno ne pratim vise sta je sta
 const sirinaKanvasa, visinaKanvasa = 240, 144
 
 const (
@@ -42,6 +43,17 @@ var Boja = map[Materijal]uint32{
 
 var Gustina = map[Materijal]int32 {
 	Zid:    0,
+	Prazno: 0,
+	Pesak:  5,
+	Voda:   3,
+	Metal:  0,
+	Kamen:  6,
+	Lava:   4,
+	Led:    0,
+	Para:   -5,
+}
+
+var ToplotnaProvodljivost = map[Materijal]int32 {
 	Prazno: 1220, 	// 0.01225 						0
 	Pesak:  163100, // 1.631 						5
 	Voda:   100000, // 1 							3
@@ -71,22 +83,35 @@ var AStanje = map[Materijal]int{
 type FaznaPromena struct {
 	Nize Materijal
 	Vise Materijal
-	TackaTopljenja float64
-	TackaKljucanja float64
+	TackaTopljenja int32
+	TackaKljucanja int32
 }
 
 var MapaFaza = map[Materijal]FaznaPromena{
-	// sto vise razmisljam o tome to bih vise insistirao da temp bude u neoznacenim intidzerima tj kelvinima, makar jedan kelvin bio uint32(10) ili uint32(100) radi preciznosti -s
-	Zid:    {Zid, Zid, -math.MaxFloat64, math.MaxFloat64},
-	Prazno: {Prazno, Prazno, -math.MaxFloat64, math.MaxFloat64},
-	Pesak:  {Pesak, Lava, -math.MaxFloat64, 1700},
-	Voda:   {Led, Para, 0, 100},
-	Metal:  {Metal, Lava, -math.MaxFloat64, 1500},
-	Kamen:  {Kamen, Lava, -math.MaxFloat64, 1300},
-	Lava:   {Lava, Lava, math.MaxFloat64, math.MaxFloat64},
-	Led:    {Led, Voda, -math.MaxFloat64, 0},
-	Para:   {Voda, Para, 100, math.MaxFloat64},
+
+	//k(c) = c+273.15
+	//c(k) = k–273.15
+
+	//100 int32		=	1.00c
+	//130000 int32	=	1300.00c
+
+	//MinTemp = 0.00k = -273.15c = int32(-27315)
+	//maxtemp = 8000.00c = int32(800000)
+
+//	materijali	{nize,	Vise,	TackaT,		TackaK}
+	Zid:		{Zid,	Zid,	MinTemp,	MaxTemp},
+	Prazno:		{Prazno,Prazno,	MinTemp,	MaxTemp},
+	Pesak:		{Pesak,	Lava,	MinTemp,	170000},
+	Voda:		{Led,	Para,	0,			10000},
+	Metal:		{Metal,	Lava,	MinTemp,	150000},
+	Kamen:		{Kamen,	Lava,	MinTemp,	130000},
+	Lava:		{Lava,	Lava,	MinTemp,	MaxTemp},
+	Led:		{Led,	Voda,	MinTemp,	0},
+	Para:		{Voda,	Para,	10000,		MaxTemp},
+
 }
+const MinTemp int32 = -27315
+const MaxTemp int32 = 800000
 
 var Zapaljiv = map[Materijal]bool{
 	Zid:    false,
@@ -103,7 +128,7 @@ var Zapaljiv = map[Materijal]bool{
 
 type Cestica struct {
 	Materijal   Materijal
-	Temperatura float64
+	Temperatura int32
 	SekMat      Materijal
 	Ticker		int8
 }
@@ -111,34 +136,40 @@ type Cestica struct {
 func NewCestica(materijal Materijal) Cestica {
 	zrno := Cestica{
 		Materijal:   materijal,
-		Temperatura: 40,
+		Temperatura: 2000,
 		SekMat:      Prazno,
 		Ticker:		 8,	//za rdju gorivo itd, opada po principu nuklearnog raspada (svaki frejm ima x% sanse da ga dekrementira, na 0 prelazi u drugo stanje)
 	}
 	if materijal == Voda {
-		zrno.Temperatura = 10
+		zrno.Temperatura = 2000
 	}
 	if materijal == Led {
 		zrno.SekMat = Voda
-		zrno.Temperatura = -30
+		zrno.Temperatura = -3000
 	}
 	if materijal == Para {
 		zrno.SekMat = Voda
-		zrno.Temperatura = 500
+		zrno.Temperatura = 15000
 	}
 	if materijal == Lava {
 		zrno.SekMat = Kamen
-		zrno.Temperatura = 5000
+		zrno.Temperatura = 200000
 	}
 	return zrno
 }
 
 // Update(matrix, bafer, i, j, matrix[i][j].Materijal)
 // nisam u stanju da procenim trenutno treba li ovo prebaciti u treci fajl ili Boga pitaj gde -s
-func Update(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
+func UpdateTemp(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
+
+	if matrix[i][j].Materijal == Prazno || matrix[i][j].Materijal == Zid{
+		return
+	}
 	trenutna := matrix[i][j]
 
-	// temperatura//da ovo tvoje je kul ali prebrzo provodi da bih testirao kako se ponasa, nezameri molim te -s
+	// temperatura
+	//da ovo tvoje je kul ali prebrzo provodi da bih testirao kako se ponasa, ne zameri molim te -s
+	/**
 	temperatura := trenutna.Temperatura
 	for k := int(math.Max(float64(i-tempRadius), 0)); k < int(math.Min(float64(i+tempRadius), sirinaKanvasa)); k++ {
 		for l := int(math.Max(float64(j-tempRadius), 0)); l < int(math.Min(float64(j+tempRadius), visinaKanvasa)); l++ {
@@ -153,19 +184,49 @@ func Update(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 			bafer[k][l].Temperatura -= ostatak/usporenje
 		}
 	}
-	// novaTemperatura := float64(0)
-	// brojac := 0
-	// for k := -1; k < 2; k++ {
-	// 	for l := -1; l < 2; l++ {
-	// 		if matrix[i+k][j+l].Materijal != Prazno && matrix[i+k][j+l].Materijal != Zid{
-	// 			novaTemperatura += matrix[i+k][j+l].Temperatura
-	// 			brojac++
-	// 		}
-	// 	}
-	// }
-	// novaTemperatura = novaTemperatura / float64(brojac)
 	matrix[i][j].Temperatura = temperatura
 	bafer[i][j].Temperatura = temperatura
+
+	if bafer[i][j].Temperatura < MinTemp {
+		err := fmt.Sprintf("Temperatura cestice na poziciji [%d][%d] je van minimalne granice: %d < %d\n", i+k, j+l, bafer[i+k][j+l].Temperatura < MinTemp)
+		panic(err)
+	}
+	if bafer[i][j].Temperatura > MaxTemp {
+		err := fmt.Sprintf("Temperatura cestice na poziciji [%d][%d] je van maksimalne granice: %d > %d\n", i+k, j+l, bafer[i+k][j+l].Temperatura < MaxTemp)
+		panic(err)
+		//ako vas je dibagovanje dovelo ovde, moguce je da samo treba povecati MaxTemp ali razmislite o implikacijama, mozda ne valja racunanje temperature i negde krsimo termodinamiku
+	}
+
+	/**/
+	/**/
+	
+	var brojacKomsija int32 = 0
+	for k := -1; k < 2; k++ {
+		for l := -1; l < 2; l++ {
+			if matrix[i+k][j+l].Materijal != Prazno && matrix[i+k][j+l].Materijal != Zid {
+				brojacKomsija++
+			}
+		}
+	}
+	deliTemp := trenutna.Temperatura / brojacKomsija
+	for k := -1; k < 2; k++ {
+		for l := -1; l < 2; l++ {
+			if matrix[i+k][j+l].Materijal != Prazno && matrix[i+k][j+l].Materijal != Zid {
+				bafer[i+k][j+l].Temperatura += deliTemp
+				if bafer[i+k][j+l].Temperatura < MinTemp {
+//					err := fmt.Sprintf("Temperatura cestice na poziciji [%d][%d] je van minimalne granice: %d \< %d\n", i+k, j+l, bafer[i+k][j+l].Temperatura < MinTemp)
+//					panic(err)
+				}
+				if bafer[i+k][j+l].Temperatura > MaxTemp {
+//					err := fmt.Sprintf("Temperatura cestice na poziciji [%d][%d] je van maksimalne granice: %d \> %d\n", i+k, j+l, bafer[i+k][j+l].Temperatura < MaxTemp)
+//					panic(err)
+					//ako vas je dibagovanje dovelo ovde, moguce je da samo treba povecati MaxTemp ali razmislite o implikacijama, mozda ne valja racunanje temperature i negde krsimo termodinamiku
+				}
+			}
+		}
+	}
+
+	/**/
 	//interesantan fenomen - voda i para bi trebalo da se mimoidju zbog razlike u gustini, medjutim:
 	//hladna voda koja pada se greje u kontaktu sa parom te isparava, menjajuci pravac kretanja ka gore
 	//istovremeno topla para koja se dize u kontaktu sa hladnijom vodom se kondenzuje i pocinje da pada
@@ -174,26 +235,36 @@ func Update(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 	//kada se prethodne dve linije zakomentarisu, voda i para, kao i svaki padajuci element sa parom,
 	//ponasaju se normalno
 	//-s
+	// luka molim te obrisi ovaj blok komentara kad ga procitas, poenta je bila samo da ne mislis da je nesto izbagovano...
+	// !!!!!!!!!!!!!!!!! ^^^^^
+	// !!!!!!!!!!!!!!!!! |||||
 
+}
+
+func UpdatePhaseOfMatter(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
+	
 	if matrix[i][j].Materijal == Prazno {
 		return
 	}
+	if matrix[i][j].Materijal == Zid {
+		return
+	}
 
-
-	//faza
+	trenutna := matrix[i][j]
 	sekmat := trenutna.SekMat
 	materijal := trenutna.Materijal
-	temperaturaZaFaze := trenutna.Temperatura
+	temperatura := trenutna.Temperatura
+
 	if materijal == Lava {
-		if temperaturaZaFaze < MapaFaza[sekmat].TackaKljucanja{
+		if temperatura < MapaFaza[sekmat].TackaKljucanja{
 			matrix[i][j].Materijal = sekmat
 			bafer[i][j].Materijal = sekmat
 		}
 	} else {
-		if temperaturaZaFaze < MapaFaza[materijal].TackaTopljenja {
+		if temperatura < MapaFaza[materijal].TackaTopljenja {
 			matrix[i][j].Materijal = MapaFaza[materijal].Nize
 			bafer[i][j].Materijal = MapaFaza[materijal].Nize
-		} else if temperaturaZaFaze > MapaFaza[materijal].TackaKljucanja {
+		} else if temperatura > MapaFaza[materijal].TackaKljucanja {
 			matrix[i][j].Materijal = MapaFaza[materijal].Vise
 			matrix[i][j].SekMat = materijal
 			bafer[i][j].Materijal = MapaFaza[materijal].Vise
@@ -206,76 +277,93 @@ func Update(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 		//TODO
 	}
 
+
+}
+
+func UpdatePosition(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 	//pomeranje ce morati biti redna petlja a ne paralelna sa ostalim efektima (zameni se pesak s naftom a tek onda nafta eksplodira i sta onda) -s
 	//decko ti bulaznis -s
 	//padanje
+
+	if matrix[i][j].Materijal == Prazno || matrix[i][j].Materijal == Zid {
+		return
+	}
+
+	trenutna := matrix[i][j]
 	pomeren := false
-	astanje := AStanje[materijal]
+	astanje := AStanje[trenutna.Materijal]
+	smer := 0
+	if Gustina[trenutna.Materijal] > 1 {
+		smer = 1
+	} else {
+		smer = -1
+	}
+	//				{0, 1}		{0, 2}	{-1, 1}
+	rFaktor := rand.Intn(2)		*2	 	-1
+
 	if (astanje & 0b0001) != 0 {
-		gornji := matrix[i][j-1]
-		donji := matrix[i][j+1]
-		if (AStanje[gornji.Materijal] & 0b0001 != 0) && Gustina[gornji.Materijal] > Gustina[materijal] {
-			if bafer[i][j-1] == matrix[i][j-1]{
-				bafer[i][j], bafer[i][j-1] = matrix[i][j-1], matrix[i][j]
-				bafer[i][j].Temperatura, bafer[i][j-1].Temperatura = matrix[i][j-1].Temperatura, matrix[i][j].Temperatura
-				pomeren = true
-			}
-		} else if (AStanje[donji.Materijal] != 0b0000) && Gustina[donji.Materijal] < Gustina[materijal] {
-			if bafer[i][j+1] == matrix[i][j+1]{	
-				bafer[i][j], bafer[i][j+1] = matrix[i][j+1], matrix[i][j]
-				bafer[i][j].Temperatura, bafer[i][j+1].Temperatura = matrix[i][j+1].Temperatura, matrix[i][j].Temperatura
+		komsija := matrix[i][j+smer]
+		//												( 1  *      G[v] = 2             <  1  *      g[ps] =  5) == True
+		//                                              (-1  *      G[v] = 2             < -1  *      g[pr] = -5) == True
+		if (AStanje[komsija.Materijal] & 0b0001 != 0) && smer*int(Gustina[komsija.Materijal]) < smer*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je
+			if bafer[i][j+smer] == komsija {
+				bafer[i][j+smer] = trenutna
+				bafer[i][j] = komsija
 				pomeren = true
 			}
 		}
-	}
+	}//ovo ne radi bas uvek a nmg da provalim sto i kako? iskreno mng bi mi znacilo da nemanja uradi da haverom preko cestice vidimo njene promenjive
 	if pomeren {
 		return
-	}/**/
-	// napiši šta ovo radi /limun
+	}
+
+/**/
 	if (astanje & 0b0010) != 0 {
-		// ?? /limun
-		sgn := rand.Intn(2)-1
-//		fmt.Printf("%d ", sgn)				//!!!!!!???????
-		gd := matrix[i+sgn][j-1]
-		gl := matrix[i-sgn][j-1]
-		dd := matrix[i+sgn][j+1]
-		dl := matrix[i-sgn][j+1]
-		if AStanje[gd.Materijal]&0b0010 != 0 && Gustina[gd.Materijal] > Gustina[materijal] && bafer[i+sgn][j-1] == matrix[i+sgn][j-1] { //pakao kolika linija braco moja u Hristu
-			bafer[i][j], bafer[i+sgn][j-1] = matrix[i+sgn][j-1], matrix[i][j]
-			bafer[i][j].Temperatura, bafer[i+sgn][j-1].Temperatura = matrix[i+sgn][j-1].Temperatura, matrix[i][j].Temperatura
-			pomeren = true
-		} else if AStanje[gl.Materijal]&0b0010 != 0 && Gustina[gl.Materijal] > Gustina[materijal] && bafer[i-sgn][j-1] == matrix[i-sgn][j-1] {
-			bafer[i][j], bafer[i-sgn][j-1] = matrix[i-sgn][j-1], matrix[i][j]
-			bafer[i][j].Temperatura, bafer[i-sgn][j-1].Temperatura = matrix[i-sgn][j-1].Temperatura, matrix[i][j].Temperatura
-			pomeren = true
-		} else if AStanje[dd.Materijal]&0b0010 != 0 && Gustina[dd.Materijal] < Gustina[materijal] && bafer[i+sgn][j+1] == matrix[i+sgn][j+1] { //pakao 2 braco moja mucena
-			bafer[i][j], bafer[i+sgn][j+1] = matrix[i+sgn][j+1], matrix[i][j]
-			bafer[i][j].Temperatura, bafer[i+sgn][j+1].Temperatura = matrix[i+sgn][j+1].Temperatura, matrix[i][j].Temperatura
-			pomeren = true
-		} else if AStanje[dl.Materijal]&0b0010 != 0 && Gustina[dl.Materijal] < Gustina[materijal] && bafer[i-sgn][j+1] == matrix[i-sgn][j+1] {
-			bafer[i][j], bafer[i-sgn][j+1] = matrix[i-sgn][j+1], matrix[i][j]
-			bafer[i][j].Temperatura, bafer[i-sgn][j+1].Temperatura = matrix[i-sgn][j+1].Temperatura, matrix[i][j].Temperatura
-			pomeren = true
+		komsija1 := matrix[i+rFaktor][j+smer]
+		if(AStanje[komsija1.Materijal] & 0b0010 != 0) && smer*int(Gustina[komsija1.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
+			if bafer[i+rFaktor][j+smer] == komsija1 {
+				bafer[i+rFaktor][j+smer] = trenutna
+				bafer[i][j] = komsija1
+				pomeren = true
+				return
+			}			
 		}
+		komsija2 := matrix[i-rFaktor][j+smer]
+		if(AStanje[komsija2.Materijal] & 0b0010 != 0) && smer*int(Gustina[komsija2.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
+			if bafer[i-rFaktor][j+smer] == komsija2 {
+				bafer[i-rFaktor][j+smer] = trenutna
+				bafer[i][j] = komsija2
+				pomeren = true
+				return
+			}			
+		}	
+	}
+/**/
+	if (astanje & 0b0100) != 0 {
+		
+		if matrix[i+rFaktor][j].Materijal == Prazno && bafer[i+rFaktor][j].Materijal == Prazno {
+			if matrix[i+rFaktor+rFaktor][j].Materijal == Prazno && bafer[i+rFaktor+rFaktor][j].Materijal == Prazno {
+				bafer[i+rFaktor+rFaktor][j] = trenutna
+				bafer[i][j] = matrix[i+rFaktor+rFaktor][j]
+			} else {
+				bafer[i+rFaktor][j] = trenutna
+				bafer[i][j] = matrix[i+rFaktor][j]
+			}
+		} else if matrix[i-rFaktor][j].Materijal == Prazno && bafer[i-rFaktor][j].Materijal == Prazno {
+			if matrix[i-rFaktor-rFaktor][j].Materijal == Prazno && bafer[i-rFaktor-rFaktor][j].Materijal == Prazno {
+				bafer[i-rFaktor-rFaktor][j] = trenutna
+				bafer[i][j] = matrix[i-rFaktor-rFaktor][j]
+			} else {
+				bafer[i-rFaktor][j] = trenutna
+				bafer[i][j] = matrix[i-rFaktor][j]
+			}
+		}
+		pomeren = true
 
-	}/**///ovaj deo ima neki bajas na levo tj desno nmg to veceras
-
-	if pomeren {
-		return
 	}
 
-/**
-	if (astanje & 0b0100) != 0 {
-		sgnn := rand.Intn(2)*2-1
-		desni := matrix[i+sgnn][j]
-		levi := matrix[i-sgnn][j]
-		if AStanje[desni.Materijal]&0b0100 != 0 && bafer[i+sgnn][j] == matrix[i+sgnn][j] {
-			bafer[i][j], bafer[i+sgnn][j] = matrix[i+sgnn][j], matrix[i][j]
-		} else if AStanje[levi.Materijal]&0b0100 != 0 && bafer[i-sgnn][j] == matrix[i-sgnn][j] {
-			bafer[i][j], bafer[i-sgnn][j] = matrix[i-sgnn][j], matrix[i][j]			
-		}
-	}/**/
-	//ceo ovaj deo ima neki prokleti ne znam ni ja ta ako vas ne mrzi bacite pogled ako vas mrzi nemojte, imate druge stvari koje mozete raditi -s
-
+	if !pomeren {
+		bafer[i][j] = trenutna
+	}
 
 }

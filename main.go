@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"math/rand"
 	"strconv"
 
 	"main/mat"
@@ -13,13 +14,16 @@ import (
 // njanja: ovo je loša praksa majmuni
 // e a reci je l si provalio bukvalno je kao `using` u cpp -s
 var boja = mat.Boja
-var gus = mat.Gustina
+var gus = mat.ToplotnaProvodljivost
+//inace mislim da jeovo znak da ove dve mape treba da budu u ovom fajlu
+//jer se tamo ionako nekoriste? ako se ne varam -s
+
 
 // njanja: pesak krešuje na 160x100 ili 220x144 itd itd (4 ppč), pogledajte zašto jer msm da je do apdejt fje
 const sirinaKanvasa, visinaKanvasa = 240, 144
 
-// const brojPikselaPoCestici = 8
-const brojPikselaPoCestici = 4
+const brojPikselaPoCestici = 8
+//const brojPikselaPoCestici = 4
 
 // nemanja pitao da pomerimo const u mejn i da li bi nam se svidelo
 // ne bi -s
@@ -43,7 +47,8 @@ var keystates = sdl.GetKeyboardState()
 
 var trenutniMat mat.Materijal = mat.Pesak
 
-var velicinaKursora int32 = 4
+//var velicinaKursora int32 = 4
+var velicinaKursora int32 = 8
 var maxKursor int32 = 32
 
 var pause bool = false
@@ -103,7 +108,7 @@ func main() {
 		var startTime = sdl.GetTicks64()
 		running = pollEvents(matrica, bafer)
 		if !pause {
-			updateCanvas(matrica, bafer)
+			update(matrica, bafer)
 		}
 		render(matrica, surface)
 
@@ -149,9 +154,11 @@ func main() {
 func zazidajMatricu(matrix [][]mat.Cestica) [][]mat.Cestica {
 	for i := 0; i < sirinaKanvasa; i++ {
 		matrix[i][0], matrix[i][visinaKanvasa-1] = mat.NewCestica(mat.Zid), mat.NewCestica(mat.Zid)
+		matrix[i][1], matrix[i][visinaKanvasa-2] = mat.NewCestica(mat.Zid), mat.NewCestica(mat.Zid)
 	}
 	for j := 0; j < visinaKanvasa; j++ {
 		matrix[0][j], matrix[sirinaKanvasa-1][j] = mat.NewCestica(mat.Zid), mat.NewCestica(mat.Zid)
+		matrix[1][j], matrix[sirinaKanvasa-2][j] = mat.NewCestica(mat.Zid), mat.NewCestica(mat.Zid)
 	}
 	return matrix
 }
@@ -177,9 +184,9 @@ func brush(matrix [][]mat.Cestica, bafer [][]mat.Cestica, x int32, y int32, stat
 		for i := -velicinaKursora; i <= velicinaKursora; i++ {
 			for j := -velicinaKursora; j <= velicinaKursora; j++ {
 				tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
-				if matrix[tx][ty].Materijal == mat.Prazno {
+				if matrix[tx][ty].Materijal == mat.Prazno || (trenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid){
 					matrix[tx][ty] = mat.NewCestica(trenutniMat)
-					bafer[tx][ty] = matrix[tx][ty]
+					bafer[tx][ty] = mat.NewCestica(trenutniMat)
 				}
 			}
 		}
@@ -189,11 +196,10 @@ func brush(matrix [][]mat.Cestica, bafer [][]mat.Cestica, x int32, y int32, stat
 		for i := -velicinaKursora; i <= velicinaKursora; i++ {
 			for j := -velicinaKursora; j <= velicinaKursora; j++ {
 				tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
-				if matrix[tx][ty].Materijal != mat.Zid {
+				if matrix[tx][ty].Materijal != mat.Zid {	//napomenuo bih da prazne cestice ovde brisemo i pravimo opet da bismo resetovali temp, inace bi bilo efikasnije samo postaviti im Materijal na Prazno, NAGADJAM
 					matrix[tx][ty] = mat.NewCestica(mat.Prazno)
-					bafer[tx][ty] = matrix[tx][ty]
+					bafer[tx][ty] = mat.NewCestica(mat.Prazno)
 				}
-
 			}
 		}
 	}
@@ -297,9 +303,9 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 	//nemanja molim te reci mi sto ne koristimo ovde t.X i t.Y? -s
 	// njanja: zato što je van petlje i t nije definisano
 
-	fmt.Printf("x: %d\t", x)
+	fmt.Printf("x: %d ", x)
 	fmt.Printf("y: %d\t", y)
-	fmt.Printf("xpx: %d\t", x/brojPikselaPoCestici)
+	fmt.Printf("xpx: %d ", x/brojPikselaPoCestici)
 	fmt.Printf("ypx: %d\t", y/brojPikselaPoCestici)
 	fmt.Printf("mb: %d\t", state)
 	fmt.Printf("mat.Materijal: %d\t", trenutniMat)
@@ -341,14 +347,58 @@ func proveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 				}
 			}
 			zazidajMatricu(matrix)
-			zazidajMatricu(bafer) //ova linija suvisna, takodje razmisli da koristis f ju napraviSlajs (na dnu fajla), takodje mozda da zazidavanje zovemo u njoj? pa izbacimo iz mejna i odavde, takodje ovo je naaaaaaajduzi komentar poput one Ivonine naaaaajduze lasice na celom svetu samocekam da mu eksplodiraju oci -s
+			zazidajMatricu(bafer) //ova linija suvisna, takodje razmisli da koristis f ju napraviSlajs (na dnu fajla), takodje mozda da zazidavanje zovemo u njoj? pa izbacimo iz mejna i odavde, takodje ovo je naaaaaaajduzi komentar poput one Ivonine naaaaajduze lasice na celom svetu samo cekam da mu eksplodiraju oci -s
 		}
 	}
 }
-func updateCanvas(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
+func update(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
+	
 	for j := 1; j < visinaKanvasa-1; j++ {
 		for i := 1; i < sirinaKanvasa-1; i++ {
-			mat.Update(matrix, bafer, i, j)
+			bafer[i][j].Temperatura = 0
+		}
+	}// da, mora redno. izdvojte u fje ako vam se ne svidja kod -s
+	for j := 1; j < visinaKanvasa-1; j++ {
+		for i := 1; i < sirinaKanvasa-1; i++ {
+			mat.UpdateTemp(matrix, bafer, i, j)
+		}
+	}
+	minTempRendered = mat.MaxTemp
+	maxTempRendered = mat.MinTemp
+	for j := 1; j < visinaKanvasa-1; j++ {
+		for i := 1; i < sirinaKanvasa-1; i++ {
+			matrix[i][j].Temperatura = bafer[i][j].Temperatura
+			temperatura := matrix[i][j].Temperatura
+			if temperatura+1 > maxTempRendered {
+				maxTempRendered = temperatura+1
+			}
+			if temperatura < minTempRendered {
+				minTempRendered = temperatura
+			}
+			//todo smisli sta sa tikerima
+		}
+	}
+
+	for j := 1; j < visinaKanvasa-1; j++ {
+		for i := 1; i < sirinaKanvasa-1; i++ {
+			mat.UpdatePhaseOfMatter(matrix, bafer, i, j)
+		}
+	}
+
+	ja := make([]int, visinaKanvasa)
+	for j := range ja {
+		ja[j] = j
+	}
+	ia := make([]int, sirinaKanvasa)
+	for i := range ia {
+		ia[i] = i
+	}
+	rand.Shuffle(len(ja), func(i, j int){ja[i], ja[j] = ja[j], ja[i]})
+	rand.Shuffle(len(ia), func(i, j int){ia[i], ia[j] = ia[j], ia[i]})
+
+	for j := 1; j < visinaKanvasa-1; j++ {
+		for i := 1; i < sirinaKanvasa-1; i++ {
+			mat.UpdatePosition(matrix, bafer, ia[i], ja[j])
 		}
 	}
 	for j := 1; j < visinaKanvasa-1; j++ {
@@ -363,7 +413,7 @@ func render(matrix [][]mat.Cestica, surface *sdl.Surface) {
 		for j := 0; j < visinaKanvasa; j++ {
 			rect := sdl.Rect{int32(i * brojPikselaPoCestici), int32(j * brojPikselaPoCestici), brojPikselaPoCestici, brojPikselaPoCestici}
 			if tempMode {
-				bojaTemp := izracunajTempBoju(matrix[i][j].Temperatura)
+				bojaTemp := izracunajTempBoju(matrix[i][j])
 				surface.FillRect(&rect, bojaTemp)
 			} else if densityMode {
 				gustTemp := izracunajGustBoju(float64(gus[matrix[i][j].Materijal]))
@@ -377,7 +427,9 @@ func render(matrix [][]mat.Cestica, surface *sdl.Surface) {
 
 // todo probao bih alternativu da napravim -s
 // onda stavi pravi #TODO, kolega /limun
-func izracunajTempBoju(temp float64) uint32 {
+// xDDD
+/**
+func izracunajTempBoju(temp int32) uint32 {
 	temp *= tempColorMultiplier
 	if temp > 0 {
 		temp = math.Min(float64(temp), 255)
@@ -398,6 +450,31 @@ func izracunajTempBoju(temp float64) uint32 {
 	}
 
 	return uint32(tempBoja)
+	/**/
+
+	/**/
+var minTempRendered int32 = 20
+var maxTempRendered int32 = 21
+func izracunajTempBoju(zrno mat.Cestica) uint32 {
+
+//	minTemp := mat.MinTemp
+//	maxTemp := mat.MaxTemp
+
+	temperatura := zrno.Temperatura
+
+	// tMin         temp                  tMax
+	// 0            xx                    255
+
+	//	(temp - tMin) / (tMax - tMin) = xx / 255
+	// xx = 255(temp-tMin)/(tMax-tMin)
+
+	var crvenaKomponenta uint32 = uint32(255*(temperatura-minTempRendered)/(maxTempRendered-minTempRendered))
+	var plavaKomponenta uint32 = uint32(255 - crvenaKomponenta)
+	var zelenaKomponenta uint32 = 0
+
+	var boja uint32 = (crvenaKomponenta*256+zelenaKomponenta)*256+plavaKomponenta
+	return boja
+	/**/
 }
 func izracunajGustBoju(gust float64) uint32 {
 	if gust > 1220 {
