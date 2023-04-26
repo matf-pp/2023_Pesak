@@ -8,6 +8,9 @@ import (
 	"main/mat"
 	"math"
 	"os"
+
+	"github.com/chai2010/webp"
+	"github.com/sergeymakinen/go-bmp"
 )
 
 // euklidska razdaljina između boja
@@ -23,9 +26,44 @@ func Distance(c1 color.RGBA, hexColor uint32) float64 {
 	return math.Sqrt(float64(rDelta*rDelta + gDelta*gDelta + bDelta*bDelta))
 }
 
-// risajz slike da stane u pesak
-func nearestNeighborResize(img image.Image, newWidth, newHeight int) image.Image {
+// otvara sliku risajzuje je i pretvori je u matricu pescanih boja velicine kanvasa
+func ucitajSliku(filePath string, matrix, bafer [][]mat.Cestica) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	img, format, err := image.Decode(file)
+	if err != nil {
+		// njanja: ovo je MOŽDA bloat ali se baš smorim kad ne mogu da učitam bmp/webp
+		switch format {
+		case "bmp":
+			img, err = bmp.Decode(file)
+		case "webp":
+			img, err = webp.Decode(file)
+		}
+		if err != nil {
+			return err
+		}
+	}
+
+	// sakupljamo trenutne dimenzije pa izracunamo nove
 	bounds := img.Bounds()
+	origWidth := bounds.Max.X
+	origHeight := bounds.Max.Y
+	zeljenaSirina := len(matrix)
+	zeljenaVisina := len(matrix[0])
+
+	aspectRatio := float64(origWidth) / float64(origHeight)
+	newWidth := zeljenaSirina
+	newHeight := int(float64(zeljenaSirina) / aspectRatio)
+	if newHeight > zeljenaVisina {
+		newHeight = zeljenaVisina
+		newWidth = int(float64(zeljenaVisina) * aspectRatio)
+	}
+
+	// upscale (nearest neighbour)
 	scaleX := float64(bounds.Max.X) / float64(newWidth)
 	scaleY := float64(bounds.Max.Y) / float64(newHeight)
 	resized := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
@@ -39,38 +77,7 @@ func nearestNeighborResize(img image.Image, newWidth, newHeight int) image.Image
 		}
 	}
 
-	return resized
-}
-
-// njanja: ovo radi hevilifting i možda bi moglo da se zove učitajSliku ali me mrzi
-func obradiSliku(filePath string, zeljenaSirina, zeljenaVisina int, matrix, bafer [][]mat.Cestica) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	img, _, err := image.Decode(file)
-	if err != nil {
-		panic(err)
-	}
-
-	// njanja: ovo i nearestneighbour bih sve mogao da prebacim u jednu risajz funkciju TODO
-	bounds := img.Bounds()
-	origWidth := bounds.Max.X
-	origHeight := bounds.Max.Y
-
-	aspectRatio := float64(origWidth) / float64(origHeight)
-	newWidth := zeljenaSirina
-	newHeight := int(float64(zeljenaSirina) / aspectRatio)
-	if newHeight > zeljenaVisina {
-		newHeight = zeljenaVisina
-		newWidth = int(float64(zeljenaVisina) * aspectRatio)
-	}
-
-	resized := nearestNeighborResize(img, newWidth, newHeight)
-
-	// njanja: tražimo najbolji materijal i postavljamo materijale u matriks
+	// tražimo najbolji materijal i postavljamo materijale u matriks
 	for y := 0; y < newHeight; y++ {
 		for x := 0; x < newWidth; x++ {
 			color := resized.At(x, y).(color.RGBA)
@@ -94,4 +101,6 @@ func obradiSliku(filePath string, zeljenaSirina, zeljenaVisina int, matrix, bafe
 
 	zazidajMatricu(matrix)
 	zazidajMatricu(bafer)
+
+	return nil
 }

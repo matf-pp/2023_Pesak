@@ -2,52 +2,56 @@ package main
 
 import (
 	"fmt"
+	"main/mat"
 	"math"
 	"math/rand"
 	"strconv"
 
-	"main/mat"
-
+	"github.com/fstanis/screenresolution"
 	"github.com/veandco/go-sdl2/sdl"
 )
+
+// njanja: pazite ovo
+const korisnikJeLimun = false
 
 // njanja: ovo je loša praksa majmuni
 // e a reci je l si provalio bukvalno je kao `using` u cpp -s
 var boja = mat.Boja
 var gus = mat.ToplotnaProvodljivost
+
 //inace mislim da jeovo znak da ove dve mape treba da budu u ovom fajlu
 //jer se tamo ionako nekoriste? ako se ne varam -s
+// njanja: neeeeee ovaj fajl je već dovoljno veliki
 
-
-// njanja: pesak krešuje na 160x100 ili 220x144 itd itd (4 ppč), pogledajte zašto jer msm da je do apdejt fje
 const sirinaKanvasa, visinaKanvasa = 240, 144
 
-const brojPikselaPoCestici = 8
-//const brojPikselaPoCestici = 4
+// njanja: ovo sada menjamo tako da ekran prekrije određen procenat korisnikovog ekrana (vidi početak mejna)
+var brojPikselaPoCestici int32 = 9000
 
-// nemanja pitao da pomerimo const u mejn i da li bi nam se svidelo
-// ne bi -s
-// njanja: 	pa majmune kako planiraš da radimo detekciju ekrana + ovo je loša praksa :creepysmirk:
-// prokleti luzer voli svoje c makroe i sad ih rolplejuje u gou
-var sirinaEkrana = 0
-var visinaEkrana = 0
+// ako hoćete da eksperimentišete samo stavite ovo na false
+var autoFitScreen = true
+
+// njanja: reši
 
 const sirinaUIMargine = 10
 const visinaUIMargine = 20
 const sirinaDugmeta = 60
 const visinaDugmeta = 30
 const marginaZaGumbad = 2*sirinaUIMargine + sirinaDugmeta
-const sirinaProzora = sirinaKanvasa*brojPikselaPoCestici + marginaZaGumbad
-const visinaProzora = visinaKanvasa * brojPikselaPoCestici
 
-var kursorPoslednjiX = int32(sirinaEkrana / 2)
-var kursorPoslednjiY = int32(sirinaEkrana / 2)
+var sirinaProzora = sirinaKanvasa*brojPikselaPoCestici + marginaZaGumbad
+var visinaProzora = visinaKanvasa * brojPikselaPoCestici
+
+// njanja: prebačeno na nula jer svakako bude pregaženo u prvom frejmu pa da ne zbunjuje
+// a za ovaj int32 dabogda vam nešto nešto
+var kursorPoslednjiX = int32(0)
+var kursorPoslednjiY = int32(0)
 
 var keystates = sdl.GetKeyboardState()
 
 var trenutniMat mat.Materijal = mat.Pesak
 
-//var velicinaKursora int32 = 4
+// var velicinaKursora int32 = 4
 var velicinaKursora int32 = 8
 var maxKursor int32 = 32
 
@@ -59,17 +63,15 @@ var densityMode bool = false
 var tempColorMultiplier float64 = 3
 
 func main() {
+	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
+	if autoFitScreen {
+		brojPikselaPoCestici, sirinaProzora, visinaProzora = fitToScreen(70)
+	}
 
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(err)
 	}
 	defer sdl.Quit()
-
-	// njanja: automatska detekcija ekrana
-	var desktop sdl.DisplayMode
-	desktop, err := sdl.GetDesktopDisplayMode(0)
-	sirinaEkrana = int(desktop.W)
-	visinaEkrana = int(desktop.H)
 
 	// njanja: dodao marginu za gumbad
 	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
@@ -150,6 +152,14 @@ func main() {
 
 }
 
+// takozvano dinamičko skaliranje ekrana ili nešto ne znam lupio sam
+// ako ovo ikada u praksi izbaci nešto što ne staje u ekran javite mi da ga sredim ali mislim da je to besmislen posao
+func fitToScreen(screenPercentage int) (int32, int32, int32) {
+	resolution := screenresolution.GetPrimary()
+	adjustedScale := int32(screenPercentage*resolution.Height/100) / visinaKanvasa
+	return adjustedScale, sirinaKanvasa*adjustedScale + marginaZaGumbad, visinaKanvasa * adjustedScale
+}
+
 // dodaje zidove oko matrice /limun
 func zazidajMatricu(matrix [][]mat.Cestica) [][]mat.Cestica {
 	for i := 0; i < sirinaKanvasa; i++ {
@@ -184,7 +194,7 @@ func brush(matrix [][]mat.Cestica, bafer [][]mat.Cestica, x int32, y int32, stat
 		for i := -velicinaKursora; i <= velicinaKursora; i++ {
 			for j := -velicinaKursora; j <= velicinaKursora; j++ {
 				tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
-				if matrix[tx][ty].Materijal == mat.Prazno || (trenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid){
+				if matrix[tx][ty].Materijal == mat.Prazno || (trenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid) {
 					matrix[tx][ty] = mat.NewCestica(trenutniMat)
 					bafer[tx][ty] = mat.NewCestica(trenutniMat)
 				}
@@ -196,7 +206,7 @@ func brush(matrix [][]mat.Cestica, bafer [][]mat.Cestica, x int32, y int32, stat
 		for i := -velicinaKursora; i <= velicinaKursora; i++ {
 			for j := -velicinaKursora; j <= velicinaKursora; j++ {
 				tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
-				if matrix[tx][ty].Materijal != mat.Zid {	//napomenuo bih da prazne cestice ovde brisemo i pravimo opet da bismo resetovali temp, inace bi bilo efikasnije samo postaviti im Materijal na Prazno, NAGADJAM
+				if matrix[tx][ty].Materijal != mat.Zid { //napomenuo bih da prazne cestice ovde brisemo i pravimo opet da bismo resetovali temp, inace bi bilo efikasnije samo postaviti im Materijal na Prazno, NAGADJAM
 					matrix[tx][ty] = mat.NewCestica(mat.Prazno)
 					bafer[tx][ty] = mat.NewCestica(mat.Prazno)
 				}
@@ -288,7 +298,13 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 			dropEvent := event.(*sdl.DropEvent)
 			if dropEvent.Type == sdl.DROPFILE {
 				filePath := string(dropEvent.File)
-				obradiSliku(filePath, sirinaKanvasa, visinaKanvasa, matrix, bafer)
+				// njanja: todo dodati support za bmp i webp
+
+				err := ucitajSliku(filePath, matrix, bafer)
+				if err != nil {
+					sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "pesak", "rade samo png jpg bmp webp slike", nil)
+				}
+
 			}
 		default:
 			//null
@@ -300,17 +316,17 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 	x, y, state = sdl.GetMouseState()
 	kursorPoslednjiX = x
 	kursorPoslednjiY = y
-	//nemanja molim te reci mi sto ne koristimo ovde t.X i t.Y? -s
-	// njanja: zato što je van petlje i t nije definisano
 
-	fmt.Printf("x: %d ", x)
-	fmt.Printf("y: %d\t", y)
-	fmt.Printf("xpx: %d ", x/brojPikselaPoCestici)
-	fmt.Printf("ypx: %d\t", y/brojPikselaPoCestici)
-	fmt.Printf("mb: %d\t", state)
-	fmt.Printf("mat.Materijal: %d\t", trenutniMat)
-	fmt.Printf("velicina: %d\t", velicinaKursora)
-	fmt.Printf("pauza: %t\n", pause)
+	if korisnikJeLimun {
+		fmt.Printf("x: %d ", x)
+		fmt.Printf("y: %d\t", y)
+		fmt.Printf("xpx: %d ", x/brojPikselaPoCestici)
+		fmt.Printf("ypx: %d\t", y/brojPikselaPoCestici)
+		fmt.Printf("mb: %d\t", state)
+		fmt.Printf("mat.Materijal: %d\t", trenutniMat)
+		fmt.Printf("velicina: %d\t", velicinaKursora)
+		fmt.Printf("pauza: %t\n", pause)
+	}
 
 	brush(matrix, bafer, x, y, state)
 
@@ -334,7 +350,7 @@ func proveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 		}
 		// SEJV
 		if y > visinaProzora-2*(visinaDugmeta+visinaUIMargine) && y < visinaProzora-2*(visinaDugmeta+visinaUIMargine)+visinaDugmeta {
-			saveImage(matrix, brojPikselaPoCestici)
+			saveImage(matrix, int(brojPikselaPoCestici))
 			sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "pesak", "sačuvan B)", nil)
 		}
 		// njanja: nz je l ovo najpametniji način ali radi
@@ -352,12 +368,12 @@ func proveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 	}
 }
 func update(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
-	
+
 	for j := 1; j < visinaKanvasa-1; j++ {
 		for i := 1; i < sirinaKanvasa-1; i++ {
 			bafer[i][j].Temperatura = 0
 		}
-	}// da, mora redno. izdvojte u fje ako vam se ne svidja kod -s
+	} // da, mora redno. izdvojte u fje ako vam se ne svidja kod -s
 	for j := 1; j < visinaKanvasa-1; j++ {
 		for i := 1; i < sirinaKanvasa-1; i++ {
 			mat.UpdateTemp(matrix, bafer, i, j)
@@ -370,7 +386,7 @@ func update(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
 			matrix[i][j].Temperatura = bafer[i][j].Temperatura
 			temperatura := matrix[i][j].Temperatura
 			if temperatura+1 > maxTempRendered {
-				maxTempRendered = temperatura+1
+				maxTempRendered = temperatura + 1
 			}
 			if temperatura < minTempRendered {
 				minTempRendered = temperatura
@@ -393,8 +409,8 @@ func update(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
 	for i := range ia {
 		ia[i] = i
 	}
-	rand.Shuffle(len(ja), func(i, j int){ja[i], ja[j] = ja[j], ja[i]})
-	rand.Shuffle(len(ia), func(i, j int){ia[i], ia[j] = ia[j], ia[i]})
+	rand.Shuffle(len(ja), func(i, j int) { ja[i], ja[j] = ja[j], ja[i] })
+	rand.Shuffle(len(ia), func(i, j int) { ia[i], ia[j] = ia[j], ia[i] })
 
 	for j := 1; j < visinaKanvasa-1; j++ {
 		for i := 1; i < sirinaKanvasa-1; i++ {
@@ -411,7 +427,8 @@ func update(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
 func render(matrix [][]mat.Cestica, surface *sdl.Surface) {
 	for i := 0; i < sirinaKanvasa; i++ {
 		for j := 0; j < visinaKanvasa; j++ {
-			rect := sdl.Rect{int32(i * brojPikselaPoCestici), int32(j * brojPikselaPoCestici), brojPikselaPoCestici, brojPikselaPoCestici}
+			// njanja: braaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaate je l stvarno toliko teško kompajleru da implicitno konvertuje int u int32
+			rect := sdl.Rect{int32(i) * brojPikselaPoCestici, int32(j) * brojPikselaPoCestici, brojPikselaPoCestici, brojPikselaPoCestici}
 			if tempMode {
 				bojaTemp := izracunajTempBoju(matrix[i][j])
 				surface.FillRect(&rect, bojaTemp)
@@ -452,13 +469,14 @@ func izracunajTempBoju(temp int32) uint32 {
 	return uint32(tempBoja)
 	/**/
 
-	/**/
+/**/
 var minTempRendered int32 = 20
 var maxTempRendered int32 = 21
+
 func izracunajTempBoju(zrno mat.Cestica) uint32 {
 
-//	minTemp := mat.MinTemp
-//	maxTemp := mat.MaxTemp
+	//	minTemp := mat.MinTemp
+	//	maxTemp := mat.MaxTemp
 
 	temperatura := zrno.Temperatura
 
@@ -468,11 +486,11 @@ func izracunajTempBoju(zrno mat.Cestica) uint32 {
 	//	(temp - tMin) / (tMax - tMin) = xx / 255
 	// xx = 255(temp-tMin)/(tMax-tMin)
 
-	var crvenaKomponenta uint32 = uint32(255*(temperatura-minTempRendered)/(maxTempRendered-minTempRendered))
+	var crvenaKomponenta uint32 = uint32(255 * (temperatura - minTempRendered) / (maxTempRendered - minTempRendered))
 	var plavaKomponenta uint32 = uint32(255 - crvenaKomponenta)
 	var zelenaKomponenta uint32 = 0
 
-	var boja uint32 = (crvenaKomponenta*256+zelenaKomponenta)*256+plavaKomponenta
+	var boja uint32 = (crvenaKomponenta*256+zelenaKomponenta)*256 + plavaKomponenta
 	return boja
 	/**/
 }

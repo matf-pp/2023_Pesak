@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/hugolgst/rich-go/client"
+	"github.com/sajberk/rich-go/client"
 )
 
 func connectToDiscord() {
