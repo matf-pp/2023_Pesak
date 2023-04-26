@@ -9,7 +9,11 @@ import (
 
 	"github.com/fstanis/screenresolution"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/ttf"
 )
+
+// njanja: todo dodati keyed fields u rectovima da nas ne smaraju žute linije (ili bar mene jer koliko sam shvatio vi ovo bukvalno pišete u noutpedu)
+// njanja: todo izbaciti sve ove gluposti koje redovno menjamo u konfig fajl i staviti da bude gitignorovan
 
 // njanja: pazite ovo
 const korisnikJeLimun = false
@@ -23,15 +27,16 @@ var gus = mat.ToplotnaProvodljivost
 //jer se tamo ionako nekoriste? ako se ne varam -s
 // njanja: neeeeee ovaj fajl je već dovoljno veliki
 
-const sirinaKanvasa, visinaKanvasa = 240, 144
+const sirinaKanvasa, visinaKanvasa = 400, 300
+
+// FPS cap, kontam da je zgodno za testiranje staviti neki nizak, 0 = unlimited
+var fpsCap = 10
+
+// njanja: ako hoćete da eksperimentišete samo stavite ovo na false ali mislim da nema razloga samo promenite veličinu kanvasa
+var autoFitScreen = true
 
 // njanja: ovo sada menjamo tako da ekran prekrije određen procenat korisnikovog ekrana (vidi početak mejna)
 var brojPikselaPoCestici int32 = 9000
-
-// ako hoćete da eksperimentišete samo stavite ovo na false
-var autoFitScreen = true
-
-// njanja: reši
 
 const sirinaUIMargine = 10
 const visinaUIMargine = 20
@@ -59,8 +64,14 @@ var pause bool = false
 var tempMode bool = false
 var normalMode bool = false
 var densityMode bool = false
+var textMode bool = true
 
 var tempColorMultiplier float64 = 3
+
+const fontPath = "./assets/Minecraft.ttf"
+
+// njanja: ide unazad verujte mi na reč
+const fontSize = 40
 
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
@@ -68,14 +79,24 @@ func main() {
 		brojPikselaPoCestici, sirinaProzora, visinaProzora = fitToScreen(70)
 	}
 
-	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
+	// njanja: da vidimo hoće li ovo raditi lepo
+	var font *ttf.Font
+	var text *sdl.Surface
+	err := ttf.Init()
+	if err != nil {
+		panic(err)
+	}
+	defer ttf.Quit()
+
+	err = sdl.Init(sdl.INIT_EVERYTHING)
+	if err != nil {
 		panic(err)
 	}
 	defer sdl.Quit()
 
 	// njanja: dodao marginu za gumbad
-	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
-		sirinaKanvasa*brojPikselaPoCestici+marginaZaGumbad, visinaKanvasa*brojPikselaPoCestici, sdl.WINDOW_SHOWN)
+	window, err := sdl.CreateWindow("pesak", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
+		sirinaProzora, visinaProzora, sdl.WINDOW_SHOWN)
 	if err != nil {
 		panic(err)
 	}
@@ -91,6 +112,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	font, err = ttf.OpenFont(fontPath, int(visinaProzora)/fontSize)
+	if err != nil {
+		panic(err)
+	}
+	defer font.Close()
 
 	// njanja: diskord integracija oterana u poseban fajl jer je mrvicu čonki
 	// ume da pravi probleme i male blek skrinove na početku dok se ne konektuje ili ne tajmautuje pa ga pozivam kao korutinu
@@ -108,6 +135,7 @@ func main() {
 	for running {
 		// fps counter
 		var startTime = sdl.GetTicks64()
+
 		running = pollEvents(matrica, bafer)
 		if !pause {
 			update(matrica, bafer)
@@ -136,18 +164,69 @@ func main() {
 		resetGumb := sdl.Rect{int32(sirinaProzora - sirinaUIMargine - sirinaDugmeta), int32(visinaProzora - visinaUIMargine - visinaDugmeta), sirinaDugmeta, visinaDugmeta}
 		surface.FillRect(&resetGumb, 0xff0000)
 
+		// njanja: i ovo i četkicu moram nekako da izbacim iz mejna
+		// ovo je za tekst
+		if textMode {
+			var infoText = ""
+			// PESAK
+			if kursorPoslednjiX < sirinaKanvasa*brojPikselaPoCestici {
+				var poslednjiPiksel = matrica[kursorPoslednjiX/brojPikselaPoCestici][kursorPoslednjiY/brojPikselaPoCestici]
+				infoText = mat.Ime[poslednjiPiksel.Materijal] + " @ " + fmt.Sprintf("%.2f", float32(poslednjiPiksel.Temperatura/100)) + "C, SekMat: " + mat.Ime[poslednjiPiksel.SekMat] + ", Ticker: " + strconv.Itoa(int(poslednjiPiksel.Ticker))
+
+				// UI
+				// njanja: ovo se sigurno i ovde i u pritisku na gumb može mnogo lepše rešiti nekim funkcionalnim pristupom :DERP: longterm ali todo, vrv kad sređujem dva reda gumbeta
+			} else {
+				if kursorPoslednjiY < (visinaUIMargine+visinaDugmeta)*int32(len(boja)-1) && kursorPoslednjiY%(visinaUIMargine+visinaDugmeta) > visinaUIMargine {
+					infoText = mat.Ime[mat.Materijal(kursorPoslednjiY/(visinaUIMargine+visinaDugmeta))]
+				}
+
+				// PAUZA
+				if kursorPoslednjiY > visinaProzora-3*(visinaDugmeta+visinaUIMargine) && kursorPoslednjiY < visinaProzora-3*(visinaDugmeta+visinaUIMargine)+visinaDugmeta {
+					infoText = "Pause"
+				}
+				// SEJV
+				if kursorPoslednjiY > visinaProzora-2*(visinaDugmeta+visinaUIMargine) && kursorPoslednjiY < visinaProzora-2*(visinaDugmeta+visinaUIMargine)+visinaDugmeta {
+					infoText = "Save"
+				}
+				// RESET
+				if kursorPoslednjiY > visinaProzora-1*(visinaDugmeta+visinaUIMargine) && kursorPoslednjiY < visinaProzora-1*(visinaDugmeta+visinaUIMargine)+visinaDugmeta {
+					infoText = "Clear"
+				}
+
+			}
+
+			// njanja todo napraviti fju koja ludi hex int za boju pretvara u rgba vrednost
+			text, err = font.RenderUTF8Blended(infoText, sdl.Color{R: 255, G: 0, B: 0, A: 255})
+			if err == nil {
+				err = text.Blit(nil, surface, &sdl.Rect{X: 10, Y: 10, W: 0, H: 0})
+				if err != nil {
+					panic(err)
+				}
+			}
+			defer text.Free()
+
+		}
+
 		window.UpdateSurface()
 
 		// njanja: ovo renderuje krug oko četkice, ne može u brush fju jer se ona ne zove u svakom frejmu
 		// takođe kursor flikeruje jer bude na kratko izbrisan kad se pozove updatesurface par linija iznad pa dok ne bude ponovo nacrtan
 		// ako mene pitate mislim da daje odličan retro look
-		// pored toga što treperi takođe čini da uvidim problem da se displejuje preko UIja a slobodno probajte da selektujete materijal baš baš velikom četkicom
 		cetkica := sdl.Rect{kursorPoslednjiX - velicinaKursora*brojPikselaPoCestici, kursorPoslednjiY - velicinaKursora*brojPikselaPoCestici, int32(2 * velicinaKursora * brojPikselaPoCestici), int32(2 * velicinaKursora * brojPikselaPoCestici)}
 		renderer.SetDrawColor(255, 255, 255, 255)
 		renderer.DrawRect(&cetkica)
 		renderer.Present()
 
-		fmt.Printf("FPS: %f\n", 1000.0/float64((sdl.GetTicks64()-startTime)))
+		if fpsCap > 0 {
+			expectedFrameTime := uint64(1000 / fpsCap)
+			realFrameTime := sdl.GetTicks64() - startTime
+			if expectedFrameTime > realFrameTime {
+				// o moj bože molim vas jedan jedini int ko je mislio da je ovo dobra ideja
+				print("hehe")
+				sdl.Delay(uint32(expectedFrameTime - realFrameTime))
+			}
+		}
+		fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
 	}
 
 }
@@ -225,7 +304,6 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 		switch t := event.(type) {
 		case *sdl.QuitEvent:
 			running = false
-			break
 
 		case *sdl.KeyboardEvent:
 			if keystates[sdl.SCANCODE_ESCAPE] != 0 {

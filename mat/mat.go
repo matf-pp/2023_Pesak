@@ -1,8 +1,8 @@
 package mat
 
 import (
-//	"fmt"
-//	"math"
+	//	"fmt"
+	//	"math"
 	"math/rand"
 )
 
@@ -10,6 +10,7 @@ type Materijal int
 
 const tempRadius = 3
 const usporenje = 1000
+
 // const tezinaTempCestice = 1000
 // const tezinaTempOkoline = 1
 // const delilacTezina = tezinaTempCestice + tezinaTempOkoline
@@ -29,6 +30,18 @@ const (
 	Para   Materijal = 7
 )
 
+var Ime = map[Materijal]string{
+	Zid:    "Zid",
+	Prazno: "Prazno",
+	Pesak:  "Pesak",
+	Voda:   "Voda",
+	Metal:  "Metal",
+	Kamen:  "Kamen",
+	Lava:   "Lava",
+	Led:    "Led",
+	Para:   "Para",
+}
+
 var Boja = map[Materijal]uint32{
 	Zid:    0xffffff,
 	Prazno: 0x000000,
@@ -41,7 +54,7 @@ var Boja = map[Materijal]uint32{
 	Para:   0x9999cc,
 }
 
-var Gustina = map[Materijal]int32 {
+var Gustina = map[Materijal]int32{
 	Zid:    0,
 	Prazno: 0,
 	Pesak:  5,
@@ -53,15 +66,15 @@ var Gustina = map[Materijal]int32 {
 	Para:   -5,
 }
 
-var ToplotnaProvodljivost = map[Materijal]int32 {
-	Prazno: 1220, 	// 0.01225 						0
+var ToplotnaProvodljivost = map[Materijal]int32{
+	Prazno: 1220,   // 0.01225 						0
 	Pesak:  163100, // 1.631 						5
 	Voda:   100000, // 1 							3
 	Metal:  786000, // 7.860 						(čelik) 0
 	Kamen:  260000, // 2.600 						5
 	Lava:   310000, // 3.100 						4
-	Led:    91700, 	// 0.917 						0
-	Para:   598, 	// 0 (5.98 × 10^(–4) g cm^(–3)) -5
+	Led:    91700,  // 0.917 						0
+	Para:   598,    // 0 (5.98 × 10^(–4) g cm^(–3)) -5
 }
 
 // 0000 nece on nidje
@@ -81,8 +94,8 @@ var AStanje = map[Materijal]int{
 }
 
 type FaznaPromena struct {
-	Nize Materijal
-	Vise Materijal
+	Nize           Materijal
+	Vise           Materijal
 	TackaTopljenja int32
 	TackaKljucanja int32
 }
@@ -98,18 +111,18 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	//MinTemp = 0.00k = -273.15c = int32(-27315)
 	//maxtemp = 8000.00c = int32(800000)
 
-//	materijali	{nize,	Vise,	TackaT,		TackaK}
-	Zid:		{Zid,	Zid,	MinTemp,	MaxTemp},
-	Prazno:		{Prazno,Prazno,	MinTemp,	MaxTemp},
-	Pesak:		{Pesak,	Lava,	MinTemp,	170000},
-	Voda:		{Led,	Para,	0,			10000},
-	Metal:		{Metal,	Lava,	MinTemp,	150000},
-	Kamen:		{Kamen,	Lava,	MinTemp,	130000},
-	Lava:		{Lava,	Lava,	MinTemp,	MaxTemp},
-	Led:		{Led,	Voda,	MinTemp,	0},
-	Para:		{Voda,	Para,	10000,		MaxTemp},
-
+	//	materijali	{nize,	Vise,	TackaT,		TackaK}
+	Zid:    {Zid, Zid, MinTemp, MaxTemp},
+	Prazno: {Prazno, Prazno, MinTemp, MaxTemp},
+	Pesak:  {Pesak, Lava, MinTemp, 170000},
+	Voda:   {Led, Para, 0, 10000},
+	Metal:  {Metal, Lava, MinTemp, 150000},
+	Kamen:  {Kamen, Lava, MinTemp, 130000},
+	Lava:   {Lava, Lava, MinTemp, MaxTemp},
+	Led:    {Led, Voda, MinTemp, 0},
+	Para:   {Voda, Para, 10000, MaxTemp},
 }
+
 const MinTemp int32 = -27315
 const MaxTemp int32 = 800000
 
@@ -125,12 +138,11 @@ var Zapaljiv = map[Materijal]bool{
 	Para:   false,
 }
 
-
 type Cestica struct {
 	Materijal   Materijal
 	Temperatura int32
 	SekMat      Materijal
-	Ticker		int8
+	Ticker      int8
 }
 
 func NewCestica(materijal Materijal) Cestica {
@@ -138,7 +150,7 @@ func NewCestica(materijal Materijal) Cestica {
 		Materijal:   materijal,
 		Temperatura: 2000,
 		SekMat:      Prazno,
-		Ticker:		 8,	//za rdju gorivo itd, opada po principu nuklearnog raspada (svaki frejm ima x% sanse da ga dekrementira, na 0 prelazi u drugo stanje)
+		Ticker:      8, //za rdju gorivo itd, opada po principu nuklearnog raspada (svaki frejm ima x% sanse da ga dekrementira, na 0 prelazi u drugo stanje)
 	}
 	if materijal == Voda {
 		zrno.Temperatura = 2000
@@ -162,7 +174,7 @@ func NewCestica(materijal Materijal) Cestica {
 // nisam u stanju da procenim trenutno treba li ovo prebaciti u treci fajl ili Boga pitaj gde -s
 func UpdateTemp(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 
-	if matrix[i][j].Materijal == Prazno || matrix[i][j].Materijal == Zid{
+	if matrix[i][j].Materijal == Prazno || matrix[i][j].Materijal == Zid {
 		return
 	}
 	trenutna := matrix[i][j]
@@ -199,7 +211,7 @@ func UpdateTemp(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 
 	/**/
 	/**/
-	
+
 	var brojacKomsija int32 = 0
 	for k := -1; k < 2; k++ {
 		for l := -1; l < 2; l++ {
@@ -214,12 +226,12 @@ func UpdateTemp(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 			if matrix[i+k][j+l].Materijal != Prazno && matrix[i+k][j+l].Materijal != Zid {
 				bafer[i+k][j+l].Temperatura += deliTemp
 				if bafer[i+k][j+l].Temperatura < MinTemp {
-//					err := fmt.Sprintf("Temperatura cestice na poziciji [%d][%d] je van minimalne granice: %d \< %d\n", i+k, j+l, bafer[i+k][j+l].Temperatura < MinTemp)
-//					panic(err)
+					//					err := fmt.Sprintf("Temperatura cestice na poziciji [%d][%d] je van minimalne granice: %d \< %d\n", i+k, j+l, bafer[i+k][j+l].Temperatura < MinTemp)
+					//					panic(err)
 				}
 				if bafer[i+k][j+l].Temperatura > MaxTemp {
-//					err := fmt.Sprintf("Temperatura cestice na poziciji [%d][%d] je van maksimalne granice: %d \> %d\n", i+k, j+l, bafer[i+k][j+l].Temperatura < MaxTemp)
-//					panic(err)
+					//					err := fmt.Sprintf("Temperatura cestice na poziciji [%d][%d] je van maksimalne granice: %d \> %d\n", i+k, j+l, bafer[i+k][j+l].Temperatura < MaxTemp)
+					//					panic(err)
 					//ako vas je dibagovanje dovelo ovde, moguce je da samo treba povecati MaxTemp ali razmislite o implikacijama, mozda ne valja racunanje temperature i negde krsimo termodinamiku
 				}
 			}
@@ -242,7 +254,7 @@ func UpdateTemp(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 }
 
 func UpdatePhaseOfMatter(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
-	
+
 	if matrix[i][j].Materijal == Prazno {
 		return
 	}
@@ -256,7 +268,7 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 	temperatura := trenutna.Temperatura
 
 	if materijal == Lava {
-		if temperatura < MapaFaza[sekmat].TackaKljucanja{
+		if temperatura < MapaFaza[sekmat].TackaKljucanja {
 			matrix[i][j].Materijal = sekmat
 			bafer[i][j].Materijal = sekmat
 		}
@@ -269,14 +281,13 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 			matrix[i][j].SekMat = materijal
 			bafer[i][j].Materijal = MapaFaza[materijal].Vise
 			bafer[i][j].SekMat = materijal
-		}		
+		}
 	}
 
 	//gorenje
 	if Zapaljiv[materijal] {
 		//TODO
 	}
-
 
 }
 
@@ -299,48 +310,48 @@ func UpdatePosition(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 		smer = -1
 	}
 	//				{0, 1}		{0, 2}	{-1, 1}
-	rFaktor := rand.Intn(2)		*2	 	-1
+	rFaktor := rand.Intn(2)*2 - 1
 
 	if (astanje & 0b0001) != 0 {
 		komsija := matrix[i][j+smer]
 		//												( 1  *      G[v] = 2             <  1  *      g[ps] =  5) == True
 		//                                              (-1  *      G[v] = 2             < -1  *      g[pr] = -5) == True
-		if (AStanje[komsija.Materijal] & 0b0001 != 0) && smer*int(Gustina[komsija.Materijal]) < smer*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je
+		if (AStanje[komsija.Materijal]&0b0001 != 0) && smer*int(Gustina[komsija.Materijal]) < smer*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je
 			if bafer[i][j+smer] == komsija {
 				bafer[i][j+smer] = trenutna
 				bafer[i][j] = komsija
 				pomeren = true
 			}
 		}
-	}//ovo ne radi bas uvek a nmg da provalim sto i kako? iskreno mng bi mi znacilo da nemanja uradi da haverom preko cestice vidimo njene promenjive
+	} //ovo ne radi bas uvek a nmg da provalim sto i kako? iskreno mng bi mi znacilo da nemanja uradi da haverom preko cestice vidimo njene promenjive
 	if pomeren {
 		return
 	}
 
-/**/
+	/**/
 	if (astanje & 0b0010) != 0 {
 		komsija1 := matrix[i+rFaktor][j+smer]
-		if(AStanje[komsija1.Materijal] & 0b0010 != 0) && smer*int(Gustina[komsija1.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
+		if (AStanje[komsija1.Materijal]&0b0010 != 0) && smer*int(Gustina[komsija1.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
 			if bafer[i+rFaktor][j+smer] == komsija1 {
 				bafer[i+rFaktor][j+smer] = trenutna
 				bafer[i][j] = komsija1
 				pomeren = true
 				return
-			}			
+			}
 		}
 		komsija2 := matrix[i-rFaktor][j+smer]
-		if(AStanje[komsija2.Materijal] & 0b0010 != 0) && smer*int(Gustina[komsija2.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
+		if (AStanje[komsija2.Materijal]&0b0010 != 0) && smer*int(Gustina[komsija2.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
 			if bafer[i-rFaktor][j+smer] == komsija2 {
 				bafer[i-rFaktor][j+smer] = trenutna
 				bafer[i][j] = komsija2
 				pomeren = true
 				return
-			}			
-		}	
+			}
+		}
 	}
-/**/
+	/**/
 	if (astanje & 0b0100) != 0 {
-		
+
 		if matrix[i+rFaktor][j].Materijal == Prazno && bafer[i+rFaktor][j].Materijal == Prazno {
 			if matrix[i+rFaktor+rFaktor][j].Materijal == Prazno && bafer[i+rFaktor+rFaktor][j].Materijal == Prazno {
 				bafer[i+rFaktor+rFaktor][j] = trenutna
