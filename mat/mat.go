@@ -280,10 +280,7 @@ func UpdateTemp(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 
 func UpdatePhaseOfMatter(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 
-	if matrix[i][j].Materijal == Prazno {
-		return
-	}
-	if matrix[i][j].Materijal == Zid {
+	if matrix[i][j].Materijal == Prazno || matrix[i][j].Materijal == Zid{
 		return
 	}
 
@@ -351,18 +348,23 @@ func UpdatePosition(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 		return
 	}
 
+	// dangerzone: start /limun
 	if (astanje & 0b0001) != 0 {
 		komsija := matrix[i][j+smer]
 		//												( 1  *      G[v] = 2             <  1  *      g[ps] =  5) == True
 		//                                              (-1  *      G[v] = 2             < -1  *      g[pr] = -5) == True
 		if (AStanje[komsija.Materijal]&0b0001 != 0) && smer*int(Gustina[komsija.Materijal]) < smer*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je
 			if bafer[i][j+smer] == komsija {
+				matrix[i][j+smer] = trenutna
 				bafer[i][j+smer] = trenutna
+				matrix[i][j] = komsija
 				bafer[i][j] = komsija
 				pomeren = true
 			}
 		}
-	} //ovo ne radi bas uvek a nmg da provalim sto i kako? iskreno mng bi mi znacilo da nemanja uradi da haverom preko cestice vidimo njene promenjive
+	}
+	// dangerzone: end /limun
+	//ovo ne radi bas uvek a nmg da provalim sto i kako? iskreno mng bi mi znacilo da nemanja uradi da haverom preko cestice vidimo njene promenjive
 	if pomeren {
 		return
 	}
