@@ -1,6 +1,8 @@
 package mat
 
 import (
+	//"main/brushPack"
+
 	//	"fmt"
 	//	"math"
 	"math/rand"
@@ -14,9 +16,6 @@ const usporenje = 1000
 // const tezinaTempCestice = 1000
 // const tezinaTempOkoline = 1
 // const delilacTezina = tezinaTempCestice + tezinaTempOkoline
-// treba mi bolje rešenje, npr da paket za pravljenje kanvasa sadrži širinu i visinu i f-je za kanvas /limun
-// mogu li se ovi kom sada obrisati ako su suvisni? malo je sizofreno ne pratim vise sta je sta -s
-const sirinaKanvasa, visinaKanvasa = 240, 144
 
 const (
 	Prazno    Materijal = 0
@@ -61,6 +60,9 @@ var Boja = map[Materijal]uint32{
 	Zid:       0xffffff,
 }
 
+// mapa gustina neće raditi kako treba,
+// ako nije preveliki problem hteo bih
+// da bude tačna gustina * 10^5 /limun
 var Gustina = map[Materijal]int32 {
 	Prazno:		0,
 	Metal:		0,
@@ -77,6 +79,7 @@ var Gustina = map[Materijal]int32 {
 
 // ToplotnaProvodljivost
 //moze li se ovo preimenovati u ToplodnaProvodljivost? da bude citkiji kod?
+// "ToplotnaProvodljivost" zauzima mnogo mesta /limun
 var Lambda = map[Materijal]int32 {
 	Prazno: 26,			// 0,026
 	Pesak:  2050,		// 2.05

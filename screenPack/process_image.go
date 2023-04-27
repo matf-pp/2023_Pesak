@@ -1,11 +1,13 @@
-package main
+package screenPack
 
 import (
+	"main/mat"
+	"main/matrixPack"
+
 	"image"
 	"image/color"
 	_ "image/jpeg"
 	_ "image/png"
-	"main/mat"
 	"math"
 	"os"
 
@@ -27,7 +29,7 @@ func Distance(c1 color.RGBA, hexColor uint32) float64 {
 }
 
 // otvara sliku risajzuje je i pretvori je u matricu pescanih boja velicine kanvasa
-func ucitajSliku(filePath string, matrix, bafer [][]mat.Cestica) error {
+func UcitajSliku(filePath string, matrix, bafer [][]mat.Cestica) error {
 	file, err := os.Open(filePath)
 	if err != nil {
 		panic(err)
@@ -99,8 +101,8 @@ func ucitajSliku(filePath string, matrix, bafer [][]mat.Cestica) error {
 		}
 	}
 
-	zazidajMatricu(matrix)
-	zazidajMatricu(bafer)
+	matrixPack.ZazidajMatricu(matrix)
+	matrixPack.ZazidajMatricu(bafer)
 
 	return nil
 }

@@ -1,4 +1,4 @@
-package main
+package screenPack
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 )
 
 // čuva kanvas kao sliku apskejlovanu na veličinu ekrana
-func saveImage(matrix [][]mat.Cestica, scaleFactor int) {
+func SaveImage(matrix [][]mat.Cestica, scaleFactor int) {
 	// pravimo praznu sliku pa je popunjavamo
 	width := len(matrix)
 	height := len(matrix[0])
