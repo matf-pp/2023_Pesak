@@ -16,7 +16,7 @@ import (
 // njanja: todo izbaciti sve ove gluposti koje redovno menjamo u konfig fajl i staviti da bude gitignorovan
 
 // njanja: pazite ovo
-const korisnikJeLimun = false
+const korisnikNijeNanja = true
 
 // njanja: ovo je loša praksa majmuni
 // e a reci je l si provalio bukvalno je kao `using` u cpp -s
@@ -30,7 +30,7 @@ var gus = mat.Lambda
 const sirinaKanvasa, visinaKanvasa = 240, 144
 
 // FPS cap, kontam da je zgodno za testiranje staviti neki nizak, 0 = unlimited
-var fpsCap = 60
+var fpsCap = 0
 
 // njanja: ako hoćete da eksperimentišete samo stavite ovo na false ali mislim da nema razloga samo promenite veličinu kanvasa
 var autoFitScreen = true
@@ -78,7 +78,7 @@ const fontSize = 40
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
 	if autoFitScreen {
-		brojPikselaPoCestici, sirinaProzora, visinaProzora = fitToScreen(50)
+		brojPikselaPoCestici, sirinaProzora, visinaProzora = fitToScreen(80)
 	}
 
 	// njanja: gumb magija ne radi kad nije u mejnu stignite ako hoćete
@@ -153,6 +153,18 @@ func main() {
 		}
 		render(matrica, surface)
 
+		/*//////////////////////////////////////////////////////
+		broj := 0
+		for i := 0; i < sirinaKanvasa; i++ {
+			for j:= 0; j < visinaKanvasa; j++ {
+				if matrica[i][j].Materijal == mat.Pesak {
+					broj ++
+				}
+			}
+		}
+		fmt.Printf("%d\n", broj)
+		//////////////////////////////////////////////////////*/
+
 		// njanja: ovo renderuje gumbad za sve materijale
 		var counter int32 = 1
 		for i, _ := range boja {
@@ -184,7 +196,7 @@ func main() {
 			// PESAK
 			if kursorPoslednjiX < sirinaKanvasa*brojPikselaPoCestici {
 				var poslednjiPiksel = matrica[kursorPoslednjiX/brojPikselaPoCestici][kursorPoslednjiY/brojPikselaPoCestici]
-				infoText = mat.Ime[poslednjiPiksel.Materijal] + " @ " + fmt.Sprintf("%.2f", float32(poslednjiPiksel.Temperatura/100)) + "C, SekMat: " + mat.Ime[poslednjiPiksel.SekMat] + ", Ticker: " + strconv.Itoa(int(poslednjiPiksel.Ticker))
+				infoText = mat.Ime[poslednjiPiksel.Materijal] + " @ " + fmt.Sprintf("%.2f", float32((-27315 + int32(poslednjiPiksel.Temperatura))/100)) + "C, SekMat: " + mat.Ime[poslednjiPiksel.SekMat] + ", Ticker: " + strconv.Itoa(int(poslednjiPiksel.Ticker))
 
 				// UI
 				// njanja: ovo se sigurno i ovde i u pritisku na gumb može mnogo lepše rešiti nekim funkcionalnim pristupom :DERP: longterm ali todo, vrv kad sređujem dva reda gumbeta
@@ -277,7 +289,7 @@ func brush(matrix [][]mat.Cestica, bafer [][]mat.Cestica, x int32, y int32, stat
 	if x > sirinaKanvasa*brojPikselaPoCestici {
 		return
 	}
-	if state != 1 && state != 4 {
+	if state != 1 && state != 2 && state != 4 {
 		return
 	}
 
@@ -293,11 +305,19 @@ func brush(matrix [][]mat.Cestica, bafer [][]mat.Cestica, x int32, y int32, stat
 		}
 	}
 
+	if state == 2 {
+		tx, ty := clampCoords(x/brojPikselaPoCestici, y/brojPikselaPoCestici)
+		trenutniMat = matrix[tx][ty].Materijal
+	}
+
 	if state == 4 {
 		for i := -velicinaKursora; i <= velicinaKursora; i++ {
 			for j := -velicinaKursora; j <= velicinaKursora; j++ {
 				tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
-				if matrix[tx][ty].Materijal != mat.Zid { //napomenuo bih da prazne cestice ovde brisemo i pravimo opet da bismo resetovali temp, inace bi bilo efikasnije samo postaviti im Materijal na Prazno, NAGADJAM
+				if matrix[tx][ty].Materijal != mat.Zid {
+//napomenuo bih da prazne cestice ovde brisemo i pravimo opet da bismo resetovali temp
+//inace bi bilo efikasnije samo postaviti im Materijal na Prazno, NAGADJAM
+//takodje mozda je brze izmeniti polja cestice nego praviti novu, ne znam, ostavio bih to bencmarkingu 
 					matrix[tx][ty] = mat.NewCestica(mat.Prazno)
 					bafer[tx][ty] = mat.NewCestica(mat.Prazno)
 				}
@@ -322,28 +342,34 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 				running = false
 			}
 			if keystates[sdl.SCANCODE_0] != 0 {
-				trenutniMat = mat.Prazno
+				trenutniMat = mat.Materijal(10)
 			}
 			if keystates[sdl.SCANCODE_1] != 0 {
-				trenutniMat = mat.Pesak
+				trenutniMat = mat.Materijal(1)
 			}
 			if keystates[sdl.SCANCODE_2] != 0 {
-				trenutniMat = mat.Voda
+				trenutniMat = mat.Materijal(2)
 			}
 			if keystates[sdl.SCANCODE_3] != 0 {
-				trenutniMat = mat.Metal
+				trenutniMat = mat.Materijal(3)
 			}
 			if keystates[sdl.SCANCODE_4] != 0 {
-				trenutniMat = mat.Kamen
+				trenutniMat = mat.Materijal(4)
 			}
 			if keystates[sdl.SCANCODE_5] != 0 {
-				trenutniMat = mat.Lava
+				trenutniMat = mat.Materijal(5)
 			}
 			if keystates[sdl.SCANCODE_6] != 0 {
-				trenutniMat = mat.Led
+				trenutniMat = mat.Materijal(6)
 			}
 			if keystates[sdl.SCANCODE_7] != 0 {
-				trenutniMat = mat.Para
+				trenutniMat = mat.Materijal(7)
+			}
+			if keystates[sdl.SCANCODE_8] != 0 {
+				trenutniMat = mat.Materijal(8)
+			}
+			if keystates[sdl.SCANCODE_9] != 0 {
+				trenutniMat = mat.Materijal(9)
 			}
 			if keystates[sdl.SCANCODE_DOWN] != 0 {
 				if velicinaKursora > 0 {
@@ -414,7 +440,7 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 		kursorPoslednjiY = y
 	}
 
-	if korisnikJeLimun {
+	if korisnikNijeNanja {
 		fmt.Printf("x: %d ", x)
 		fmt.Printf("y: %d\t", y)
 		fmt.Printf("xpx: %d ", x/brojPikselaPoCestici)
@@ -422,7 +448,10 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 		fmt.Printf("mb: %d\t", state)
 		fmt.Printf("mat.Materijal: %d\t", trenutniMat)
 		fmt.Printf("velicina: %d\t", velicinaKursora)
-		fmt.Printf("pauza: %t\n", pause)
+		fmt.Printf("pauza: %t\t", pause)
+		fmt.Printf("brCestica: %d\n", brCestica)
+		fmt.Printf("brLave: %d\n", brLave)
+		fmt.Printf("brKamena: %d\n", brKamena)
 	}
 
 	brush(matrix, bafer, x, y, state)
@@ -434,7 +463,7 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 func proveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 	//njanja: ovo je detekcija klika na gumb
 	if x > sirinaProzora-marginaZaGumbad+sirinaUIMargine && x < sirinaProzora-sirinaUIMargine {
-		// njanja: TODO namestiti da se ređaju u više kolona ako baš mora //mora
+		// njanja: TODO namestiti da se ređaju u više kolona ako baš mora //mora -s
 		// materijali
 		if y < (visinaUIMargine+visinaDugmeta)*int32(len(boja)-1) && y%(visinaUIMargine+visinaDugmeta) > visinaUIMargine {
 			trenutniMat = mat.Materijal(y / (visinaUIMargine + visinaDugmeta))
@@ -464,7 +493,29 @@ func proveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 		}
 	}
 }
+
+var brCestica int = 0
+var brLave int = 0
+var brKamena int = 0
+
 func update(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
+
+	brCestica = 0
+	brKamena = 0
+	brLave = 0
+	for j := 1; j < visinaKanvasa-1; j++ {
+		for i := 1; i < sirinaKanvasa-1; i++ {
+			if matrix[i][j].Materijal != mat.Prazno {
+				brCestica++
+			}
+			if matrix[i][j].Materijal == mat.Lava {
+				brLave++
+			}
+			if matrix[i][j].Materijal == mat.Kamen {
+				brKamena++
+			}
+		}
+	}
 
 	for j := 1; j < visinaKanvasa-1; j++ {
 		for i := 1; i < sirinaKanvasa-1; i++ {
@@ -567,8 +618,8 @@ func izracunajTempBoju(temp int32) uint32 {
 	return uint32(tempBoja)
 }
 */
-var minTempRendered int32 = 20
-var maxTempRendered int32 = 21
+var minTempRendered uint32 = 29315
+var maxTempRendered uint32 = 29316
 
 func izracunajTempBoju(zrno mat.Cestica) uint32 {
 
@@ -585,7 +636,7 @@ func izracunajTempBoju(zrno mat.Cestica) uint32 {
 
 	var crvenaKomponenta uint32 = uint32(255 * (temperatura - minTempRendered) / (maxTempRendered - minTempRendered))
 	var plavaKomponenta uint32 = uint32(255 - crvenaKomponenta)
-	var zelenaKomponenta uint32 = 0
+	var zelenaKomponenta uint32 = uint32(63)
 
 	var boja uint32 = (crvenaKomponenta*256+zelenaKomponenta)*256 + plavaKomponenta
 	return boja

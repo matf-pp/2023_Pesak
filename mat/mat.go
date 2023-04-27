@@ -15,58 +15,68 @@ const usporenje = 1000
 // const tezinaTempOkoline = 1
 // const delilacTezina = tezinaTempCestice + tezinaTempOkoline
 // treba mi bolje rešenje, npr da paket za pravljenje kanvasa sadrži širinu i visinu i f-je za kanvas /limun
-// mogu li se ovi kom sada obrisati ako su suvisni? malo je sizofreno ne pratim vise sta je sta
+// mogu li se ovi kom sada obrisati ako su suvisni? malo je sizofreno ne pratim vise sta je sta -s
 const sirinaKanvasa, visinaKanvasa = 240, 144
 
 const (
-	Zid    Materijal = 256
-	Prazno Materijal = 0
-	Pesak  Materijal = 1
-	Voda   Materijal = 2
-	Metal  Materijal = 3
-	Kamen  Materijal = 4
-	Lava   Materijal = 5
-	Led    Materijal = 6
-	Para   Materijal = 7
+	Prazno    Materijal = 0
+	Metal     Materijal = 1
+	Led       Materijal = 2
+	Kamen     Materijal = 3
+	Pesak     Materijal = 4
+	Lava      Materijal = 5
+	Voda      Materijal = 6
+	Para      Materijal = 7
+	TecniAzot Materijal = 8
+	Plazma    Materijal = 9
+	Zid       Materijal = 256
 )
 
 var Ime = map[Materijal]string{
-	Zid:    "Zid",
-	Prazno: "Prazno",
-	Pesak:  "Pesak",
-	Voda:   "Voda",
-	Metal:  "Metal",
-	Kamen:  "Kamen",
-	Lava:   "Lava",
-	Led:    "Led",
-	Para:   "Para",
+	Prazno:    "Prazno",
+	Metal:     "Metal",
+	Led:       "Led",
+	Kamen:     "Kamen",
+	Pesak:     "Pesak",
+	Lava:      "Lava",
+	Voda:      "Voda",
+	Para:      "Para",
+	TecniAzot: "Tecni Azot",
+	Plazma:    "Plazma",
+	Zid:       "Zid",
+
 }
 
 var Boja = map[Materijal]uint32{
-	Zid:    0xffffff,
-	Prazno: 0x000000,
-	Pesak:  0xffff66,
-	Voda:   0x3333ff,
-	Metal:  0x33334b,
-	Kamen:  0x999977,
-	Lava:   0xff6600,
-	Led:    0xccccff,
-	Para:   0x9999cc,
+	Prazno:    0x000000,
+	Metal:     0x33334b,
+	Led:       0xaaaaff,
+	Kamen:     0x999977,
+	Pesak:     0xffff66,
+	Lava:      0xff6600,
+	Voda:      0x3333ff,
+	Para:      0x6666ff,
+	TecniAzot: 0x99ff99,
+	Plazma:    0xff99ff,
+	Zid:       0xffffff,
 }
 
 var Gustina = map[Materijal]int32 {
-	Zid:	0,
-	Prazno: 1225, 	// 0.01225 			0
-	Pesak:  163100, // 1.631 			5
-	Voda:   100000, // 1 				3
-	Metal:  786000, // 7.860 	(čelik) 0
-	Kamen:  260000, // 2.600 			5
-	Lava:   310000, // 3.100 			4
-	Led:    91700, 	// 0.917 			0
-	Para:   598, 	// 0.005.98	   	   -5
+	Prazno:		0,
+	Metal:		0,
+	Led:		0,
+	Kamen:		6,
+	Pesak:		5,
+	Lava:		4,
+	Voda:		3,
+	Para:		-5,
+	TecniAzot:	3,
+	Plazma:		0,
+	Zid:		0,
 }
 
 // ToplotnaProvodljivost
+//moze li se ovo preimenovati u ToplodnaProvodljivost? da bude citkiji kod?
 var Lambda = map[Materijal]int32 {
 	Prazno: 26,			// 0,026
 	Pesak:  2050,		// 2.05
@@ -76,29 +86,44 @@ var Lambda = map[Materijal]int32 {
 	Lava:   1300000,	// 1300
 	Led:    1600,		// 1,6
 	Para:   16,			// 0.016
+//
+//	Prazno:
+//	Metal:
+//	Led:
+//	Kamen:
+//	Pesak:
+//	Lava:
+//	Voda:
+//	Para:
+//	TecniAzot:
+//	Plazma:
+//	Zid:
 }
 
 // 0000 nece on nidje
-// 0001 pada direkt
-// 0010 pada dijagonalno
-// 0100 curi horizontalno
+// ---1 pada direkt
+// --1- pada dijagonalno
+// -1-- curi horizontalno
+// 1--- pomera se nasumicno svuda
 var AStanje = map[Materijal]int{
-	Zid:    0b0000,
-	Prazno: 0b1111,
-	Pesak:  0b0011,
-	Voda:   0b0111,
-	Metal:  0b0000,
-	Kamen:  0b0001,
-	Lava:   0b0111,
-	Led:    0b0000,
-	Para:   0b0111,
+	Prazno:		0b1111,
+	Metal:		0b0000,
+	Led:		0b0000,
+	Kamen:		0b0001,
+	Pesak:		0b0011,
+	Lava:		0b0111,
+	Voda:		0b0111,
+	Para:		0b0111,
+	TecniAzot:	0b0111,
+	Plazma:		0b1111,
+	Zid:		0b0000,
 }
 
 type FaznaPromena struct {
 	Nize           Materijal
 	Vise           Materijal
-	TackaTopljenja int32
-	TackaKljucanja int32
+	TackaTopljenja uint32
+	TackaKljucanja uint32
 }
 
 var MapaFaza = map[Materijal]FaznaPromena{
@@ -106,42 +131,46 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	//k(c) = c+273.15
 	//c(k) = k–273.15
 
-	//100 int32		=	1.00c
-	//130000 int32	=	1300.00c
+	//100 int32		=	1.00k
+	//130000 int32	=	1300.00k
 
 	//MinTemp = 0.00k = -273.15c = int32(-27315)
 	//maxtemp = 8000.00c = int32(800000)
 
-	//	materijali	{nize,	Vise,	TackaT,		TackaK}
-	Zid:    {Zid, Zid, MinTemp, MaxTemp},
-	Prazno: {Prazno, Prazno, MinTemp, MaxTemp},
-	Pesak:  {Pesak, Lava, MinTemp, 170000},
-	Voda:   {Led, Para, 0, 10000},
-	Metal:  {Metal, Lava, MinTemp, 150000},
-	Kamen:  {Kamen, Lava, MinTemp, 130000},
-	Lava:   {Lava, Lava, MinTemp, MaxTemp},
-	Led:    {Led, Voda, MinTemp, 0},
-	Para:   {Voda, Para, 10000, MaxTemp},
+//	materijali	{nize,	Vise,	TackaT,		TackaK}
+	Prazno:		{Prazno, Prazno, MinTemp, MaxTemp},
+	Metal:		{Metal, Lava, MinTemp, 177315}, //1500.00c
+	Led:		{Led, Voda, MinTemp, 27315}, //0.00c
+	Kamen:		{Kamen, Lava, MinTemp, 157315}, //1300.00c
+	Pesak:		{Pesak, Lava, MinTemp, 197315}, //1700.00c
+	Lava:		{Lava, Lava, MinTemp, MaxTemp},
+	Voda:		{Led, Para, 27315, 37315}, //0.00c, 100.00c
+	Para:		{Voda, Para, 37315, MaxTemp}, //100.00c
+	TecniAzot:	{TecniAzot, Prazno, MinTemp, 7315}, //-200.00c
+	Plazma:		{Prazno, Plazma, 650000, MaxTemp}, //6773.15c
+	Zid:		{Zid, Zid, MinTemp, MaxTemp},
 }
 
-const MinTemp int32 = -27315
-const MaxTemp int32 = 800000
+const MinTemp uint32 = 0 // 0.00k
+const MaxTemp uint32 = 827315 //8000.00c
 
 var Zapaljiv = map[Materijal]bool{
-	Zid:    false,
-	Prazno: false,
-	Pesak:  false,
-	Voda:   false,
-	Metal:  false,
-	Kamen:  false,
-	Lava:   false,
-	Led:    false,
-	Para:   false,
+	Prazno:		false,
+	Metal:		false,
+	Led:		false,
+	Kamen:		false,
+	Pesak:		false,
+	Lava:		false,
+	Voda:		false,
+	Para:		false,
+	TecniAzot:	false,
+	Plazma:		false,
+	Zid:		false,
 }
 
 type Cestica struct {
 	Materijal   Materijal
-	Temperatura int32
+	Temperatura uint32
 	SekMat      Materijal
 	Ticker      int8
 }
@@ -149,24 +178,27 @@ type Cestica struct {
 func NewCestica(materijal Materijal) Cestica {
 	zrno := Cestica{
 		Materijal:   materijal,
-		Temperatura: 2000,
+		Temperatura: 29315, //20.00c
 		SekMat:      Prazno,
 		Ticker:      8, //za rdju gorivo itd, opada po principu nuklearnog raspada (svaki frejm ima x% sanse da ga dekrementira, na 0 prelazi u drugo stanje)
 	}
-	if materijal == Voda {
-		zrno.Temperatura = 2000
-	}
 	if materijal == Led {
 		zrno.SekMat = Voda
-		zrno.Temperatura = -3000
+		zrno.Temperatura = 24315 //-30.00c
 	}
 	if materijal == Para {
 		zrno.SekMat = Voda
-		zrno.Temperatura = 15000
+		zrno.Temperatura = 42315 //150.00c
 	}
 	if materijal == Lava {
 		zrno.SekMat = Kamen
-		zrno.Temperatura = 200000
+		zrno.Temperatura = 227315 //2000.00c
+	}
+	if materijal == TecniAzot {
+		zrno.Temperatura = 2315 //-250.00c
+	}
+	if materijal == Plazma {
+		zrno.Temperatura = 727315 //7000.00c
 	}
 	return zrno
 }
@@ -176,6 +208,7 @@ func NewCestica(materijal Materijal) Cestica {
 func UpdateTemp(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 
 	if matrix[i][j].Materijal == Prazno || matrix[i][j].Materijal == Zid {
+		bafer[i][j].Temperatura = 29315
 		return
 	}
 	trenutna := matrix[i][j]
@@ -213,31 +246,19 @@ func UpdateTemp(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 	/**/
 	/**/
 
-	var brojacKomsija int32 = 0
+
+
+	temperatura := float64(trenutna.Temperatura)
+	parcePice := temperatura/9
 	for k := -1; k < 2; k++ {
 		for l := -1; l < 2; l++ {
 			if matrix[i+k][j+l].Materijal != Prazno && matrix[i+k][j+l].Materijal != Zid {
-				brojacKomsija++
+				bafer[i+k][j+l].Temperatura += uint32(parcePice)
+				temperatura = temperatura - parcePice
 			}
 		}
 	}
-	deliTemp := trenutna.Temperatura / brojacKomsija
-	for k := -1; k < 2; k++ {
-		for l := -1; l < 2; l++ {
-			if matrix[i+k][j+l].Materijal != Prazno && matrix[i+k][j+l].Materijal != Zid {
-				bafer[i+k][j+l].Temperatura += deliTemp
-				if bafer[i+k][j+l].Temperatura < MinTemp {
-					//					err := fmt.Sprintf("Temperatura cestice na poziciji [%d][%d] je van minimalne granice: %d \< %d\n", i+k, j+l, bafer[i+k][j+l].Temperatura < MinTemp)
-					//					panic(err)
-				}
-				if bafer[i+k][j+l].Temperatura > MaxTemp {
-					//					err := fmt.Sprintf("Temperatura cestice na poziciji [%d][%d] je van maksimalne granice: %d \> %d\n", i+k, j+l, bafer[i+k][j+l].Temperatura < MaxTemp)
-					//					panic(err)
-					//ako vas je dibagovanje dovelo ovde, moguce je da samo treba povecati MaxTemp ali razmislite o implikacijama, mozda ne valja racunanje temperature i negde krsimo termodinamiku
-				}
-			}
-		}
-	}
+	bafer[i][j].Temperatura += uint32(temperatura)
 
 	/**/
 	//interesantan fenomen - voda i para bi trebalo da se mimoidju zbog razlike u gustini, medjutim:
@@ -293,8 +314,6 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 }
 
 func UpdatePosition(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
-	//pomeranje ce morati biti redna petlja a ne paralelna sa ostalim efektima (zameni se pesak s naftom a tek onda nafta eksplodira i sta onda) -s
-	//decko ti bulaznis -s
 	//padanje
 
 	if matrix[i][j].Materijal == Prazno || matrix[i][j].Materijal == Zid {
@@ -305,13 +324,29 @@ func UpdatePosition(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 	pomeren := false
 	astanje := AStanje[trenutna.Materijal]
 	smer := 0
-	if Gustina[trenutna.Materijal] > 1225 {
+	if Gustina[trenutna.Materijal] > 0 {
 		smer = 1
 	} else {
 		smer = -1
 	}
 	//				{0, 1}		{0, 2}	{-1, 1}
 	rFaktor := rand.Intn(2)*2 - 1
+
+	if (astanje & 0b1000) != 0 {
+		lRand := rand.Intn(3)-1
+		rRand := rand.Intn(3)-1
+		komsija := matrix[i+lRand][j+rRand]
+		komsijaBuff := bafer[i+lRand][j+rRand]
+		if komsija.Materijal == Prazno && komsijaBuff.Materijal == Prazno {
+			bafer[i][j] = komsija
+			bafer[i+lRand][j+rRand] = trenutna
+			pomeren = true
+		}
+	}
+
+	if pomeren {
+		return
+	}
 
 	if (astanje & 0b0001) != 0 {
 		komsija := matrix[i][j+smer]
@@ -372,6 +407,10 @@ func UpdatePosition(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 		}
 		pomeren = true
 
+	}
+
+	if pomeren {
+		return
 	}
 
 	if !pomeren {
