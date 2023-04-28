@@ -4,6 +4,8 @@ import (
 	"main/mat"
 	"main/matrixPack"
 
+	"math"
+
 	"github.com/fstanis/screenresolution"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -15,9 +17,14 @@ const VisinaUIMargine = 10
 const SirinaDugmeta = 40
 const VisinaDugmeta = 20
 
-// njanja: ovo ćemo da menjamo ako treba
-var MarginaZaGumbad int32 = 2*SirinaUIMargine + SirinaDugmeta
-var SirinaProzora = matrixPack.SirinaKan * matrixPack.BrPiksPoCestici + MarginaZaGumbad
+// njanja: gumb magija ne radi kad nije u mejnu stignite ako hoćete
+// ja sada: https://cdn.discordapp.com/emojis/1068966756556738590.webp
+var BrojMaterijala = len(mat.Boja) + 2
+var BrojSpecijalnihGumbadi int32 = 3
+var BrojGumbadiPoKoloni int32 = VisinaProzora/(VisinaDugmeta+VisinaUIMargine) - (BrojSpecijalnihGumbadi)
+var BrojKolona int32 = int32(math.Ceil(float64(BrojMaterijala) / float64(BrojGumbadiPoKoloni)))
+var MarginaZaGumbad int32 = BrojKolona*(SirinaDugmeta+SirinaUIMargine) + SirinaUIMargine
+var SirinaProzora = matrixPack.SirinaKan * matrixPack.BrPiksPoCestici + 2 * MarginaZaGumbad
 var VisinaProzora = matrixPack.VisinaKan * matrixPack.BrPiksPoCestici
 
 var KursorPoslednjiX = int32(0)
@@ -28,7 +35,6 @@ var VelicinaKursora int32 = 8
 var MaxKursor int32 = 32
 
 var TrenutniMat mat.Materijal = mat.Pesak
-
 
 // takozvano dinamičko skaliranje ekrana ili nešto ne znam lupio sam
 // ako ovo ikada u praksi izbaci nešto što ne staje u ekran javite mi da ga sredim ali mislim da je to besmislen posao
@@ -71,4 +77,60 @@ func ProveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 			matrixPack.ZazidajMatricu(matrix)
 		}
 	}
+}
+
+func CreateWindow() *sdl.Window {
+	// njanja: dodao marginu za gumbad
+	window, err := sdl.CreateWindow("pesak", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
+		SirinaProzora, VisinaProzora, sdl.WINDOW_SHOWN)
+	if err != nil {
+		panic(err)
+	}
+	return window
+}
+
+func CreateSurface(window *sdl.Window) *sdl.Surface {
+	surface, err := window.GetSurface()
+	if err != nil {
+		panic(err)
+	}
+	surface.FillRect(nil, 0)
+	return surface
+}
+
+func CreateRenderer(window *sdl.Window) *sdl.Renderer {
+	renderer, err := window.GetRenderer()
+	if err != nil {
+		panic(err)
+	}
+	return renderer
+}
+
+// njanja: ovo renderuje gumbad za sve materijale
+func RenderujGumbZaSveMaterijale(surface *sdl.Surface) *sdl.Surface{
+	for i, _ := range mat.Boja {
+		gumb := sdl.Rect{int32(SirinaProzora - MarginaZaGumbad + ((int32(i)%BrojKolona)*(SirinaDugmeta+SirinaUIMargine) + SirinaUIMargine)),
+			int32(VisinaUIMargine + int32(i)/BrojKolona*(VisinaDugmeta+VisinaUIMargine)), SirinaDugmeta, VisinaDugmeta}
+		surface.FillRect(&gumb, mat.Boja[i])
+	}
+
+	return surface
+}
+
+func CreatePlayGumb() sdl.Rect {
+	plejGumb := sdl.Rect{int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
+		int32(VisinaProzora - 3*VisinaUIMargine - 3*VisinaDugmeta), SirinaDugmeta, VisinaDugmeta}
+	return plejGumb
+}
+
+func CreateSaveGumb() sdl.Rect {
+	sejvGumb := sdl.Rect{int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
+		int32(VisinaProzora - 2*VisinaUIMargine - 2*VisinaDugmeta), SirinaDugmeta, VisinaDugmeta}
+	return sejvGumb
+}
+
+func CreateResetGumb() sdl.Rect {
+	resetGumb := sdl.Rect{int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
+		int32(VisinaProzora - VisinaUIMargine - VisinaDugmeta), SirinaDugmeta, VisinaDugmeta}
+	return resetGumb
 }

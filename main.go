@@ -2,14 +2,13 @@ package main
 
 import (
 	"main/mat"
+	"main/fontPack"
 	"main/brushPack"
 	"main/matrixPack"
 	"main/screenPack"
 
 	"fmt"
-	"math"
 	"math/rand"
-	"strconv"
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
@@ -33,23 +32,11 @@ var fpsCap = 0
 
 var keystates = sdl.GetKeyboardState()
 
-const fontPath = "./assets/Minecraft.ttf"
-const fontSize = 40
-
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
 	if screenPack.AutoFitScreen {
 		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
 	}
-
-	// njanja: gumb magija ne radi kad nije u mejnu stignite ako hoćete
-	// ja sada: https://cdn.discordapp.com/emojis/1068966756556738590.webp
-	var brojMaterijala = len(mat.Boja) + 2
-	var brojSpecijalnihGumbadi int32 = 3
-	var brojGumbadiPoKoloni int32 = screenPack.VisinaProzora/(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) - (brojSpecijalnihGumbadi)
-	var brojKolona int32 = int32(math.Ceil(float64(brojMaterijala) / float64(brojGumbadiPoKoloni)))
-	screenPack.MarginaZaGumbad = brojKolona*(screenPack.SirinaDugmeta+screenPack.SirinaUIMargine) + screenPack.SirinaUIMargine
-	screenPack.SirinaProzora += screenPack.MarginaZaGumbad
 
 	// njanja: da vidimo hoće li ovo raditi lepo
 	var font *ttf.Font
@@ -66,29 +53,13 @@ func main() {
 	}
 	defer sdl.Quit()
 
-	// njanja: dodao marginu za gumbad
-	window, err := sdl.CreateWindow("pesak", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
-		screenPack.SirinaProzora, screenPack.VisinaProzora, sdl.WINDOW_SHOWN)
-	if err != nil {
-		panic(err)
-	}
+	window := screenPack.CreateWindow()
 	defer window.Destroy()
 
-	surface, err := window.GetSurface()
-	if err != nil {
-		panic(err)
-	}
-	surface.FillRect(nil, 0)
+	surface := screenPack.CreateSurface(window)
+	renderer := screenPack.CreateRenderer(window)
 
-	renderer, err := window.GetRenderer()
-	if err != nil {
-		panic(err)
-	}
-
-	font, err = ttf.OpenFont(fontPath, int(screenPack.VisinaProzora)/fontSize)
-	if err != nil {
-		panic(err)
-	}
+	font = fontPack.SetFont()
 	defer font.Close()
 
 	// njanja: diskord integracija oterana u poseban fajl jer je mrvicu čonki
@@ -114,71 +85,22 @@ func main() {
 		}
 		matrixPack.Render(matrica, surface)
 
-		// njanja: ovo renderuje gumbad za sve materijale
-		var counter int32 = 1
-		for i, _ := range boja {
-			gumb := sdl.Rect{int32(screenPack.SirinaProzora - screenPack.MarginaZaGumbad + ((int32(i)%brojKolona)*(screenPack.SirinaDugmeta+screenPack.SirinaUIMargine) + screenPack.SirinaUIMargine)), int32(screenPack.VisinaUIMargine + int32(i)/brojKolona*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)), screenPack.SirinaDugmeta, screenPack.VisinaDugmeta}
-			surface.FillRect(&gumb, boja[i])
-			counter++
-		}
-
-		// njanja: ovo renderuje dodatnu gumbad
-		// možda može u fju ne znam
-		// stavi ti u f-ju pošto razumeš o čemu se radi /limun
-		plejGumb := sdl.Rect{int32(screenPack.SirinaProzora - screenPack.SirinaUIMargine - screenPack.SirinaDugmeta), int32(screenPack.VisinaProzora - 3*screenPack.VisinaUIMargine - 3*screenPack.VisinaDugmeta), screenPack.SirinaDugmeta, screenPack.VisinaDugmeta}
+		surface = screenPack.RenderujGumbZaSveMaterijale(surface)
+		
+		plejGumb := screenPack.CreatePlayGumb()
 		if matrixPack.Pause {
 			surface.FillRect(&plejGumb, 0x00ff00)
 		} else {
 			surface.FillRect(&plejGumb, 0xffa500)
 		}
-
-		sejvGumb := sdl.Rect{int32(screenPack.SirinaProzora - screenPack.SirinaUIMargine - screenPack.SirinaDugmeta), int32(screenPack.VisinaProzora - 2*screenPack.VisinaUIMargine - 2*screenPack.VisinaDugmeta), screenPack.SirinaDugmeta, screenPack.VisinaDugmeta}
+		sejvGumb := screenPack.CreateSaveGumb()
 		surface.FillRect(&sejvGumb, 0x0000ff)
-
-		resetGumb := sdl.Rect{int32(screenPack.SirinaProzora - screenPack.SirinaUIMargine - screenPack.SirinaDugmeta), int32(screenPack.VisinaProzora - screenPack.VisinaUIMargine - screenPack.VisinaDugmeta), screenPack.SirinaDugmeta, screenPack.VisinaDugmeta}
+		resetGumb := screenPack.CreateResetGumb()
 		surface.FillRect(&resetGumb, 0xff0000)
 
-		// njanja: i ovo i četkicu moram nekako da izbacim iz mejna
-		// ovo je za tekst
 		if matrixPack.TxtMode {
-			var infoText = ""
-			// PESAK
-			if screenPack.KursorPoslednjiX < matrixPack.SirinaKan*matrixPack.BrPiksPoCestici {
-				var poslednjiPiksel = matrica[screenPack.KursorPoslednjiX/matrixPack.BrPiksPoCestici][screenPack.KursorPoslednjiY/matrixPack.BrPiksPoCestici]
-				infoText = mat.Ime[poslednjiPiksel.Materijal] + " @ " + fmt.Sprintf("%.2f", float32((-27315 + int32(poslednjiPiksel.Temperatura))/100)) + "C, SekMat: " + mat.Ime[poslednjiPiksel.SekMat] + ", Ticker: " + strconv.Itoa(int(poslednjiPiksel.Ticker))
-
-				// UI
-				// njanja: ovo se sigurno i ovde i u pritisku na gumb može mnogo lepše rešiti nekim funkcionalnim pristupom :DERP: longterm ali todo, vrv kad sređujem dva reda gumbeta
-			} else {
-				if screenPack.KursorPoslednjiY < (screenPack.VisinaUIMargine+screenPack.VisinaDugmeta)*int32(len(boja)-1) && screenPack.KursorPoslednjiY%(screenPack.VisinaUIMargine+screenPack.VisinaDugmeta) > screenPack.VisinaUIMargine {
-					infoText = mat.Ime[mat.Materijal(screenPack.KursorPoslednjiY/(screenPack.VisinaUIMargine+screenPack.VisinaDugmeta))]
-				}
-
-				// PAUZA
-				if screenPack.KursorPoslednjiY > screenPack.VisinaProzora-3*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && screenPack.KursorPoslednjiY < screenPack.VisinaProzora-3*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
-					infoText = "Pause"
-				}
-				// SEJV
-				if screenPack.KursorPoslednjiY > screenPack.VisinaProzora-2*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && screenPack.KursorPoslednjiY < screenPack.VisinaProzora-2*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
-					infoText = "Save"
-				}
-				// RESET
-				if screenPack.KursorPoslednjiY > screenPack.VisinaProzora-1*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && screenPack.KursorPoslednjiY < screenPack.VisinaProzora-1*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
-					infoText = "Clear"
-				}
-
-			}
-
-			// njanja todo napraviti fju koja ludi hex int za boju pretvara u rgba vrednost
-			text, err = font.RenderUTF8Blended(infoText, sdl.Color{R: 255, G: 0, B: 0, A: 255})
-			if err == nil {
-				err = text.Blit(nil, surface, &sdl.Rect{X: 10, Y: 10, W: 0, H: 0})
-				if err != nil {
-					panic(err)
-				}
-			}
+			text = fontPack.TextMaker(font, surface, matrica)
 			defer text.Free()
-
 		}
 
 		window.UpdateSurface()
