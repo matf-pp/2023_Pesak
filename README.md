@@ -4,6 +4,8 @@ Pesak is a 2D [falling-sand](https://en.wikipedia.org/wiki/Falling-sand_game) si
 
 Now with Discord Rich Presence support!
 
+![tuta](./tuta.gif)
+
 ## Get yourself a Pesak
 ```
 $ go get github.com/matf-pp/2023_Pesak
@@ -22,7 +24,7 @@ $ ./main
 * Enjoy the scenery
 * Save the scenery as a png file to share with friends
 * Drag that same (or any other) image back into Pesak 
-  
+    
 ## Controls
 - LMB  -  paint
 - RMB  -  clear
@@ -33,5 +35,4 @@ $ ./main
 - up/down arrows  -  resize brush
 - esc  -  exit
 
-![tuta](https://i.imgur.com/5zyYBcV.gif)
 <!-- ![GUI](https://i.imgur.com/JoI7s4I.png) -->
