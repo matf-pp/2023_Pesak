@@ -46,7 +46,7 @@ func FitToScreen(screenPercentage int) (int32, int32, int32) {
 	return adjustedScale, matrixPack.SirinaKan * adjustedScale, matrixPack.VisinaKan * adjustedScale
 }
 
-func ProveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
+func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
 	//njanja: ovo je detekcija klika na gumb
 	if x > SirinaProzora-MarginaZaGumbad+SirinaUIMargine && x < SirinaProzora-SirinaUIMargine {
 		// njanja: TODO namestiti da se ređaju u više kolona ako baš mora //mora -s
@@ -71,7 +71,6 @@ func ProveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 			for j := 0; j < matrixPack.VisinaKan; j++ {
 				for i := 0; i < matrixPack.SirinaKan; i++ {
 					matrix[i][j] = mat.NewCestica(mat.Prazno)
-					bafer[i][j] = matrix[i][j]
 				}
 			}
 			matrixPack.ZazidajMatricu(matrix)
@@ -94,7 +93,7 @@ func CreateSurface(window *sdl.Window) *sdl.Surface {
 	if err != nil {
 		panic(err)
 	}
-	surface.FillRect(nil, 0)
+	surface.FillRect(nil, 0x111122)
 	return surface
 }
 

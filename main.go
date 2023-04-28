@@ -29,6 +29,7 @@ var gus = mat.Lambda
 
 // FPS cap, kontam da je zgodno za testiranje staviti neki nizak, 0 = unlimited
 var fpsCap = 0
+const pozadinaGuia = 0x111122
 
 var keystates = sdl.GetKeyboardState()
 
@@ -70,7 +71,14 @@ func main() {
 	go connectToDiscord()
 
 	var matrica [][]mat.Cestica = matrixPack.NapraviSlajs()
-	var bafer [][]mat.Cestica = matrixPack.NapraviSlajs()
+	var tempBafer [][]uint32 = make([][]uint32, matrixPack.SirinaKan)
+	for i:= 0; i < matrixPack.SirinaKan; i++ {
+		kolona := make([]uint32, matrixPack.VisinaKan)
+		for j := 0; j < matrixPack.VisinaKan; j++ {
+			kolona[j] = 29315 // 20c
+		}
+		tempBafer[i] = kolona
+	}
 
 	matrica = matrixPack.ZazidajMatricu(matrica)
 
@@ -82,9 +90,9 @@ func main() {
 		// fps counter
 		var startTime = sdl.GetTicks64()
 
-		running = pollEvents(matrica, bafer)
+		running = pollEvents(matrica)
 		if !matrixPack.Pause {
-			update(matrica, bafer)
+			update(matrica, tempBafer)
 		}
 		matrixPack.Render(matrica, surface)
 
@@ -124,12 +132,12 @@ func main() {
 				sdl.Delay(uint32(expectedFrameTime - realFrameTime))
 			}
 		}
-		//fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
+		fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
 	}
 
 }
 
-func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
+func pollEvents(matrix [][]mat.Cestica) bool {
 	running := true
 	keystates = sdl.GetKeyboardState()
 
@@ -173,6 +181,12 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 			if keystates[sdl.SCANCODE_9] != 0 {
 				screenPack.TrenutniMat = mat.Materijal(9)
 			}
+			if keystates[sdl.SCANCODE_LEFTBRACKET] != 0 {
+				screenPack.TrenutniMat = mat.Toplo
+			}
+			if keystates[sdl.SCANCODE_RIGHTBRACKET] != 0 {
+				screenPack.TrenutniMat = mat.Hladno
+			}
 			if keystates[sdl.SCANCODE_DOWN] != 0 {
 				if screenPack.VelicinaKursora > 0 {
 					screenPack.VelicinaKursora = screenPack.VelicinaKursora - 1
@@ -211,7 +225,7 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 		// paa, barem imajte naznaku za svaku liniju čiji je čiji /limun
 		case *sdl.MouseButtonEvent:
 			if t.State == sdl.PRESSED {
-				screenPack.ProveriPritisakNaGumb(matrix, bafer, t.X, t.Y)
+				screenPack.ProveriPritisakNaGumb(matrix, t.X, t.Y)
 			}
 
 		// drag and drop slike je odmah učitava
@@ -221,9 +235,9 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 				filePath := string(dropEvent.File)
 				// njanja: todo dodati support za bmp i webp
 
-				err := screenPack.UcitajSliku(filePath, matrix, bafer)
+				err := screenPack.UcitajSliku(filePath, matrix)
 				if err != nil {
-					sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "pesak", "rade samo png jpg bmp webp slike", nil)
+					sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "pesak", "rade samo png jpg bmp jbg webp itd slike", nil)
 				}
 
 			}
@@ -260,7 +274,7 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 		}
 	}
 
-	brushPack.Brush(matrix, bafer, x, y, state)
+	brushPack.Brush(matrix, x, y, state)
 
 	return running
 
@@ -270,25 +284,21 @@ var brCestica int = 0
 var brLave int = 0
 var brKamena int = 0
 
-func update(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
+func update(matrix [][]mat.Cestica, tempBafer [][]uint32) {
 
 	brCestica, brKamena, brLave = matrixPack.IzbrojiCesticeKamenLavu(matrix)
 
 	for j := 1; j < matrixPack.VisinaKan-1; j++ {
 		for i := 1; i < matrixPack.SirinaKan-1; i++ {
-			bafer[i][j].Temperatura = 0
-		}
-	} // da, mora redno. izdvojte u fje ako vam se ne svidja kod -s
-	for j := 1; j < matrixPack.VisinaKan-1; j++ {
-		for i := 1; i < matrixPack.SirinaKan-1; i++ {
-			mat.UpdateTemp(matrix, bafer, i, j)
+			mat.UpdateTemp(matrix, tempBafer, i, j)
 		}
 	}
 	matrixPack.MinTempRendered = mat.MaxTemp
 	matrixPack.MaxTempRendered = mat.MinTemp
 	for j := 1; j < matrixPack.VisinaKan-1; j++ {
 		for i := 1; i < matrixPack.SirinaKan-1; i++ {
-			matrix[i][j].Temperatura = bafer[i][j].Temperatura
+			matrix[i][j].Temperatura = tempBafer[i][j]
+			tempBafer[i][j] = 0
 			temperatura := matrix[i][j].Temperatura
 			if temperatura+1 > matrixPack.MaxTempRendered {
 				matrixPack.MaxTempRendered = temperatura + 1
@@ -302,7 +312,7 @@ func update(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
 
 	for j := 1; j < matrixPack.VisinaKan-1; j++ {
 		for i := 1; i < matrixPack.SirinaKan-1; i++ {
-			mat.UpdatePhaseOfMatter(matrix, bafer, i, j)
+			mat.UpdatePhaseOfMatter(matrix, i, j)
 		}
 	}
 
@@ -319,12 +329,7 @@ func update(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
 
 	for j := 1; j < matrixPack.VisinaKan-1; j++ {
 		for i := 1; i < matrixPack.SirinaKan-1; i++ {
-			mat.UpdatePosition(matrix, bafer, ia[i], ja[j])
-		}
-	}
-	for j := 1; j < matrixPack.VisinaKan-1; j++ {
-		for i := 1; i < matrixPack.SirinaKan-1; i++ {
-			matrix[i][j] = bafer[i][j]
+			mat.UpdatePosition(matrix, ia[i], ja[j])
 		}
 	}
 }

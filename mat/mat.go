@@ -23,11 +23,15 @@ const (
 	Led       Materijal = 2
 	Kamen     Materijal = 3
 	Pesak     Materijal = 4
-	Lava      Materijal = 5
-	Voda      Materijal = 6
-	Para      Materijal = 7
-	TecniAzot Materijal = 8
-	Plazma    Materijal = 9
+	So        Materijal = 5		 
+	Lava      Materijal = 6
+	Voda      Materijal = 7
+	SlanaVoda Materijal = 255
+	Para      Materijal = 8
+	TecniAzot Materijal = 9
+	Plazma    Materijal = 10
+	Toplo     Materijal = 11
+	Hladno    Materijal = 12
 	Zid       Materijal = 256
 )
 
@@ -37,11 +41,14 @@ var Ime = map[Materijal]string{
 	Led:       "Led",
 	Kamen:     "Kamen",
 	Pesak:     "Pesak",
+	So:        "So",
 	Lava:      "Lava",
 	Voda:      "Voda",
 	Para:      "Para",
 	TecniAzot: "Tecni Azot",
 	Plazma:    "Plazma",
+	Toplo:     "Toplo",
+	Hladno:    "Hladno",
 	Zid:       "Zid",
 
 }
@@ -52,11 +59,15 @@ var Boja = map[Materijal]uint32{
 	Led:       0xaaaaff,
 	Kamen:     0x999977,
 	Pesak:     0xffff66,
+	So:        0xeeeeee,
 	Lava:      0xff6600,
 	Voda:      0x3333ff,
+	SlanaVoda: 0x4444ff,
 	Para:      0x6666ff,
 	TecniAzot: 0x99ff99,
 	Plazma:    0xff99ff,
+	Toplo:     0xff0000,
+	Hladno:    0x00ffff, 
 	Zid:       0xffffff,
 }
 
@@ -69,8 +80,10 @@ var Gustina = map[Materijal]int32 {
 	Led:		0,
 	Kamen:		6,
 	Pesak:		5,
+	So:         5,
 	Lava:		4,
 	Voda:		3,
+	SlanaVoda:  4,
 	Para:		-5,
 	TecniAzot:	3,
 	Plazma:		0,
@@ -89,14 +102,16 @@ var Lambda = map[Materijal]int32 {
 	Lava:   1300000,	// 1300
 	Led:    1600,		// 1,6
 	Para:   16,			// 0.016
-//
+//	molim te ovim redosledom ih popuni, da bude citkiji kod
 //	Prazno:
 //	Metal:
 //	Led:
 //	Kamen:
 //	Pesak:
+//	So:
 //	Lava:
 //	Voda:
+//	SlanaVoda
 //	Para:
 //	TecniAzot:
 //	Plazma:
@@ -114,8 +129,10 @@ var AStanje = map[Materijal]int{
 	Led:		0b0000,
 	Kamen:		0b0001,
 	Pesak:		0b0011,
+	So:         0b0011,
 	Lava:		0b0111,
 	Voda:		0b0111,
+	SlanaVoda:  0b0111,
 	Para:		0b0111,
 	TecniAzot:	0b0111,
 	Plazma:		0b1111,
@@ -146,8 +163,10 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Led:		{Led, Voda, MinTemp, 27315}, //0.00c
 	Kamen:		{Kamen, Lava, MinTemp, 157315}, //1300.00c
 	Pesak:		{Pesak, Lava, MinTemp, 197315}, //1700.00c
+	So:			{So, Lava, MinTemp, 107315}, //800.00c
 	Lava:		{Lava, Lava, MinTemp, MaxTemp},
 	Voda:		{Led, Para, 27315, 37315}, //0.00c, 100.00c
+	SlanaVoda:	{Led, Para, 26315, 37315}, //-10.00c, 100c
 	Para:		{Voda, Para, 37315, MaxTemp}, //100.00c
 	TecniAzot:	{TecniAzot, Prazno, MinTemp, 7315}, //-200.00c
 	Plazma:		{Prazno, Plazma, 650000, MaxTemp}, //6773.15c
@@ -163,8 +182,10 @@ var Zapaljiv = map[Materijal]bool{
 	Led:		false,
 	Kamen:		false,
 	Pesak:		false,
+	So:         false,
 	Lava:		false,
 	Voda:		false,
+	SlanaVoda:  false,
 	Para:		false,
 	TecniAzot:	false,
 	Plazma:		false,
@@ -208,13 +229,30 @@ func NewCestica(materijal Materijal) Cestica {
 
 // Update(matrix, bafer, i, j, matrix[i][j].Materijal)
 // nisam u stanju da procenim trenutno treba li ovo prebaciti u treci fajl ili Boga pitaj gde -s
-func UpdateTemp(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
+func UpdateTemp(matrix [][]Cestica, bafer [][]uint32, i int, j int) {
 
 	if matrix[i][j].Materijal == Prazno || matrix[i][j].Materijal == Zid {
-		bafer[i][j].Temperatura = 29315
+		bafer[i][j] = 29315
 		return
 	}
 	trenutna := matrix[i][j]
+
+	/**/
+	temperatura := float64(trenutna.Temperatura)
+	parcePice := temperatura/9
+	for k := -1; k < 2; k++ {
+		for l := -1; l < 2; l++ {
+			if matrix[i+k][j+l].Materijal != Prazno && matrix[i+k][j+l].Materijal != Zid {
+				bafer[i+k][j+l] += uint32(parcePice)
+				temperatura = temperatura - parcePice
+			}
+		}
+	}
+	bafer[i][j] += uint32(temperatura)
+	/**/
+
+//	bafer[i][j].Temperatura = matrix[i][j].Temperatura
+//	return
 
 	// temperatura
 	//da ovo tvoje je kul ali prebrzo provodi da bih testirao kako se ponasa, ne zameri molim te -s
@@ -247,38 +285,11 @@ func UpdateTemp(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 	}
 
 	/**/
-	/**/
 
-
-
-	temperatura := float64(trenutna.Temperatura)
-	parcePice := temperatura/9
-	for k := -1; k < 2; k++ {
-		for l := -1; l < 2; l++ {
-			if matrix[i+k][j+l].Materijal != Prazno && matrix[i+k][j+l].Materijal != Zid {
-				bafer[i+k][j+l].Temperatura += uint32(parcePice)
-				temperatura = temperatura - parcePice
-			}
-		}
-	}
-	bafer[i][j].Temperatura += uint32(temperatura)
-
-	/**/
-	//interesantan fenomen - voda i para bi trebalo da se mimoidju zbog razlike u gustini, medjutim:
-	//hladna voda koja pada se greje u kontaktu sa parom te isparava, menjajuci pravac kretanja ka gore
-	//istovremeno topla para koja se dize u kontaktu sa hladnijom vodom se kondenzuje i pocinje da pada
-	//ovime se postize taj efekat da se voda i para naizgled ne zamene,vec sudare na frontu i zaglave
-	//medjutim one,naprotiv, zamene i poziciju i temperaturu. Verujem da ce se efekat izgubiti kada implementiram dijagonalni pad.
-	//kada se prethodne dve linije zakomentarisu, voda i para, kao i svaki padajuci element sa parom,
-	//ponasaju se normalno
-	//-s
-	// luka molim te obrisi ovaj blok komentara kad ga procitas, poenta je bila samo da ne mislis da je nesto izbagovano...
-	// !!!!!!!!!!!!!!!!! ^^^^^
-	// !!!!!!!!!!!!!!!!! |||||
 
 }
 
-func UpdatePhaseOfMatter(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
+func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 
 	if matrix[i][j].Materijal == Prazno || matrix[i][j].Materijal == Zid{
 		return
@@ -292,17 +303,71 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 	if materijal == Lava {
 		if temperatura < MapaFaza[sekmat].TackaKljucanja {
 			matrix[i][j].Materijal = sekmat
-			bafer[i][j].Materijal = sekmat
+		}
+	} else if materijal == SlanaVoda {
+
+		if temperatura < MapaFaza[materijal].TackaTopljenja {
+			matrix[i][j].Materijal = MapaFaza[materijal].Nize
+			matrix[i][j].SekMat = SlanaVoda
+		} else if temperatura > MapaFaza[materijal].TackaKljucanja {
+			rFaktor := rand.Intn(2)*2 - 1
+
+			if matrix[i][j-1].Materijal == Prazno {
+				matrix[i][j].Materijal = So
+				matrix[i][j-1].Materijal = Para
+				matrix[i][j-1].Temperatura = matrix[i][j].Temperatura
+			} else if matrix[i+rFaktor][j-1].Materijal == Prazno {
+				matrix[i][j].Materijal = So
+				matrix[i+rFaktor][j-1].Materijal = Para
+				matrix[i+rFaktor][j-1].Temperatura = matrix[i][j].Temperatura
+			} else if matrix[i-rFaktor][j-1].Materijal == Prazno {
+				matrix[i][j].Materijal = So
+				matrix[i-rFaktor][j-1].Materijal = Para
+				matrix[i-rFaktor][j-1].Temperatura = matrix[i][j].Temperatura
+			} else {
+				return 
+			}
+
 		}
 	} else {
 		if temperatura < MapaFaza[materijal].TackaTopljenja {
 			matrix[i][j].Materijal = MapaFaza[materijal].Nize
-			bafer[i][j].Materijal = MapaFaza[materijal].Nize
 		} else if temperatura > MapaFaza[materijal].TackaKljucanja {
 			matrix[i][j].Materijal = MapaFaza[materijal].Vise
+			if matrix[i][j].SekMat == SlanaVoda {
+				matrix[i][j].Materijal = SlanaVoda
+			}
 			matrix[i][j].SekMat = materijal
-			bafer[i][j].Materijal = MapaFaza[materijal].Vise
-			bafer[i][j].SekMat = materijal
+		}
+	}
+
+	if materijal == So {
+		rFaktor := rand.Intn(2)*2 - 1
+
+		if matrix[i][j+1].Materijal == Voda {
+			matrix[i][j].Materijal = Prazno
+			matrix[i][j+1].Materijal = SlanaVoda
+		} else if matrix[i+rFaktor][j+1].Materijal == Voda {
+			matrix[i][j].Materijal = Prazno
+			matrix[i+rFaktor][j+1].Materijal = SlanaVoda
+		} else if matrix[i-rFaktor][j+1].Materijal == Voda {
+			matrix[i][j].Materijal = Prazno
+			matrix[i-rFaktor][j+1].Materijal = SlanaVoda
+		} else if matrix[i+rFaktor][j].Materijal == Voda {
+			matrix[i][j].Materijal = Prazno
+			matrix[i+rFaktor][j].Materijal = SlanaVoda
+		} else if matrix[i-rFaktor][j].Materijal == Voda {
+			matrix[i][j].Materijal = Prazno
+			matrix[i-rFaktor][j].Materijal = SlanaVoda
+		} else if matrix[i+rFaktor][j-1].Materijal == Voda {
+			matrix[i][j].Materijal = Prazno
+			matrix[i+rFaktor][j-1].Materijal = SlanaVoda
+		} else if matrix[i-rFaktor][j-1].Materijal == Voda {
+			matrix[i][j].Materijal = Prazno
+			matrix[i-rFaktor][j-1].Materijal = SlanaVoda
+		} else if matrix[i][j+1].Materijal == Voda {
+			matrix[i][j].Materijal = Prazno
+			matrix[i][j+1].Materijal = SlanaVoda
 		}
 	}
 
@@ -313,7 +378,7 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 
 }
 
-func UpdatePosition(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
+func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	//padanje
 
 	if matrix[i][j].Materijal == Prazno || matrix[i][j].Materijal == Zid {
@@ -329,17 +394,14 @@ func UpdatePosition(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 	} else {
 		smer = -1
 	}
-	//				{0, 1}		{0, 2}	{-1, 1}
-	rFaktor := rand.Intn(2)*2 - 1
 
 	if (astanje & 0b1000) != 0 {
 		lRand := rand.Intn(3)-1
 		rRand := rand.Intn(3)-1
 		komsija := matrix[i+lRand][j+rRand]
-		komsijaBuff := bafer[i+lRand][j+rRand]
-		if komsija.Materijal == Prazno && komsijaBuff.Materijal == Prazno {
-			bafer[i][j] = komsija
-			bafer[i+lRand][j+rRand] = trenutna
+		if komsija.Materijal == Prazno {
+			matrix[i][j] = komsija
+			matrix[i+lRand][j+rRand] = trenutna
 			pomeren = true
 		}
 	}
@@ -353,73 +415,57 @@ func UpdatePosition(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 		komsija := matrix[i][j+smer]
 		//												( 1  *      G[v] = 2             <  1  *      g[ps] =  5) == True
 		//                                              (-1  *      G[v] = 2             < -1  *      g[pr] = -5) == True
-		if (AStanje[komsija.Materijal]&0b0001 != 0) && smer*int(Gustina[komsija.Materijal]) < smer*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je
-			if bafer[i][j+smer] == komsija {
-				matrix[i][j+smer] = trenutna
-				bafer[i][j+smer] = trenutna
-				matrix[i][j] = komsija
-				bafer[i][j] = komsija
-				pomeren = true
-			}
+		if (AStanje[komsija.Materijal]&0b0001 != 0) && smer*int(Gustina[komsija.Materijal]) < smer*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je //ovaj komentar je zastareo i odnosi se na neku davno zaboravljenu arhitekturu projekta zakopanu tu negde izmedju Atlantide i Drazinog groba
+			matrix[i][j+smer] = trenutna
+			matrix[i][j] = komsija
+			pomeren = true
 		}
 	}
-	// dangerzone: end /limun
-	//ovo ne radi bas uvek a nmg da provalim sto i kako? iskreno mng bi mi znacilo da nemanja uradi da haverom preko cestice vidimo njene promenjive
 	if pomeren {
 		return
 	}
 
 	/**/
 	if (astanje & 0b0010) != 0 {
+		rFaktor := rand.Intn(2)*2 - 1	//{-1, 1}
 		komsija1 := matrix[i+rFaktor][j+smer]
 		if (AStanje[komsija1.Materijal]&0b0010 != 0) && smer*int(Gustina[komsija1.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
-			if bafer[i+rFaktor][j+smer] == komsija1 {
-				bafer[i+rFaktor][j+smer] = trenutna
-				bafer[i][j] = komsija1
-				pomeren = true
-				return
-			}
+			matrix[i+rFaktor][j+smer] = trenutna
+			matrix[i][j] = komsija1
+			pomeren = true
+			return
 		}
 		komsija2 := matrix[i-rFaktor][j+smer]
 		if (AStanje[komsija2.Materijal]&0b0010 != 0) && smer*int(Gustina[komsija2.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
-			if bafer[i-rFaktor][j+smer] == komsija2 {
-				bafer[i-rFaktor][j+smer] = trenutna
-				bafer[i][j] = komsija2
-				pomeren = true
-				return
-			}
+			matrix[i-rFaktor][j+smer] = trenutna
+			matrix[i][j] = komsija2
+			pomeren = true
+			return
 		}
 	}
 	/**/
 	if (astanje & 0b0100) != 0 {
-
-		if matrix[i+rFaktor][j].Materijal == Prazno && bafer[i+rFaktor][j].Materijal == Prazno {
-			if matrix[i+rFaktor+rFaktor][j].Materijal == Prazno && bafer[i+rFaktor+rFaktor][j].Materijal == Prazno {
-				bafer[i+rFaktor+rFaktor][j] = trenutna
-				bafer[i][j] = matrix[i+rFaktor+rFaktor][j]
+		rFaktor := rand.Intn(2)*2 - 1	//{-1, 1}
+		if matrix[i+rFaktor][j].Materijal == Prazno {
+			if matrix[i+rFaktor+rFaktor][j].Materijal == Prazno {
+				matrix[i+rFaktor+rFaktor][j], matrix[i][j] = trenutna, matrix[i+rFaktor+rFaktor][j]
 			} else {
-				bafer[i+rFaktor][j] = trenutna
-				bafer[i][j] = matrix[i+rFaktor][j]
+				matrix[i+rFaktor][j], matrix[i][j] = trenutna, matrix[i+rFaktor][j]
 			}
-		} else if matrix[i-rFaktor][j].Materijal == Prazno && bafer[i-rFaktor][j].Materijal == Prazno {
-			if matrix[i-rFaktor-rFaktor][j].Materijal == Prazno && bafer[i-rFaktor-rFaktor][j].Materijal == Prazno {
-				bafer[i-rFaktor-rFaktor][j] = trenutna
-				bafer[i][j] = matrix[i-rFaktor-rFaktor][j]
+		} else if matrix[i-rFaktor][j].Materijal == Prazno {
+			if matrix[i-rFaktor-rFaktor][j].Materijal == Prazno {
+				matrix[i-rFaktor-rFaktor][j], matrix[i][j] = trenutna, matrix[i-rFaktor-rFaktor][j]
 			} else {
-				bafer[i-rFaktor][j] = trenutna
-				bafer[i][j] = matrix[i-rFaktor][j]
+				matrix[i-rFaktor][j], matrix[i][j] = trenutna, matrix[i-rFaktor][j]
 			}
 		}
 		pomeren = true
 
 	}
+	/**/
 
 	if pomeren {
 		return
-	}
-
-	if !pomeren {
-		bafer[i][j] = trenutna
 	}
 
 }
