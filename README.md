@@ -28,10 +28,12 @@ $ ./main
 ## Controls
 - LMB  -  paint
 - RMB  -  clear
-- 1-7  -  pick materials
+- 1-0  -  pick materials
+- [/]  -  heat up/cool down
 - P  -  pause/resume simulation
 - T  -  temperature mode
 - G  -  gustina mode
+- N  -  normal mode
 - up/down arrows  -  resize brush
 - esc  -  exit
 
