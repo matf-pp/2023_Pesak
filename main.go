@@ -38,6 +38,9 @@ func main() {
 		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
 	}
 
+	screenPack.MarginaZaGumbad = screenPack.BrojKolona * (screenPack.SirinaDugmeta + screenPack.SirinaUIMargine) + screenPack.SirinaUIMargine
+	screenPack.SirinaProzora += screenPack.MarginaZaGumbad
+
 	// njanja: da vidimo hoće li ovo raditi lepo
 	var font *ttf.Font
 	var text *sdl.Surface

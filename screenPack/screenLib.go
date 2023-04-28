@@ -23,8 +23,8 @@ var BrojMaterijala = len(mat.Boja) + 2
 var BrojSpecijalnihGumbadi int32 = 3
 var BrojGumbadiPoKoloni int32 = VisinaProzora/(VisinaDugmeta+VisinaUIMargine) - (BrojSpecijalnihGumbadi)
 var BrojKolona int32 = int32(math.Ceil(float64(BrojMaterijala) / float64(BrojGumbadiPoKoloni)))
-var MarginaZaGumbad int32 = BrojKolona*(SirinaDugmeta+SirinaUIMargine) + SirinaUIMargine
-var SirinaProzora = matrixPack.SirinaKan * matrixPack.BrPiksPoCestici + 2 * MarginaZaGumbad
+var MarginaZaGumbad int32 = 2*SirinaUIMargine + SirinaDugmeta
+var SirinaProzora = matrixPack.SirinaKan * matrixPack.BrPiksPoCestici + MarginaZaGumbad
 var VisinaProzora = matrixPack.VisinaKan * matrixPack.BrPiksPoCestici
 
 var KursorPoslednjiX = int32(0)
