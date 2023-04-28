@@ -31,6 +31,8 @@ const (
 	Para      Materijal = 8
 	TecniAzot Materijal = 9
 	Plazma    Materijal = 10
+	Toplo     Materijal = 11
+	Hladno    Materijal = 12
 	Zid       Materijal = 256
 )
 
@@ -46,6 +48,8 @@ var Ime = map[Materijal]string{
 	Para:      "Para",
 	TecniAzot: "Tecni Azot",
 	Plazma:    "Plazma",
+	Toplo:     "Toplo",
+	Hladno:    "Hladno",
 	Zid:       "Zid",
 
 }
@@ -63,6 +67,8 @@ var Boja = map[Materijal]uint32{
 	Para:      0x6666ff,
 	TecniAzot: 0x99ff99,
 	Plazma:    0xff99ff,
+	Toplo:     0xff0000,
+	Hladno:    0x00ffff, 
 	Zid:       0xffffff,
 }
 

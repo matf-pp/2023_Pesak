@@ -306,8 +306,16 @@ func brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 		for i := -velicinaKursora; i <= velicinaKursora; i++ {
 			for j := -velicinaKursora; j <= velicinaKursora; j++ {
 				tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
-				if matrix[tx][ty].Materijal == mat.Prazno || (trenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid) {
-					matrix[tx][ty] = mat.NewCestica(trenutniMat)
+				if trenutniMat != mat.Toplo && trenutniMat != mat.Hladno{
+					if matrix[tx][ty].Materijal == mat.Prazno || (trenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid) {
+						matrix[tx][ty] = mat.NewCestica(trenutniMat)
+					}
+				} else {
+					if trenutniMat == mat.Toplo && matrix[tx][ty].Materijal != mat.Prazno && matrix[tx][ty].Materijal != mat.Zid {
+						matrix[tx][ty].Temperatura += 100
+					} else if trenutniMat == mat.Hladno && matrix[tx][ty].Materijal != mat.Prazno && matrix[tx][ty].Materijal != mat.Zid {
+						matrix[tx][ty].Temperatura -= 100
+					}
 				}
 			}
 		}
@@ -377,6 +385,12 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 			}
 			if keystates[sdl.SCANCODE_9] != 0 {
 				trenutniMat = mat.Materijal(9)
+			}
+			if keystates[sdl.SCANCODE_LEFTBRACKET] != 0 {
+				trenutniMat = mat.Toplo
+			}
+			if keystates[sdl.SCANCODE_RIGHTBRACKET] != 0 {
+				trenutniMat = mat.Hladno
 			}
 			if keystates[sdl.SCANCODE_DOWN] != 0 {
 				if velicinaKursora > 0 {
@@ -448,17 +462,17 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 	}
 
 	if korisnikNijeNanja {
-		fmt.Printf("x: %d ", x)
-		fmt.Printf("y: %d\t", y)
-		fmt.Printf("xpx: %d ", x/brojPikselaPoCestici)
-		fmt.Printf("ypx: %d\t", y/brojPikselaPoCestici)
-		fmt.Printf("mb: %d\t", state)
-		fmt.Printf("mat.Materijal: %d\t", trenutniMat)
+//		fmt.Printf("x: %d ", x)
+//		fmt.Printf("y: %d\t", y)
+//		fmt.Printf("xpx: %d ", x/brojPikselaPoCestici)
+//		fmt.Printf("ypx: %d\t", y/brojPikselaPoCestici)
+		fmt.Printf("MouseButton: %d\t", state)
+		fmt.Printf("Materijal: %d\t", trenutniMat)
 		fmt.Printf("velicina: %d\t", velicinaKursora)
 		fmt.Printf("pauza: %t\t", pause)
 		fmt.Printf("brCestica: %d\n", brCestica)
-		fmt.Printf("brLave: %d\n", brLave)
-		fmt.Printf("brKamena: %d\n", brKamena)
+//		fmt.Printf("brLave: %d\n", brLave)
+//		fmt.Printf("brKamena: %d\n", brKamena)
 	}
 
 	brush(matrix, x, y, state)
