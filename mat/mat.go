@@ -86,7 +86,7 @@ var Lambda = map[Materijal]int32 {
 	Lava:   1300000,	// 1300
 	Led:    1600,		// 1,6
 	Para:   16,			// 0.016
-//
+//	molim te ovim redosledom ih popuni, da bude citkiji kod
 //	Prazno:
 //	Metal:
 //	Led:
@@ -212,6 +212,9 @@ func UpdateTemp(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 		return
 	}
 	trenutna := matrix[i][j]
+
+//	bafer[i][j].Temperatura = matrix[i][j].Temperatura
+//	return
 
 	// temperatura
 	//da ovo tvoje je kul ali prebrzo provodi da bih testirao kako se ponasa, ne zameri molim te -s
@@ -355,7 +358,9 @@ func UpdatePosition(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 		if (AStanje[komsija.Materijal]&0b0001 != 0) && smer*int(Gustina[komsija.Materijal]) < smer*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je
 			if bafer[i][j+smer] == komsija {
 				bafer[i][j+smer] = trenutna
+				matrix[i][j+smer] = trenutna
 				bafer[i][j] = komsija
+				matrix[i][j] = komsija
 				pomeren = true
 			}
 		}
@@ -408,6 +413,7 @@ func UpdatePosition(matrix [][]Cestica, bafer [][]Cestica, i int, j int) {
 		pomeren = true
 
 	}
+	/**/
 
 	if pomeren {
 		return

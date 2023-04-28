@@ -74,6 +74,7 @@ const fontPath = "./assets/Minecraft.ttf"
 
 // njanja: ide unazad verujte mi na reč
 const fontSize = 40
+const pozadinaGuia = 0x111122
 
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
@@ -106,7 +107,7 @@ func main() {
 	defer sdl.Quit()
 
 	// njanja: dodao marginu za gumbad
-	window, err := sdl.CreateWindow("pesak", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
+	window, err := sdl.CreateWindow("Pesak", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
 		sirinaProzora, visinaProzora, sdl.WINDOW_SHOWN)
 	if err != nil {
 		panic(err)
@@ -117,7 +118,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	surface.FillRect(nil, 0)
+	surface.FillRect(nil, pozadinaGuia)
 
 	renderer, err := window.GetRenderer()
 	if err != nil {
@@ -221,6 +222,7 @@ func main() {
 			}
 
 			// njanja todo napraviti fju koja ludi hex int za boju pretvara u rgba vrednost
+			// kralju to ti je samo mod 256 div 256 -s
 			text, err = font.RenderUTF8Blended(infoText, sdl.Color{R: 255, G: 0, B: 0, A: 255})
 			if err == nil {
 				err = text.Blit(nil, surface, &sdl.Rect{X: 10, Y: 10, W: 0, H: 0})
@@ -250,7 +252,7 @@ func main() {
 				sdl.Delay(uint32(expectedFrameTime - realFrameTime))
 			}
 		}
-		//fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
+		fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
 	}
 
 }
@@ -421,7 +423,7 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 
 				err := ucitajSliku(filePath, matrix, bafer)
 				if err != nil {
-					sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "pesak", "rade samo png jpg bmp webp slike", nil)
+					sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "pesak", "rade samo png jpg bmp jbg webp itd slike", nil)
 				}
 
 			}
@@ -636,7 +638,7 @@ func izracunajTempBoju(zrno mat.Cestica) uint32 {
 
 	var crvenaKomponenta uint32 = uint32(255 * (temperatura - minTempRendered) / (maxTempRendered - minTempRendered))
 	var plavaKomponenta uint32 = uint32(255 - crvenaKomponenta)
-	var zelenaKomponenta uint32 = uint32(63)
+	var zelenaKomponenta uint32 = uint32(31)
 
 	var boja uint32 = (crvenaKomponenta*256+zelenaKomponenta)*256 + plavaKomponenta
 	return boja
