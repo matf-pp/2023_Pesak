@@ -136,7 +136,14 @@ func main() {
 	go connectToDiscord()
 
 	var matrica [][]mat.Cestica = napraviSlajs()
-	var bafer [][]mat.Cestica = napraviSlajs()
+	var tempBafer [][]uint32 = make([][]uint32, sirinaKanvasa)
+	for i:= 0; i < sirinaKanvasa; i++ {
+		kolona := make([]uint32, visinaKanvasa)
+		for j := 0; j < visinaKanvasa; j++ {
+			kolona[j] = 29315 // 20c
+		}
+		tempBafer[i] = kolona
+	}
 
 	matrica = zazidajMatricu(matrica)
 
@@ -148,9 +155,9 @@ func main() {
 		// fps counter
 		var startTime = sdl.GetTicks64()
 
-		running = pollEvents(matrica, bafer)
+		running = pollEvents(matrica)
 		if !pause {
-			update(matrica, bafer)
+			update(matrica, tempBafer)
 		}
 		render(matrica, surface)
 
@@ -284,7 +291,7 @@ func clampCoords(x int32, y int32) (int32, int32) {
 		int32(math.Min(math.Max(float64(y), 0), visinaKanvasa-1))
 }
 
-func brush(matrix [][]mat.Cestica, bafer [][]mat.Cestica, x int32, y int32, state uint32) {
+func brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 	//TODO za srednji klik da uzme materijal na koj mis trenutno pokazuje i postavi ga kao trenutni
 	//ukoliko nije u pitanju Zid ili Prazno. Nije mi pri ruci mis, mrzi me da trazim koj je to stejt -s
 	//a jeste sabani mogli ste ovo trideset puta uraditi danas -s
@@ -301,7 +308,6 @@ func brush(matrix [][]mat.Cestica, bafer [][]mat.Cestica, x int32, y int32, stat
 				tx, ty := clampCoords(x/brojPikselaPoCestici+i, y/brojPikselaPoCestici+j)
 				if matrix[tx][ty].Materijal == mat.Prazno || (trenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid) {
 					matrix[tx][ty] = mat.NewCestica(trenutniMat)
-					bafer[tx][ty] = mat.NewCestica(trenutniMat)
 				}
 			}
 		}
@@ -321,7 +327,6 @@ func brush(matrix [][]mat.Cestica, bafer [][]mat.Cestica, x int32, y int32, stat
 //inace bi bilo efikasnije samo postaviti im Materijal na Prazno, NAGADJAM
 //takodje mozda je brze izmeniti polja cestice nego praviti novu, ne znam, ostavio bih to bencmarkingu 
 					matrix[tx][ty] = mat.NewCestica(mat.Prazno)
-					bafer[tx][ty] = mat.NewCestica(mat.Prazno)
 				}
 			}
 		}
@@ -329,7 +334,7 @@ func brush(matrix [][]mat.Cestica, bafer [][]mat.Cestica, x int32, y int32, stat
 
 }
 
-func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
+func pollEvents(matrix [][]mat.Cestica) bool {
 	running := true
 	keystates = sdl.GetKeyboardState()
 
@@ -411,7 +416,7 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 		// paa, barem imajte naznaku za svaku liniju čiji je čiji /limun
 		case *sdl.MouseButtonEvent:
 			if t.State == sdl.PRESSED {
-				proveriPritisakNaGumb(matrix, bafer, t.X, t.Y)
+				proveriPritisakNaGumb(matrix, t.X, t.Y)
 			}
 
 		// drag and drop slike je odmah učitava
@@ -421,7 +426,7 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 				filePath := string(dropEvent.File)
 				// njanja: todo dodati support za bmp i webp
 
-				err := ucitajSliku(filePath, matrix, bafer)
+				err := ucitajSliku(filePath, matrix)
 				if err != nil {
 					sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "pesak", "rade samo png jpg bmp jbg webp itd slike", nil)
 				}
@@ -456,13 +461,13 @@ func pollEvents(matrix [][]mat.Cestica, bafer [][]mat.Cestica) bool {
 		fmt.Printf("brKamena: %d\n", brKamena)
 	}
 
-	brush(matrix, bafer, x, y, state)
+	brush(matrix, x, y, state)
 
 	return running
 
 }
 
-func proveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
+func proveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
 	//njanja: ovo je detekcija klika na gumb
 	if x > sirinaProzora-marginaZaGumbad+sirinaUIMargine && x < sirinaProzora-sirinaUIMargine {
 		// njanja: TODO namestiti da se ređaju u više kolona ako baš mora //mora -s
@@ -487,11 +492,9 @@ func proveriPritisakNaGumb(matrix, bafer [][]mat.Cestica, x, y int32) {
 			for j := 0; j < visinaKanvasa; j++ {
 				for i := 0; i < sirinaKanvasa; i++ {
 					matrix[i][j] = mat.NewCestica(mat.Prazno)
-					bafer[i][j] = matrix[i][j]
 				}
 			}
 			zazidajMatricu(matrix)
-			zazidajMatricu(bafer) //ova linija suvisna, takodje razmisli da koristis f ju napraviSlajs (na dnu fajla), takodje mozda da zazidavanje zovemo u njoj? pa izbacimo iz mejna i odavde, takodje ovo je naaaaaaajduzi komentar poput one Ivonine naaaaajduze lasice na celom svetu samo cekam da mu eksplodiraju oci -s
 		}
 	}
 }
@@ -500,7 +503,7 @@ var brCestica int = 0
 var brLave int = 0
 var brKamena int = 0
 
-func update(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
+func update(matrix [][]mat.Cestica, tempBafer [][]uint32) {
 
 	brCestica = 0
 	brKamena = 0
@@ -519,21 +522,18 @@ func update(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
 		}
 	}
 
+
 	for j := 1; j < visinaKanvasa-1; j++ {
 		for i := 1; i < sirinaKanvasa-1; i++ {
-			bafer[i][j].Temperatura = 0
-		}
-	} // da, mora redno. izdvojte u fje ako vam se ne svidja kod -s
-	for j := 1; j < visinaKanvasa-1; j++ {
-		for i := 1; i < sirinaKanvasa-1; i++ {
-			mat.UpdateTemp(matrix, bafer, i, j)
+			mat.UpdateTemp(matrix, tempBafer, i, j)
 		}
 	}
 	minTempRendered = mat.MaxTemp
 	maxTempRendered = mat.MinTemp
 	for j := 1; j < visinaKanvasa-1; j++ {
 		for i := 1; i < sirinaKanvasa-1; i++ {
-			matrix[i][j].Temperatura = bafer[i][j].Temperatura
+			matrix[i][j].Temperatura = tempBafer[i][j]
+			tempBafer[i][j] = 0
 			temperatura := matrix[i][j].Temperatura
 			if temperatura+1 > maxTempRendered {
 				maxTempRendered = temperatura + 1
@@ -547,7 +547,7 @@ func update(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
 
 	for j := 1; j < visinaKanvasa-1; j++ {
 		for i := 1; i < sirinaKanvasa-1; i++ {
-			mat.UpdatePhaseOfMatter(matrix, bafer, i, j)
+			mat.UpdatePhaseOfMatter(matrix, i, j)
 		}
 	}
 
@@ -564,12 +564,7 @@ func update(matrix [][]mat.Cestica, bafer [][]mat.Cestica) {
 
 	for j := 1; j < visinaKanvasa-1; j++ {
 		for i := 1; i < sirinaKanvasa-1; i++ {
-			mat.UpdatePosition(matrix, bafer, ia[i], ja[j])
-		}
-	}
-	for j := 1; j < visinaKanvasa-1; j++ {
-		for i := 1; i < sirinaKanvasa-1; i++ {
-			matrix[i][j] = bafer[i][j]
+			mat.UpdatePosition(matrix, ia[i], ja[j])
 		}
 	}
 }
@@ -578,6 +573,8 @@ func render(matrix [][]mat.Cestica, surface *sdl.Surface) {
 	for i := 0; i < sirinaKanvasa; i++ {
 		for j := 0; j < visinaKanvasa; j++ {
 			// njanja: braaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaate je l stvarno toliko teško kompajleru da implicitno konvertuje int u int32
+			// lice samo mu reci `for i := uint32(0);` da ti iterator bude dobrog tipa-s
+			// i takodje prebaci sve intove koje imamo u int32 -s
 			rect := sdl.Rect{int32(i) * brojPikselaPoCestici, int32(j) * brojPikselaPoCestici, brojPikselaPoCestici, brojPikselaPoCestici}
 			if tempMode {
 				bojaTemp := izracunajTempBoju(matrix[i][j])
@@ -627,6 +624,10 @@ func izracunajTempBoju(zrno mat.Cestica) uint32 {
 
 	//	minTemp := mat.MinTemp
 	//	maxTemp := mat.MaxTemp
+
+	if zrno.Materijal == mat.Prazno {
+		return 0x000000
+	}
 
 	temperatura := zrno.Temperatura
 
