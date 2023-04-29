@@ -99,6 +99,8 @@ var GustinaBoja = map[Materijal]uint32 {
 	Metal:  	0x00ff00,
 	Led:    	0x004600,
 	Kamen:  	0x00b400,
+	Drvo:      	0x00b400,
+	Sljunak:   	0x00a000,
 	Pesak:  	0x007800,
 	So:        	0x00a000,
 	Rdja:      	0x00ff00,
@@ -106,6 +108,7 @@ var GustinaBoja = map[Materijal]uint32 {
 	Voda:   	0x005000,
 	SlanaVoda: 	0x005a00,
 	Para:   	0xc800c8,
+	Vatra:     	0xc800c8,
 	TecniAzot: 	0x006400,
 	Plazma:    	0xff00ff,
 	Zid:		0,
@@ -117,6 +120,8 @@ var Lambda = map[Materijal]uint64{
 	Metal:  	50200,   // 50.2
 	Led:    	1600,    // 1.6
 	Kamen:  	288800,  // 288.8
+	Drvo:      	150,	 // 0.15
+	Sljunak:   	550,	 // 0.55
 	Pesak:  	2050,    // 2.05
 	So:        	6000,	 // 6
 	Rdja:      	50200,   // 50.2
@@ -124,6 +129,7 @@ var Lambda = map[Materijal]uint64{
 	Voda:   	600,     // 0.6
 	SlanaVoda:  600,	 // 0.6
 	Para:   	16,      // 0.016
+	Vatra:     	10,		 // 0.01 ovo inače nema smisla, samo placeholder ako odlučimo da projektujemo neki gas /limun
 	TecniAzot:  25,		 // 0.025
 	Plazma:    	1500000, // lupio sam broj zato što https://adsabs.harvard.edu/full/1962SvA.....5..495I /limun
 	Zid:       	0,
