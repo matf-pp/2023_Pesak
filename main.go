@@ -250,18 +250,18 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 	}
 
 	if korisnikNijeNanja {
-		fmt.Printf("x: %d ", x)
-		fmt.Printf("y: %d\t", y)
-		fmt.Printf("xpx: %d ", x/matrixPack.BrPiksPoCestici)
-		fmt.Printf("ypx: %d\t", y/matrixPack.BrPiksPoCestici)
+//		fmt.Printf("x: %d ", x)
+//		fmt.Printf("y: %d\t", y)
+//		fmt.Printf("xpx: %d ", x/matrixPack.BrPiksPoCestici)
+//		fmt.Printf("ypx: %d\t", y/matrixPack.BrPiksPoCestici)
 		fmt.Printf("mb: %d\t", state)
 		fmt.Printf("mat.Materijal: %d\t", screenPack.TrenutniMat)
 		fmt.Printf("velicina: %d\t", screenPack.VelicinaKursora)
 		fmt.Printf("pauza: %t\t", matrixPack.Pause)
 		if !korisnikJeLimun {
 			fmt.Printf("brCestica: %d\n", brCestica)
-			fmt.Printf("brLave: %d\n", brLave)
-			fmt.Printf("brKamena: %d\n", brKamena)
+//			fmt.Printf("brLave: %d\n", brLave)
+//			fmt.Printf("brKamena: %d\n", brKamena)
 		} else {
 			fmt.Printf("\n")
 		}
