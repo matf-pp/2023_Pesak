@@ -15,17 +15,18 @@ const (
 	Metal     Materijal = 1
 	Led       Materijal = 2
 	Kamen     Materijal = 3
-	Pesak     Materijal = 4
-	So        Materijal = 5
+	Sljunak   Materijal = 4
+	Pesak     Materijal = 5
+	So        Materijal = 6
 	Rdja      Materijal = 254
-	Lava      Materijal = 6
-	Voda      Materijal = 7
+	Lava      Materijal = 7
+	Voda      Materijal = 8
 	SlanaVoda Materijal = 255
-	Para      Materijal = 8
-	TecniAzot Materijal = 9
-	Plazma    Materijal = 10
-	Toplo     Materijal = 11
-	Hladno    Materijal = 12
+	Para      Materijal = 9
+	TecniAzot Materijal = 10
+	Plazma    Materijal = 11
+	Toplo     Materijal = 12
+	Hladno    Materijal = 13
 	Zid       Materijal = 256
 )
 
@@ -34,10 +35,13 @@ var Ime = map[Materijal]string{
 	Metal:     "Metal",
 	Led:       "Led",
 	Kamen:     "Kamen",
+	Sljunak:   "Sljunak",
 	Pesak:     "Pesak",
 	So:        "So",
+	Rdja:      "Rdja",
 	Lava:      "Lava",
 	Voda:      "Voda",
+	SlanaVoda: "SlanaVoda",
 	Para:      "Para",
 	TecniAzot: "Tecni Azot",
 	Plazma:    "Plazma",
@@ -50,7 +54,8 @@ var Boja = map[Materijal]uint32{
 	Prazno:    0x000000,
 	Metal:     0x33334b,
 	Led:       0xaaaaff,
-	Kamen:     0x999977,
+	Kamen:     0x999988,
+	Sljunak:   0x888877,
 	Pesak:     0xffff66,
 	So:        0xeeeeee,
 	Rdja:      0x6f0f2b,
@@ -70,7 +75,8 @@ var Gustina = map[Materijal]int32{
 	Prazno:    0,
 	Metal:     0,
 	Led:       0,
-	Kamen:     5,
+	Kamen:     0,
+	Sljunak:   5,
 	Pesak:     5,
 	So:        5,
 	Rdja:      5,
@@ -118,7 +124,8 @@ var AStanje = map[Materijal]int{
 	Prazno:    0b1111,
 	Metal:     0b0000,
 	Led:       0b0000,
-	Kamen:     0b0001,
+	Kamen:     0b0000,
+	Sljunak:   0b0001,
 	Pesak:     0b0011,
 	So:        0b0011,
 	Rdja:      0b0011,
@@ -154,6 +161,7 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Metal:     {Metal, Lava, MinTemp, 177315}, //1500.00c
 	Led:       {Led, Voda, MinTemp, 27315},    //0.00c
 	Kamen:     {Kamen, Lava, MinTemp, 157315}, //1300.00c
+	Sljunak:   {Sljunak, Lava, MinTemp, 157312}, //kamen
 	Pesak:     {Pesak, Lava, MinTemp, 197315}, //1700.00c
 	So:        {So, Lava, MinTemp, 107315},    //800.00c
 	Rdja:      {Rdja, Lava, MinTemp, 177315},  // metal
@@ -174,6 +182,7 @@ var Zapaljiv = map[Materijal]bool{
 	Metal:     false,
 	Led:       false,
 	Kamen:     false,
+	Sljunak:   false,
 	Pesak:     false,
 	So:        false,
 	Rdja:      false,
