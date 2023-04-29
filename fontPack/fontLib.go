@@ -2,8 +2,8 @@ package fontPack
 
 import (
 	"main/mat"
-	"main/screenPack"
 	"main/matrixPack"
+	"main/screenPack"
 
 	"fmt"
 	"strconv"
@@ -24,13 +24,13 @@ func SetFont() *ttf.Font {
 	return font
 }
 
-func TextMaker(font *ttf.Font, surface *sdl.Surface, matrica [][]mat.Cestica) (*sdl.Surface) {
+func TextMaker(font *ttf.Font, surface *sdl.Surface, matrica [][]mat.Cestica) *sdl.Surface {
 	// ovo je za tekst
 	var infoText = ""
 	// PESAK
 	if screenPack.KursorPoslednjiX < matrixPack.SirinaKan*matrixPack.BrPiksPoCestici {
 		var poslednjiPiksel = matrica[screenPack.KursorPoslednjiX/matrixPack.BrPiksPoCestici][screenPack.KursorPoslednjiY/matrixPack.BrPiksPoCestici]
-		infoText = mat.Ime[poslednjiPiksel.Materijal] + " @ " + fmt.Sprintf("%.2f", float32((-27315 + int32(poslednjiPiksel.Temperatura))/100)) + "C, SekMat: " + mat.Ime[poslednjiPiksel.SekMat] + ", Ticker: " + strconv.Itoa(int(poslednjiPiksel.Ticker))
+		infoText = mat.Ime[poslednjiPiksel.Materijal] + " @ " + fmt.Sprintf("%.2f", float32((-27315+int32(poslednjiPiksel.Temperatura))/100)) + "C, SekMat: " + mat.Ime[poslednjiPiksel.SekMat] + ", Ticker: " + strconv.Itoa(int(poslednjiPiksel.Ticker))
 
 		// UI
 		// njanja: ovo se sigurno i ovde i u pritisku na gumb može mnogo lepše rešiti nekim funkcionalnim pristupom :DERP: longterm ali todo, vrv kad sređujem dva reda gumbeta
@@ -57,7 +57,7 @@ func TextMaker(font *ttf.Font, surface *sdl.Surface, matrica [][]mat.Cestica) (*
 	// njanja todo napraviti fju koja ludi hex int za boju pretvara u rgba vrednost
 	text, err := font.RenderUTF8Blended(infoText, sdl.Color{R: 255, G: 0, B: 0, A: 255})
 	if err == nil {
-		err = text.Blit(nil, surface, &sdl.Rect{X: 10, Y: 10, W: 0, H: 0})
+		err = text.Blit(nil, surface, &sdl.Rect{X: 3 * matrixPack.BrPiksPoCestici, Y: 3 * matrixPack.BrPiksPoCestici, W: 0, H: 0})
 		if err != nil {
 			panic(err)
 		}

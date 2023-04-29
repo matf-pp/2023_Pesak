@@ -1,9 +1,9 @@
 package main
 
 import (
-	"main/mat"
-	"main/fontPack"
 	"main/brushPack"
+	"main/fontPack"
+	"main/mat"
 	"main/matrixPack"
 	"main/screenPack"
 
@@ -19,8 +19,8 @@ import (
 // njanja: todo izbaciti sve ove gluposti koje redovno menjamo u konfig fajl i staviti da bude gitignorovan
 
 // njanja: pazite ovo
-const korisnikNijeNanja = true
-const korisnikJeLimun = true
+const korisnikNijeNanja = false
+const korisnikJeLimun = false
 
 // njanja: ovo je loša praksa majmuni
 // e a reci je l si provalio bukvalno je kao `using` u cpp -s
@@ -29,6 +29,7 @@ var gus = mat.Lambda
 
 // FPS cap, kontam da je zgodno za testiranje staviti neki nizak, 0 = unlimited
 var fpsCap = 0
+
 const pozadinaGuia = 0x111122
 
 var keystates = sdl.GetKeyboardState()
@@ -36,10 +37,10 @@ var keystates = sdl.GetKeyboardState()
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
 	if screenPack.AutoFitScreen {
-		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(60)
+		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
 	}
 
-	screenPack.MarginaZaGumbad = screenPack.BrojKolona * (screenPack.SirinaDugmeta + screenPack.SirinaUIMargine) + screenPack.SirinaUIMargine
+	screenPack.MarginaZaGumbad = screenPack.BrojKolona*(screenPack.SirinaDugmeta+screenPack.SirinaUIMargine) + screenPack.SirinaUIMargine
 	screenPack.SirinaProzora += screenPack.MarginaZaGumbad
 
 	// njanja: da vidimo hoće li ovo raditi lepo
@@ -89,7 +90,7 @@ func main() {
 		matrixPack.Render(matrica, surface)
 
 		surface = screenPack.RenderujGumbZaSveMaterijale(surface)
-		
+
 		plejGumb := screenPack.CreatePlayGumb()
 		if matrixPack.Pause {
 			surface.FillRect(&plejGumb, 0x00ff00)

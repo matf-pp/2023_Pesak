@@ -24,7 +24,7 @@ var BrojSpecijalnihGumbadi int32 = 3
 var BrojGumbadiPoKoloni int32 = VisinaProzora/(VisinaDugmeta+VisinaUIMargine) - (BrojSpecijalnihGumbadi)
 var BrojKolona int32 = int32(math.Ceil(float64(BrojMaterijala) / float64(BrojGumbadiPoKoloni)))
 var MarginaZaGumbad int32 = 2*SirinaUIMargine + SirinaDugmeta
-var SirinaProzora = matrixPack.SirinaKan * matrixPack.BrPiksPoCestici + MarginaZaGumbad
+var SirinaProzora = matrixPack.SirinaKan*matrixPack.BrPiksPoCestici + MarginaZaGumbad
 var VisinaProzora = matrixPack.VisinaKan * matrixPack.BrPiksPoCestici
 
 var KursorPoslednjiX = int32(0)
@@ -40,7 +40,6 @@ var TrenutniMat mat.Materijal = mat.Pesak
 // ako ovo ikada u praksi izbaci nešto što ne staje u ekran javite mi da ga sredim ali mislim da je to besmislen posao
 func FitToScreen(screenPercentage int) (int32, int32, int32) {
 	resolution := screenresolution.GetPrimary()
-	// adjustedScale := int32((float64(screenPercentage) / float64(100)) * float64(resolution.Height) / float64(matrixPack.VisinaKan))
 	adjustedScale := int32((float64(screenPercentage) / float64(100)) * float64(resolution.Height) / float64(matrixPack.VisinaKan))
 
 	return adjustedScale, matrixPack.SirinaKan * adjustedScale, matrixPack.VisinaKan * adjustedScale
@@ -106,7 +105,7 @@ func CreateRenderer(window *sdl.Window) *sdl.Renderer {
 }
 
 // njanja: ovo renderuje gumbad za sve materijale
-func RenderujGumbZaSveMaterijale(surface *sdl.Surface) *sdl.Surface{
+func RenderujGumbZaSveMaterijale(surface *sdl.Surface) *sdl.Surface {
 	for i, _ := range mat.Boja {
 		gumb := sdl.Rect{int32(SirinaProzora - MarginaZaGumbad + ((int32(i)%BrojKolona)*(SirinaDugmeta+SirinaUIMargine) + SirinaUIMargine)),
 			int32(VisinaUIMargine + int32(i)/BrojKolona*(VisinaDugmeta+VisinaUIMargine)), SirinaDugmeta, VisinaDugmeta}
