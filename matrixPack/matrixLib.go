@@ -58,7 +58,8 @@ func Render(matrix [][]mat.Cestica, surface *sdl.Surface) {
 				gustTemp := mat.GustinaBoja[matrix[i][j].Materijal]
 				surface.FillRect(&rect, gustTemp)
 			} else {
-				surface.FillRect(&rect, mat.Boja[matrix[i][j].Materijal])
+				boja := IzracunajBoju(matrix[i][j])
+				surface.FillRect(&rect, boja)
 			}
 		}
 	}
@@ -66,6 +67,30 @@ func Render(matrix [][]mat.Cestica, surface *sdl.Surface) {
 
 var MinTempRendered uint64 = 29315
 var MaxTempRendered uint64 = 29316
+
+func IzracunajBoju(zrno mat.Cestica) uint32 {
+
+	boja := mat.Boja[zrno.Materijal]
+
+	if zrno.Materijal == mat.Vatra {
+		if zrno.Ticker > 8 {
+			return 0xfac000
+		} else if zrno.Ticker < 0 {
+			return 0x400500
+		}
+		boje := [9]uint32{0x801100, 0xb62203, 0xd73502, 0xfc6400, 0xff7500, 0xfac000, 0xfac000, 0xfac000, 0xfac000}
+		boja = boje[zrno.Ticker]
+	} else if zrno.Materijal == mat.Drvo && zrno.Temperatura > 47315 {//200.00c
+		temperatura := zrno.Temperatura
+		var crvenaKomponenta uint32 = uint32(0x99 * (87315-temperatura+47315)/87315)
+		var plavaKomponenta uint32 = uint32(0 * (87315-temperatura+47315)/87315)
+		var zelenaKomponenta uint32 = uint32(0x44 * (87315-temperatura+47315)/87315)
+		boja = (crvenaKomponenta*256+zelenaKomponenta)*256 + plavaKomponenta
+	}
+	
+	return boja
+
+}
 
 func IzracunajTempBoju(zrno mat.Cestica) uint32 {
 	//	minTemp := mat.MinTemp

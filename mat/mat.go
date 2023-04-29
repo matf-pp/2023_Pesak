@@ -13,18 +13,20 @@ const (
 	Metal     Materijal = 1
 	Led       Materijal = 2
 	Kamen     Materijal = 3
-	Sljunak   Materijal = 4
-	Pesak     Materijal = 5
-	So        Materijal = 6
+	Drvo      Materijal = 4
+	Sljunak   Materijal = 5
+	Pesak     Materijal = 6
+	So        Materijal = 7
 	Rdja      Materijal = 254
-	Lava      Materijal = 7
-	Voda      Materijal = 8
+	Lava      Materijal = 8
+	Voda      Materijal = 9
 	SlanaVoda Materijal = 255
-	Para      Materijal = 9
-	TecniAzot Materijal = 10
-	Plazma    Materijal = 11
-	Toplo     Materijal = 12
-	Hladno    Materijal = 13
+	Para      Materijal = 10
+	Vatra     Materijal = 11
+	TecniAzot Materijal = 12
+	Plazma    Materijal = 13
+	Toplo     Materijal = 14
+	Hladno    Materijal = 15
 	Zid       Materijal = 256
 )
 
@@ -33,6 +35,7 @@ var Ime = map[Materijal]string{
 	Metal:     "Metal",
 	Led:       "Led",
 	Kamen:     "Kamen",
+	Drvo:      "Drvo",
 	Sljunak:   "Sljunak",
 	Pesak:     "Pesak",
 	So:        "So",
@@ -41,6 +44,7 @@ var Ime = map[Materijal]string{
 	Voda:      "Voda",
 	SlanaVoda: "SlanaVoda",
 	Para:      "Para",
+	Vatra:     "Vatra",
 	TecniAzot: "Tecni Azot",
 	Plazma:    "Plazma",
 	Toplo:     "Toplo",
@@ -53,6 +57,7 @@ var Boja = map[Materijal]uint32{
 	Metal:     0x33334b,
 	Led:       0xaaaaff,
 	Kamen:     0x999988,
+	Drvo:      0x994400,
 	Sljunak:   0x888877,
 	Pesak:     0xffff66,
 	So:        0xeeeeee,
@@ -61,6 +66,7 @@ var Boja = map[Materijal]uint32{
 	Voda:      0x3333ff,
 	SlanaVoda: 0x4444ff,
 	Para:      0x6666ff,
+	Vatra:     0xd73502,
 	TecniAzot: 0x99ff99,
 	Plazma:    0xff99ff,
 	Toplo:     0xff0000,
@@ -74,14 +80,16 @@ var Gustina = map[Materijal]int32{
 	Metal:     0,
 	Led:       0,
 	Kamen:     0,
+	Drvo:      0,
 	Sljunak:   5,
 	Pesak:     5,
 	So:        5,
 	Rdja:      5,
 	Lava:      4,
-	Voda:      3,
-	SlanaVoda: 4,
+	Voda:      2,
+	SlanaVoda: 3,
 	Para:      -5,
+	Vatra:     -5,
 	TecniAzot: 3,
 	Plazma:    0,
 	Zid:       0,
@@ -131,6 +139,7 @@ var AStanje = map[Materijal]int{
 	Metal:     0b0000,
 	Led:       0b0000,
 	Kamen:     0b0000,
+	Drvo:      0b0000,
 	Sljunak:   0b0001,
 	Pesak:     0b0011,
 	So:        0b0011,
@@ -139,6 +148,7 @@ var AStanje = map[Materijal]int{
 	Voda:      0b0111,
 	SlanaVoda: 0b0111,
 	Para:      0b0111,
+	Vatra:     0b0111,
 	TecniAzot: 0b0111,
 	Plazma:    0b1111,
 	Zid:       0b0000,
@@ -163,10 +173,11 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	//maxtemp = 8000.00c = int32(800000)
 
 	//	materijali	{Nize,	Vise,	TackaT,		TackaK}
-	Prazno:    {TecniAzot, Plazma, 7315, 650000},
+	Prazno:    {TecniAzot, Plazma, 5315, 627315},
 	Metal:     {Metal, Lava, MinTemp, 177315}, //1500.00c
 	Led:       {Led, Voda, MinTemp, 27315},    //0.00c
 	Kamen:     {Kamen, Lava, MinTemp, 157315}, //1300.00c
+	Drvo:      {Drvo, Vatra, MinTemp, 87315}, //600.00c spontano zapaljenje
 	Sljunak:   {Sljunak, Lava, MinTemp, 157312}, //kamen
 	Pesak:     {Pesak, Lava, MinTemp, 197315}, //1700.00c
 	So:        {So, Lava, MinTemp, 107315},    //800.00c
@@ -175,8 +186,9 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Voda:      {Led, Para, 27315, 37315},          //0.00c, 100.00c
 	SlanaVoda: {Led, Para, 25315, 37315},          //-20.00c, 100c
 	Para:      {Voda, Para, 37315, MaxTemp},       //100.00c
+	Vatra:     {Prazno, Plazma, 57315, 527315},    //300.00c, 5000.00c
 	TecniAzot: {TecniAzot, Prazno, MinTemp, 7315}, //-200.00c
-	Plazma:    {Prazno, Plazma, 650000, MaxTemp},  //6773.15c
+	Plazma:    {Vatra, Plazma, 527315, MaxTemp},  //5000.00c
 	Zid:       {Zid, Zid, MinTemp, MaxTemp},
 }
 
@@ -188,6 +200,7 @@ var Zapaljiv = map[Materijal]bool{
 	Metal:     false,
 	Led:       false,
 	Kamen:     false,
+	Drvo:      true, ///omggggg sooo truueeee bestieeeeee slayyyy queeen
 	Sljunak:   false,
 	Pesak:     false,
 	So:        false,
@@ -196,6 +209,7 @@ var Zapaljiv = map[Materijal]bool{
 	Voda:      false,
 	SlanaVoda: false,
 	Para:      false,
+	Vatra:     false, ///da li je voda mokra xDDD
 	TecniAzot: false,
 	Plazma:    false,
 	Zid:       false,
@@ -221,9 +235,16 @@ func NewCestica(materijal Materijal) Cestica {
 		zrno.SekMat = Voda
 		zrno.Temperatura = 24315 //-30.00c
 	}
+	if materijal == Drvo {
+		zrno.Ticker = 64
+	}
 	if materijal == Para {
 		zrno.SekMat = Voda
 		zrno.Temperatura = 42315 //150.00c
+	}
+	if materijal == Vatra {
+		zrno.Temperatura = 77315 //500.00c
+		zrno.Ticker = 8
 	}
 	if materijal == Lava {
 		zrno.SekMat = Kamen
@@ -254,6 +275,12 @@ func UpdateTemp(matrix [][]Cestica, i int, j int) {
 				if matrix[i+k][j+l].Materijal == Prazno || matrix[i][j].Materijal == Prazno {
 					matrix[i+k][j+l].BaferTemp += uint64(parcePice/100)
 					temperatura = temperatura - uint64(parcePice/100)
+				} else if matrix[i][j].Materijal == Voda && matrix[i+k][j+l].Materijal == Vatra {
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice)
+					temperatura = temperatura - uint64(parcePice)
+				} else if matrix[i][j].Materijal == Vatra && matrix[i+k][j+l].Materijal == Voda {
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice/100)
+					temperatura = temperatura - uint64(parcePice/100)
 				} else {
 					matrix[i+k][j+l].BaferTemp += uint64(parcePice)
 					temperatura = temperatura - uint64(parcePice)
@@ -275,6 +302,23 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 	sekmat := trenutna.SekMat
 	materijal := trenutna.Materijal
 	temperatura := trenutna.Temperatura
+
+	if materijal == Vatra {
+		if trenutna.Ticker == 0 {
+			matrix[i][j].Materijal = Prazno
+		} else if trenutna.Ticker > 10 {
+			matrix[i][j].Ticker = 10
+		} else {
+			matrix[i][j].Ticker--
+		}
+		for k := -1; k < 2; k++ {
+				for l := -1; l < 2; l++ {
+					if matrix[i+k][j+l].Materijal == Voda || matrix[i+k][j+l].Materijal == Para{
+						matrix[i][j].Materijal = Prazno
+					}
+				}
+			}
+	}
 
 	if materijal == Lava {
 		if temperatura < MapaFaza[sekmat].TackaKljucanja {
@@ -374,7 +418,42 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 
 	//gorenje
 	if Zapaljiv[materijal] {
-		//TODO
+		
+		if sekmat != Vatra{
+			for k := -1; k < 2; k++ {
+				for l := -1; l < 2; l++ {
+					if matrix[i+k][j+l].Materijal == Vatra {
+						matrix[i][j].SekMat = Vatra
+					}
+				}
+			}
+		}
+
+		if sekmat == Vatra {
+			for k:=-1; k < 2; k++ {
+				random := rand.Intn(10)
+				if random > 6 {
+				matrix[i][j].Ticker = matrix[i][j].Ticker - 1
+					if matrix[i+k][j-1].Materijal == Prazno {
+						matrix[i+k][j-1].Materijal = Vatra
+						matrix[i+k][j-1].Temperatura = 87315 //600.00c
+						matrix[i+k][j-1].Ticker = 8
+					}
+				}
+			}
+			for k := -1; k < 2; k++ {
+				for l := -1; l < 2; l++ {
+					if matrix[i+k][j+l].Materijal == Voda {
+						matrix[i][j].SekMat = Prazno
+					}
+				}
+			}
+		}
+		if matrix[i][j].Ticker < 1 {
+			matrix[i][j].Materijal = Vatra
+			matrix[i][j].SekMat = Prazno
+			matrix[i][j].Ticker = 8
+		}
 	}
 
 }
