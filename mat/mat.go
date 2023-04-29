@@ -441,12 +441,19 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 					}
 				}
 			}
+			imaVazduha := false
 			for k := -1; k < 2; k++ {
 				for l := -1; l < 2; l++ {
 					if matrix[i+k][j+l].Materijal == Voda {
 						matrix[i][j].SekMat = Prazno
 					}
+					if matrix[i+k][j+l].Materijal == Prazno {
+						imaVazduha = true
+					}
 				}
+			}
+			if !imaVazduha{
+				matrix[i][j].SekMat = Prazno
 			}
 		}
 		if matrix[i][j].Ticker < 1 {
