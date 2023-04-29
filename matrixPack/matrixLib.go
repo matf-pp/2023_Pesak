@@ -99,6 +99,10 @@ var MaxTempRendered uint32 = 29316
 
 func IzracunajTempBoju(zrno mat.Cestica) uint32 {
 
+	if zrno.Materijal == mat.Prazno {
+		return 0
+	}
+
 	//	minTemp := mat.MinTemp
 	//	maxTemp := mat.MaxTemp
 

@@ -36,7 +36,7 @@ var keystates = sdl.GetKeyboardState()
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
 	if screenPack.AutoFitScreen {
-		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
+		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(60)
 	}
 
 	screenPack.MarginaZaGumbad = screenPack.BrojKolona * (screenPack.SirinaDugmeta + screenPack.SirinaUIMargine) + screenPack.SirinaUIMargine
@@ -71,14 +71,6 @@ func main() {
 	go connectToDiscord()
 
 	var matrica [][]mat.Cestica = matrixPack.NapraviSlajs()
-	var tempBafer [][]uint32 = make([][]uint32, matrixPack.SirinaKan)
-	for i:= 0; i < matrixPack.SirinaKan; i++ {
-		kolona := make([]uint32, matrixPack.VisinaKan)
-		for j := 0; j < matrixPack.VisinaKan; j++ {
-			kolona[j] = 29315 // 20c
-		}
-		tempBafer[i] = kolona
-	}
 
 	matrica = matrixPack.ZazidajMatricu(matrica)
 
@@ -92,7 +84,7 @@ func main() {
 
 		running = pollEvents(matrica)
 		if !matrixPack.Pause {
-			update(matrica, tempBafer)
+			update(matrica)
 		}
 		matrixPack.Render(matrica, surface)
 
@@ -284,21 +276,21 @@ var brCestica int = 0
 var brLave int = 0
 var brKamena int = 0
 
-func update(matrix [][]mat.Cestica, tempBafer [][]uint32) {
+func update(matrix [][]mat.Cestica) {
 
 	brCestica, brKamena, brLave = matrixPack.IzbrojiCesticeKamenLavu(matrix)
 
 	for j := 1; j < matrixPack.VisinaKan-1; j++ {
 		for i := 1; i < matrixPack.SirinaKan-1; i++ {
-			mat.UpdateTemp(matrix, tempBafer, i, j)
+			mat.UpdateTemp(matrix, i, j)
 		}
 	}
 	matrixPack.MinTempRendered = mat.MaxTemp
 	matrixPack.MaxTempRendered = mat.MinTemp
 	for j := 1; j < matrixPack.VisinaKan-1; j++ {
 		for i := 1; i < matrixPack.SirinaKan-1; i++ {
-			matrix[i][j].Temperatura = tempBafer[i][j]
-			tempBafer[i][j] = 0
+			matrix[i][j].Temperatura = matrix[i][j].BaferTemp
+			matrix[i][j].BaferTemp = 0
 			temperatura := matrix[i][j].Temperatura
 			if temperatura+1 > matrixPack.MaxTempRendered {
 				matrixPack.MaxTempRendered = temperatura + 1

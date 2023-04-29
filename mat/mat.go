@@ -10,28 +10,22 @@ import (
 
 type Materijal int
 
-const tempRadius = 3
-const usporenje = 1000
-
-// const tezinaTempCestice = 1000
-// const tezinaTempOkoline = 1
-// const delilacTezina = tezinaTempCestice + tezinaTempOkoline
-
 const (
 	Prazno    Materijal = 0
 	Metal     Materijal = 1
 	Led       Materijal = 2
 	Kamen     Materijal = 3
 	Pesak     Materijal = 4
-	So        Materijal = 5		 
+	So        Materijal = 5
+	Rdja      Materijal = 254		 
 	Lava      Materijal = 6
 	Voda      Materijal = 7
 	SlanaVoda Materijal = 255
 	Para      Materijal = 8
 	TecniAzot Materijal = 9
 	Plazma    Materijal = 10
-	Toplo     Materijal = 11
-	Hladno    Materijal = 12
+	Toplo     Materijal = 15
+	Hladno    Materijal = 16
 	Zid       Materijal = 256
 )
 
@@ -60,6 +54,7 @@ var Boja = map[Materijal]uint32{
 	Kamen:     0x999977,
 	Pesak:     0xffff66,
 	So:        0xeeeeee,
+	Rdja:      0x6f0f2b,
 	Lava:      0xff6600,
 	Voda:      0x3333ff,
 	SlanaVoda: 0x4444ff,
@@ -71,16 +66,15 @@ var Boja = map[Materijal]uint32{
 	Zid:       0xffffff,
 }
 
-// mapa gustina neće raditi kako treba,
-// ako nije preveliki problem hteo bih
-// da bude tačna gustina * 10^5 /limun
+//pls samo ne dirajte ovo a ako zelite nesto drugo nazvati gustina promenite naziv ovoga i sve njegove pojave u kodu, hvala -s
 var Gustina = map[Materijal]int32 {
 	Prazno:		0,
 	Metal:		0,
 	Led:		0,
-	Kamen:		6,
+	Kamen:		5,
 	Pesak:		5,
 	So:         5,
+	Rdja:       5,
 	Lava:		4,
 	Voda:		3,
 	SlanaVoda:  4,
@@ -91,8 +85,6 @@ var Gustina = map[Materijal]int32 {
 }
 
 // ToplotnaProvodljivost
-//moze li se ovo preimenovati u ToplodnaProvodljivost? da bude citkiji kod?
-// "ToplotnaProvodljivost" zauzima mnogo mesta /limun
 var Lambda = map[Materijal]int32 {
 	Prazno: 26,			// 0,026
 	Pesak:  2050,		// 2.05
@@ -130,6 +122,7 @@ var AStanje = map[Materijal]int{
 	Kamen:		0b0001,
 	Pesak:		0b0011,
 	So:         0b0011,
+	Rdja:       0b0011,
 	Lava:		0b0111,
 	Voda:		0b0111,
 	SlanaVoda:  0b0111,
@@ -164,9 +157,10 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Kamen:		{Kamen, Lava, MinTemp, 157315}, //1300.00c
 	Pesak:		{Pesak, Lava, MinTemp, 197315}, //1700.00c
 	So:			{So, Lava, MinTemp, 107315}, //800.00c
+	Rdja:       {Rdja, Lava, MinTemp, 177315}, // metal
 	Lava:		{Lava, Lava, MinTemp, MaxTemp},
 	Voda:		{Led, Para, 27315, 37315}, //0.00c, 100.00c
-	SlanaVoda:	{Led, Para, 26315, 37315}, //-10.00c, 100c
+	SlanaVoda:	{Led, Para, 25315, 37315}, //-20.00c, 100c
 	Para:		{Voda, Para, 37315, MaxTemp}, //100.00c
 	TecniAzot:	{TecniAzot, Prazno, MinTemp, 7315}, //-200.00c
 	Plazma:		{Prazno, Plazma, 650000, MaxTemp}, //6773.15c
@@ -183,6 +177,7 @@ var Zapaljiv = map[Materijal]bool{
 	Kamen:		false,
 	Pesak:		false,
 	So:         false,
+	Rdja:		false,
 	Lava:		false,
 	Voda:		false,
 	SlanaVoda:  false,
@@ -195,16 +190,18 @@ var Zapaljiv = map[Materijal]bool{
 type Cestica struct {
 	Materijal   Materijal
 	Temperatura uint32
+	BaferTemp   uint32
 	SekMat      Materijal
-	Ticker      int8
+	Ticker      int32
 }
 
 func NewCestica(materijal Materijal) Cestica {
 	zrno := Cestica{
 		Materijal:   materijal,
 		Temperatura: 29315, //20.00c
+		BaferTemp:   0,
 		SekMat:      Prazno,
-		Ticker:      8, //za rdju gorivo itd, opada po principu nuklearnog raspada (svaki frejm ima x% sanse da ga dekrementira, na 0 prelazi u drugo stanje)
+		Ticker:      1023, //za rdju gorivo itd, opada po principu nuklearnog raspada (svaki frejm ima x% sanse da ga dekrementira, na 0 prelazi u drugo stanje)
 	}
 	if materijal == Led {
 		zrno.SekMat = Voda
@@ -227,65 +224,27 @@ func NewCestica(materijal Materijal) Cestica {
 	return zrno
 }
 
-// Update(matrix, bafer, i, j, matrix[i][j].Materijal)
-// nisam u stanju da procenim trenutno treba li ovo prebaciti u treci fajl ili Boga pitaj gde -s
-func UpdateTemp(matrix [][]Cestica, bafer [][]uint32, i int, j int) {
+func UpdateTemp(matrix [][]Cestica, i int, j int) {
 
 	if matrix[i][j].Materijal == Prazno || matrix[i][j].Materijal == Zid {
-		bafer[i][j] = 29315
+		matrix[i][j].BaferTemp = 29315
 		return
 	}
 	trenutna := matrix[i][j]
 
 	/**/
-	temperatura := float64(trenutna.Temperatura)
-	parcePice := temperatura/9
+	temperatura := trenutna.Temperatura
+	parcePice := float32(temperatura)/9
 	for k := -1; k < 2; k++ {
 		for l := -1; l < 2; l++ {
 			if matrix[i+k][j+l].Materijal != Prazno && matrix[i+k][j+l].Materijal != Zid {
-				bafer[i+k][j+l] += uint32(parcePice)
-				temperatura = temperatura - parcePice
+				matrix[i+k][j+l].BaferTemp += uint32(parcePice)
+				temperatura = temperatura - uint32(parcePice)
 			}
 		}
 	}
-	bafer[i][j] += uint32(temperatura)
+	matrix[i][j].BaferTemp += temperatura
 	/**/
-
-//	bafer[i][j].Temperatura = matrix[i][j].Temperatura
-//	return
-
-	// temperatura
-	//da ovo tvoje je kul ali prebrzo provodi da bih testirao kako se ponasa, ne zameri molim te -s
-	/**
-	temperatura := trenutna.Temperatura
-	for k := int(math.Max(float64(i-tempRadius), 0)); k < int(math.Min(float64(i+tempRadius), sirinaKanvasa)); k++ {
-		for l := int(math.Max(float64(j-tempRadius), 0)); l < int(math.Min(float64(j+tempRadius), visinaKanvasa)); l++ {
-			if math.Abs(float64(k-i)) + math.Abs(float64(l-j)) >= tempRadius || temperatura == matrix[k][l].Temperatura {
-				continue
-			}
-			gusTrenutna := float64(Gustina[trenutna.Materijal])
-			gusSused := float64(Gustina[matrix[k][l].Materijal])
-			ostatak := (gusTrenutna * temperatura + gusSused * matrix[k][l].Temperatura)/(gusTrenutna + gusSused) - temperatura
-			temperatura += ostatak/usporenje
-			matrix[k][l].Temperatura -= ostatak/usporenje
-			bafer[k][l].Temperatura -= ostatak/usporenje
-		}
-	}
-	matrix[i][j].Temperatura = temperatura
-	bafer[i][j].Temperatura = temperatura
-
-	if bafer[i][j].Temperatura < MinTemp {
-		err := fmt.Sprintf("Temperatura cestice na poziciji [%d][%d] je van minimalne granice: %d < %d\n", i+k, j+l, bafer[i+k][j+l].Temperatura < MinTemp)
-		panic(err)
-	}
-	if bafer[i][j].Temperatura > MaxTemp {
-		err := fmt.Sprintf("Temperatura cestice na poziciji [%d][%d] je van maksimalne granice: %d > %d\n", i+k, j+l, bafer[i+k][j+l].Temperatura < MaxTemp)
-		panic(err)
-		//ako vas je dibagovanje dovelo ovde, moguce je da samo treba povecati MaxTemp ali razmislite o implikacijama, mozda ne valja racunanje temperature i negde krsimo termodinamiku
-	}
-
-	/**/
-
 
 }
 
@@ -302,7 +261,12 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 
 	if materijal == Lava {
 		if temperatura < MapaFaza[sekmat].TackaKljucanja {
-			matrix[i][j].Materijal = sekmat
+			if sekmat == Rdja {
+				matrix[i][j].Materijal = Metal
+				matrix[i][j].Ticker = 127
+			} else {
+				matrix[i][j].Materijal = sekmat
+			}
 		}
 	} else if materijal == SlanaVoda {
 
@@ -341,7 +305,7 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 		}
 	}
 
-	if materijal == So {
+	if materijal == So {	//Gospode oprosti mi za ovaj blok koda bio sam mlad i naivan nisam znao za bolje -s
 		rFaktor := rand.Intn(2)*2 - 1
 
 		if matrix[i][j+1].Materijal == Voda {
@@ -370,6 +334,28 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 			matrix[i][j+1].Materijal = SlanaVoda
 		}
 	}
+
+	if materijal == Metal {
+		for k := -1; k < 2; k++ {
+			for l := -1; l < 2; l++ {
+				if matrix[i+k][j+l].Materijal == SlanaVoda {
+					randBr := rand.Intn(7)
+					if randBr > 3 {
+						matrix[i][j].Ticker -= 1						
+					}
+				} else if matrix[i+k][j+l].Materijal == Voda {
+					randBr := rand.Intn(7)
+					if randBr > 5 {
+						matrix[i][j].Ticker -= 1						
+					}
+				}
+			}
+		}
+		if matrix[i][j].Ticker < 0 {
+			matrix[i][j].Materijal = Rdja
+		}
+	}
+
 
 	//gorenje
 	if Zapaljiv[materijal] {
