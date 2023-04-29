@@ -33,6 +33,7 @@ var KursorPoslednjiY = int32(0)
 // var velicinaKursora int32 = 4
 var VelicinaKursora int32 = 8
 var MaxKursor int32 = 32
+var GUIBoja uint32 = 0x111122
 
 var TrenutniMat mat.Materijal = mat.Pesak
 
@@ -97,22 +98,24 @@ func CreateSurface(window *sdl.Window) *sdl.Surface {
 }
 
 func CreateRenderer(window *sdl.Window) *sdl.Renderer {
-	renderer, err := window.GetRenderer()
+	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
 		panic(err)
 	}
+	defer renderer.Destroy()
+
 	return renderer
 }
 
 // njanja: ovo renderuje gumbad za sve materijale
-func RenderujGumbZaSveMaterijale(surface *sdl.Surface) *sdl.Surface {
+func RenderujGumbZaSveMaterijale(renderer *sdl.Renderer) {
 	for i, _ := range mat.Boja {
 		gumb := sdl.Rect{int32(SirinaProzora - MarginaZaGumbad + ((int32(i)%BrojKolona)*(SirinaDugmeta+SirinaUIMargine) + SirinaUIMargine)),
 			int32(VisinaUIMargine + int32(i)/BrojKolona*(VisinaDugmeta+VisinaUIMargine)), SirinaDugmeta, VisinaDugmeta}
-		surface.FillRect(&gumb, mat.Boja[i])
+		renderer.SetDrawColor(uint8(mat.Boja[i]>>16), uint8(mat.Boja[i]>>8), uint8(mat.Boja[i]), 255)
+		renderer.FillRect(&gumb)
 	}
-
-	return surface
+	// zašto je ovo vraćalo surface
 }
 
 func CreatePlayGumb() sdl.Rect {

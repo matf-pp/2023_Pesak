@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"math/rand"
 
+	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
-	"github.com/veandco/go-sdl2/mix"
 )
 
 // Njanjavi uradi ovo pls /limun
@@ -29,9 +29,9 @@ var boja = mat.Boja
 var gus = mat.Lambda
 
 // FPS cap, kontam da je zgodno za testiranje staviti neki nizak, 0 = unlimited
-var fpsCap = 120
+var fpsCap = 0
 
-const pozadinaGuia = 0x111122
+var pozadinaGuia uint32 = 0x111122
 
 var keystates = sdl.GetKeyboardState()
 
@@ -41,7 +41,7 @@ var zvuk = 100
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
 	if screenPack.AutoFitScreen {
-		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(40)
+		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
 	}
 
 	screenPack.MarginaZaGumbad = screenPack.BrojKolona*(screenPack.SirinaDugmeta+screenPack.SirinaUIMargine) + screenPack.SirinaUIMargine
@@ -49,7 +49,7 @@ func main() {
 
 	// njanja: da vidimo hoće li ovo raditi lepo
 	var font *ttf.Font
-	var text *sdl.Surface
+	//var text *sdl.Surface
 	err := ttf.Init()
 	if err != nil {
 		panic(err)
@@ -83,8 +83,20 @@ func main() {
 	window := screenPack.CreateWindow()
 	defer window.Destroy()
 
-	surface := screenPack.CreateSurface(window)
-	renderer := screenPack.CreateRenderer(window)
+	// njanja: ovo vratiti u neki screenpack nešto ako baš treba mada ne kontam poentu funkcija koje se izvršavaju bukvalno jednom i koje služe samo da kod ne bi bio u mejnu
+	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
+	if err != nil {
+		panic(err)
+	}
+	defer renderer.Destroy()
+
+	texture, err := renderer.CreateTexture(uint32(sdl.PIXELFORMAT_RGB24), sdl.TEXTUREACCESS_STATIC, matrixPack.SirinaKan, matrixPack.VisinaKan)
+	if err != nil {
+		panic(err)
+	}
+	defer texture.Destroy()
+
+	pixels := make([]byte, matrixPack.SirinaKan*matrixPack.VisinaKan*3)
 
 	font = fontPack.SetFont()
 	defer font.Close()
@@ -109,7 +121,7 @@ func main() {
 		if !matrixPack.Pause {
 			update(matrica)
 		}
-		matrixPack.Render(matrica, surface)
+		matrixPack.Render(matrica, renderer, texture, pixels, screenPack.SirinaProzora-screenPack.MarginaZaGumbad, screenPack.VisinaProzora)
 
 		if matrixPack.ResetSound {
 			err = mus.Play(-1)
@@ -122,22 +134,32 @@ func main() {
 			_ = mix.VolumeMusic(zvuk)
 		}
 
-		surface = screenPack.RenderujGumbZaSveMaterijale(surface)
+		// njanja: ovo je vraćalo surface? nz je l to potrebno ???
+		screenPack.RenderujGumbZaSveMaterijale(renderer)
 
 		plejGumb := screenPack.CreatePlayGumb()
+		// todo: izbeći ove konverzije i samo koristiti rgba direktno
+		var hexColor uint32
 		if matrixPack.Pause {
-			surface.FillRect(&plejGumb, 0x00ff00)
+			hexColor = 0x00ff00
 		} else {
-			surface.FillRect(&plejGumb, 0xffa500)
+			hexColor = 0xffa500
 		}
+		renderer.SetDrawColor(uint8(hexColor>>16), uint8(hexColor>>8), uint8(hexColor), 255)
+		renderer.FillRect(&plejGumb)
+
 		sejvGumb := screenPack.CreateSaveGumb()
-		surface.FillRect(&sejvGumb, 0x0000ff)
+		hexColor = 0x0000ff
+		renderer.SetDrawColor(uint8(hexColor>>16), uint8(hexColor>>8), uint8(hexColor), 255)
+		renderer.FillRect(&sejvGumb)
+
 		resetGumb := screenPack.CreateResetGumb()
-		surface.FillRect(&resetGumb, 0xff0000)
+		hexColor = 0xff0000
+		renderer.SetDrawColor(uint8(hexColor>>16), uint8(hexColor>>8), uint8(hexColor), 255)
+		renderer.FillRect(&resetGumb)
 
 		if matrixPack.TxtMode {
-			text = fontPack.TextMaker(font, surface, matrica)
-			defer text.Free()
+			fontPack.TextMaker(font, renderer, matrica)
 		}
 
 		window.UpdateSurface()
@@ -145,9 +167,10 @@ func main() {
 		// njanja: ovo renderuje krug oko četkice, ne može u brush fju jer se ona ne zove u svakom frejmu
 		// takođe kursor flikeruje jer bude na kratko izbrisan kad se pozove updatesurface par linija iznad pa dok ne bude ponovo nacrtan
 		// ako mene pitate mislim da daje odličan retro look
-		cetkica := sdl.Rect{screenPack.KursorPoslednjiX - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, screenPack.KursorPoslednjiY - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici), int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici)}
+		cetkica := sdl.Rect{X: screenPack.KursorPoslednjiX - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, Y: screenPack.KursorPoslednjiY - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, W: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici), H: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici)}
 		renderer.SetDrawColor(255, 255, 255, 255)
 		renderer.DrawRect(&cetkica)
+		renderer.SetDrawColor(uint8(pozadinaGuia>>16), uint8(pozadinaGuia>>8), uint8(pozadinaGuia), 255)
 		renderer.Present()
 
 		if fpsCap > 0 {
@@ -298,18 +321,18 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 	}
 
 	if korisnikNijeNanja {
-//		fmt.Printf("x: %d ", x)
-//		fmt.Printf("y: %d\t", y)
-//		fmt.Printf("xpx: %d ", x/matrixPack.BrPiksPoCestici)
-//		fmt.Printf("ypx: %d\t", y/matrixPack.BrPiksPoCestici)
+		//		fmt.Printf("x: %d ", x)
+		//		fmt.Printf("y: %d\t", y)
+		//		fmt.Printf("xpx: %d ", x/matrixPack.BrPiksPoCestici)
+		//		fmt.Printf("ypx: %d\t", y/matrixPack.BrPiksPoCestici)
 		fmt.Printf("mb: %d\t", state)
 		fmt.Printf("mat.Materijal: %d\t", screenPack.TrenutniMat)
 		fmt.Printf("velicina: %d\t", screenPack.VelicinaKursora)
 		fmt.Printf("pauza: %t\t", matrixPack.Pause)
 		if !korisnikJeLimun {
 			fmt.Printf("brCestica: %d\n", brCestica)
-//			fmt.Printf("brLave: %d\n", brLave)
-//			fmt.Printf("brKamena: %d\n", brKamena)
+			//			fmt.Printf("brLave: %d\n", brLave)
+			//			fmt.Printf("brKamena: %d\n", brKamena)
 		} else {
 			fmt.Printf("\n")
 		}
@@ -333,7 +356,7 @@ func update(matrix [][]mat.Cestica) {
 			mat.UpdateTemp(matrix, i, j)
 		}
 	}
-	
+
 	matrixPack.MinTempRendered = mat.MaxTemp
 	matrixPack.MaxTempRendered = mat.MinTemp
 	for j := 1; j < matrixPack.VisinaKan-1; j++ {

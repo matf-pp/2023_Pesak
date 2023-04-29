@@ -24,7 +24,7 @@ func SetFont() *ttf.Font {
 	return font
 }
 
-func TextMaker(font *ttf.Font, surface *sdl.Surface, matrica [][]mat.Cestica) *sdl.Surface {
+func TextMaker(font *ttf.Font, renderer *sdl.Renderer, matrica [][]mat.Cestica) {
 	// ovo je za tekst
 	var infoText = ""
 	// PESAK
@@ -54,14 +54,17 @@ func TextMaker(font *ttf.Font, surface *sdl.Surface, matrica [][]mat.Cestica) *s
 
 	}
 
-	// njanja todo napraviti fju koja ludi hex int za boju pretvara u rgba vrednost
 	text, err := font.RenderUTF8Blended(infoText, sdl.Color{R: 255, G: 0, B: 0, A: 255})
 	if err == nil {
-		err = text.Blit(nil, surface, &sdl.Rect{X: 3 * matrixPack.BrPiksPoCestici, Y: 3 * matrixPack.BrPiksPoCestici, W: 0, H: 0})
-		if err != nil {
-			panic(err)
+		texture, err := renderer.CreateTextureFromSurface(text)
+		if err == nil {
+			_, _, width, height, err := texture.Query()
+			if err != nil {
+				panic(err)
+			}
+			renderer.Copy(texture, nil, &sdl.Rect{X: 3 * matrixPack.BrPiksPoCestici, Y: 3 * matrixPack.BrPiksPoCestici, W: width, H: height})
 		}
+		defer texture.Destroy()
 	}
-
-	return text
+	defer text.Free()
 }

@@ -3,13 +3,17 @@ package matrixPack
 import (
 	"main/mat"
 	"main/mathPack"
+	"unsafe"
+
+	"strconv"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
 
 // mora ovo ovde /limun
 var BrPiksPoCestici int32 = 9000
-const SirinaKan, VisinaKan = 360, 216
+
+const SirinaKan, VisinaKan = 240, 144
 
 var Pause bool = false
 var TMode bool = false
@@ -47,23 +51,35 @@ func NapraviSlajs() [][]mat.Cestica {
 	return slajs
 }
 
-func Render(matrix [][]mat.Cestica, surface *sdl.Surface) {
-	for i := 0; i < SirinaKan; i++ {
-		for j := 0; j < VisinaKan; j++ {
+func Render(matrix [][]mat.Cestica, renderer *sdl.Renderer, texture *sdl.Texture, pixels []byte, simWidth, simHeight int32) {
+
+	var count int = 0
+	var hexColor uint32 = 0
+	for i := 0; i < VisinaKan; i++ {
+		for j := 0; j < SirinaKan; j++ {
 			// njanja: braaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaate je l stvarno toliko teško kompajleru da implicitno konvertuje int u int32
-			rect := sdl.Rect{int32(i) * BrPiksPoCestici, int32(j) * BrPiksPoCestici, BrPiksPoCestici, BrPiksPoCestici}
 			if TMode {
-				bojaTemp := IzracunajTempBoju(matrix[i][j])
-				surface.FillRect(&rect, bojaTemp)
+				bojaTemp := IzracunajTempBoju(matrix[j][i])
+				hexColor = bojaTemp
 			} else if DMode {
-				gustTemp := mat.GustinaBoja[matrix[i][j].Materijal]
-				surface.FillRect(&rect, gustTemp)
+				gustTemp := mat.GustinaBoja[matrix[j][i].Materijal]
+				hexColor = gustTemp
 			} else {
-				boja := IzracunajBoju(matrix[i][j])
-				surface.FillRect(&rect, boja)
+				boja := IzracunajBoju(matrix[j][i])
+				hexColor = boja
 			}
+
+			pixels[count] = byte((hexColor >> 16) & 0xFF)
+			pixels[count+1] = byte((hexColor >> 8) & 0xFF)
+			pixels[count+2] = byte(hexColor & 0xFF)
+			count = count + 3
 		}
 	}
+
+	var pitch int32 = SirinaKan * 3
+	texture.Update(nil, unsafe.Pointer(&pixels[0]), int(pitch))
+	renderer.Clear()
+	renderer.Copy(texture, nil, &sdl.Rect{X: 0, Y: 0, W: simWidth, H: simHeight})
 }
 
 var MinTempRendered uint64 = 29315
@@ -81,14 +97,14 @@ func IzracunajBoju(zrno mat.Cestica) uint32 {
 		}
 		boje := [9]uint32{0x801100, 0xb62203, 0xd73502, 0xfc6400, 0xff7500, 0xfac000, 0xfac000, 0xfac000, 0xfac000}
 		boja = boje[zrno.Ticker]
-	} else if zrno.Materijal == mat.Drvo && zrno.Temperatura > 47315 {//200.00c
+	} else if zrno.Materijal == mat.Drvo && zrno.Temperatura > 47315 { //200.00c
 		temperatura := zrno.Temperatura
-		var crvenaKomponenta uint32 = uint32(0x99 * (87315-temperatura+47315)/87315)
-		var plavaKomponenta uint32 = uint32(0 * (87315-temperatura+47315)/87315)
-		var zelenaKomponenta uint32 = uint32(0x44 * (87315-temperatura+47315)/87315)
+		var crvenaKomponenta uint32 = uint32(0x99 * (87315 - temperatura + 47315) / 87315)
+		var plavaKomponenta uint32 = uint32(0 * (87315 - temperatura + 47315) / 87315)
+		var zelenaKomponenta uint32 = uint32(0x44 * (87315 - temperatura + 47315) / 87315)
 		boja = (crvenaKomponenta*256+zelenaKomponenta)*256 + plavaKomponenta
 	}
-	
+
 	return boja
 
 }
@@ -110,12 +126,34 @@ func IzracunajTempBoju(zrno mat.Cestica) uint32 {
 	var zelenaKomponenta uint32 = uint32(63)
 
 	if zrno.Materijal == mat.Prazno {
-        crvenaKomponenta, plavaKomponenta, zelenaKomponenta = crvenaKomponenta/2, plavaKomponenta/2, zelenaKomponenta/2
-    }
+		crvenaKomponenta, plavaKomponenta, zelenaKomponenta = crvenaKomponenta/2, plavaKomponenta/2, zelenaKomponenta/2
+	}
 
 	var boja uint32 = (crvenaKomponenta*256+zelenaKomponenta)*256 + plavaKomponenta
 	return boja
 	/**/
+}
+
+func IzracunajGustBoju(gust int32) uint32 {
+	if gust > 0 {
+		gust *= 255 / 10
+		gust = mathPack.MaxInt32(mathPack.MinInt32(int32(gust), 255), 0)
+		gust <<= 8
+	} else if gust < 0 {
+		gust *= -255 / 10
+		gust = mathPack.MinInt32(int32(gust), 255)
+		gust += gust << 16
+	} else {
+		gust = (200 << 16) + (200 << 8) + 200
+	}
+
+	hexadeca := strconv.FormatInt(int64(gust), 16)
+	gustBoja, err := strconv.ParseInt(hexadeca, 16, 32)
+	if err != nil {
+		panic(err)
+	}
+
+	return uint32(gustBoja)
 }
 
 func IzbrojiCesticeKamenLavu(matrix [][]mat.Cestica) (int, int, int) {
