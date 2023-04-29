@@ -35,6 +35,8 @@ const pozadinaGuia = 0x111122
 
 var keystates = sdl.GetKeyboardState()
 
+var mutirana = false
+var zvuk = 100
 
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
@@ -108,6 +110,17 @@ func main() {
 			update(matrica)
 		}
 		matrixPack.Render(matrica, surface)
+
+		if matrixPack.ResetSound {
+			err = mus.Play(-1)
+			matrixPack.ResetSound = false
+		}
+
+		if mutirana {
+			_ = mix.VolumeMusic(0)
+		} else {
+			_ = mix.VolumeMusic(zvuk)
+		}
 
 		surface = screenPack.RenderujGumbZaSveMaterijale(surface)
 
@@ -230,6 +243,21 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 			}
 			if keystates[sdl.SCANCODE_V] != 0 {
 				matrixPack.TxtMode = !matrixPack.TxtMode
+			}
+			if keystates[sdl.SCANCODE_R] != 0 {
+				matrixPack.ResetSound = !matrixPack.ResetSound
+			}
+			if keystates[sdl.SCANCODE_M] != 0 {
+				mutirana = !mutirana
+			}
+			if keystates[sdl.SCANCODE_Z] != 0 {
+				if zvuk > 0 {
+					zvuk -= 5
+				}
+			}
+			if keystates[sdl.SCANCODE_X] != 0 {
+				// do daske! /limun
+				zvuk += 5
 			}
 
 		// njanja: za ovo mi je potreban diskretan klik a ne frejm sa dugmetom dole

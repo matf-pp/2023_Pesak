@@ -16,6 +16,7 @@ var TMode bool = false
 var NMode bool = false
 var DMode bool = false
 var TxtMode bool = true
+var ResetSound bool = false
 
 func ClampCoords(x int32, y int32) (int32, int32) {
 	return mathPack.MinInt32(mathPack.MaxInt32(x, 0), SirinaKan-1),
