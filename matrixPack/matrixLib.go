@@ -4,14 +4,12 @@ import (
 	"main/mat"
 	"main/mathPack"
 
-	"strconv"
-
 	"github.com/veandco/go-sdl2/sdl"
 )
 
 // mora ovo ovde /limun
 var BrPiksPoCestici int32 = 9000
-const SirinaKan, VisinaKan = 240, 144
+const SirinaKan, VisinaKan = 360, 216
 
 var Pause bool = false
 var TMode bool = false
@@ -57,7 +55,7 @@ func Render(matrix [][]mat.Cestica, surface *sdl.Surface) {
 				bojaTemp := IzracunajTempBoju(matrix[i][j])
 				surface.FillRect(&rect, bojaTemp)
 			} else if DMode {
-				gustTemp := IzracunajGustBoju(mat.Gustina[matrix[i][j].Materijal])
+				gustTemp := mat.GustinaBoja[matrix[i][j].Materijal]
 				surface.FillRect(&rect, gustTemp)
 			} else {
 				surface.FillRect(&rect, mat.Boja[matrix[i][j].Materijal])
@@ -66,43 +64,10 @@ func Render(matrix [][]mat.Cestica, surface *sdl.Surface) {
 	}
 }
 
-// todo probao bih alternativu da napravim -s
-// onda stavi pravi #TODO, kolega /limun
-// xDDD
-/*
-func IzracunajTempBoju(temp int32) uint32 {
-	temp *= tempColorMultiplier
-	temp /= 100
-	if temp > 0 {
-		temp = int32Min(temp, 255)
-		temp = (255-temp) << 8 + (255 << 16)
-	} else if temp < 0 {
-		temp *= -1
-		temp = int32Min(temp, 255)
-		temp = (255-temp) << 8  + 255
-	} else {
-		temp = 230
-		temp += (230 << 8) + (230 << 16)
-	}
-
-	hexadeca := strconv.FormatUint(uint64(temp), 16)
-	tempBoja, err := strconv.ParseUint(hexadeca, 16, 32)
-	if err != nil {
-		panic(err)
-	}
-
-	return uint32(tempBoja)
-}
-*/
-var MinTempRendered uint32 = 29315
-var MaxTempRendered uint32 = 29316
+var MinTempRendered uint64 = 29315
+var MaxTempRendered uint64 = 29316
 
 func IzracunajTempBoju(zrno mat.Cestica) uint32 {
-
-	if zrno.Materijal == mat.Prazno {
-		return 0
-	}
-
 	//	minTemp := mat.MinTemp
 	//	maxTemp := mat.MaxTemp
 
@@ -118,31 +83,13 @@ func IzracunajTempBoju(zrno mat.Cestica) uint32 {
 	var plavaKomponenta uint32 = uint32(255 - crvenaKomponenta)
 	var zelenaKomponenta uint32 = uint32(63)
 
+	if zrno.Materijal == mat.Prazno {
+        crvenaKomponenta, plavaKomponenta, zelenaKomponenta = crvenaKomponenta/2, plavaKomponenta/2, zelenaKomponenta/2
+    }
+
 	var boja uint32 = (crvenaKomponenta*256+zelenaKomponenta)*256 + plavaKomponenta
 	return boja
 	/**/
-}
-
-func IzracunajGustBoju(gust int32) uint32 {
-	if gust > 0 {
-		gust *= 255/10
-		gust = mathPack.MaxInt32(mathPack.MinInt32(int32(gust), 255), 0)
-		gust <<= 8
-	} else if gust < 0 {
-		gust *= -255/10
-		gust = mathPack.MinInt32(int32(gust), 255)
-		gust += gust << 16
-	} else {
-		gust = (200 << 16) + (200 << 8) + 200
-	}
-
-	hexadeca := strconv.FormatInt(int64(gust), 16)
-	gustBoja, err := strconv.ParseInt(hexadeca, 16, 32)
-	if err != nil {
-		panic(err)
-	}
-
-	return uint32(gustBoja)
 }
 
 func IzbrojiCesticeKamenLavu(matrix [][]mat.Cestica) (int, int, int) {

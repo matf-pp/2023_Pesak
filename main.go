@@ -28,7 +28,7 @@ var boja = mat.Boja
 var gus = mat.Lambda
 
 // FPS cap, kontam da je zgodno za testiranje staviti neki nizak, 0 = unlimited
-var fpsCap = 0
+var fpsCap = 120
 
 const pozadinaGuia = 0x111122
 
@@ -278,7 +278,6 @@ var brLave int = 0
 var brKamena int = 0
 
 func update(matrix [][]mat.Cestica) {
-
 	brCestica, brKamena, brLave = matrixPack.IzbrojiCesticeKamenLavu(matrix)
 
 	for j := 1; j < matrixPack.VisinaKan-1; j++ {
@@ -286,6 +285,7 @@ func update(matrix [][]mat.Cestica) {
 			mat.UpdateTemp(matrix, i, j)
 		}
 	}
+	
 	matrixPack.MinTempRendered = mat.MaxTemp
 	matrixPack.MaxTempRendered = mat.MinTemp
 	for j := 1; j < matrixPack.VisinaKan-1; j++ {
@@ -302,7 +302,6 @@ func update(matrix [][]mat.Cestica) {
 			//todo smisli sta sa tikerima
 		}
 	}
-
 	for j := 1; j < matrixPack.VisinaKan-1; j++ {
 		for i := 1; i < matrixPack.SirinaKan-1; i++ {
 			mat.UpdatePhaseOfMatter(matrix, i, j)

@@ -1,10 +1,8 @@
 package mat
 
 import (
-	//"main/brushPack"
-
-	//	"fmt"
-	//	"math"
+	//"fmt"
+	//"math"
 	"math/rand"
 )
 
@@ -82,31 +80,39 @@ var Gustina = map[Materijal]int32{
 	Plazma:    0,
 	Zid:       0,
 }
+var GustinaBoja = map[Materijal]uint32 {
+	Prazno: 	0xc8c8c8,
+	Metal:  	0x00ff00,
+	Led:    	0x004600,
+	Kamen:  	0x00b400,
+	Pesak:  	0x007800,
+	So:        	0x00a000,
+	Rdja:      	0x00ff00,
+	Lava:   	0x00c800,
+	Voda:   	0x005000,
+	SlanaVoda: 	0x005a00,
+	Para:   	0xc800c8,
+	TecniAzot: 	0x006400,
+	Plazma:    	0xff00ff,
+	Zid:		0,
+}
 
 // ToplotnaProvodljivost
-var Lambda = map[Materijal]int32{
-	Prazno: 26,      // 0,026
-	Pesak:  2050,    // 2.05
-	Voda:   600,     // 0,6
-	Metal:  50200,   // 50.2
-	Kamen:  288800,  // 288.8
-	Lava:   1300000, // 1300
-	Led:    1600,    // 1,6
-	Para:   16,      // 0.016
-	// molim te ovim redosledom ih popuni, da bude citkiji kod
-	// Prazno:
-	// Metal:
-	// Led:
-	// Kamen:
-	// Pesak:
-	// So:
-	// Lava:
-	// Voda:
-	// SlanaVoda
-	// Para:
-	// TecniAzot:
-	// Plazma:
-	// Zid:
+var Lambda = map[Materijal]uint64{
+	Prazno: 	26,      // 0.026
+	Metal:  	50200,   // 50.2
+	Led:    	1600,    // 1.6
+	Kamen:  	288800,  // 288.8
+	Pesak:  	2050,    // 2.05
+	So:        	6000,	 // 6
+	Rdja:      	50200,   // 50.2
+	Lava:   	1300000, // 1300
+	Voda:   	600,     // 0.6
+	SlanaVoda:  600,	 // 0.6
+	Para:   	16,      // 0.016
+	TecniAzot:  25,		 // 0.025
+	Plazma:    	1500000, // lupio sam broj zato što https://adsabs.harvard.edu/full/1962SvA.....5..495I /limun
+	Zid:       	0,
 }
 
 // 0000 nece on nidje
@@ -134,8 +140,8 @@ var AStanje = map[Materijal]int{
 type FaznaPromena struct {
 	Nize           Materijal
 	Vise           Materijal
-	TackaTopljenja uint32
-	TackaKljucanja uint32
+	TackaTopljenja uint64
+	TackaKljucanja uint64
 }
 
 var MapaFaza = map[Materijal]FaznaPromena{
@@ -149,8 +155,8 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	//MinTemp = 0.00k = -273.15c = int32(-27315)
 	//maxtemp = 8000.00c = int32(800000)
 
-	//	materijali	{nize,	Vise,	TackaT,		TackaK}
-	Prazno:    {Prazno, Prazno, MinTemp, MaxTemp},
+	//	materijali	{Nize,	Vise,	TackaT,		TackaK}
+	Prazno:    {TecniAzot, Plazma, 7315, 650000},
 	Metal:     {Metal, Lava, MinTemp, 177315}, //1500.00c
 	Led:       {Led, Voda, MinTemp, 27315},    //0.00c
 	Kamen:     {Kamen, Lava, MinTemp, 157315}, //1300.00c
@@ -166,8 +172,8 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Zid:       {Zid, Zid, MinTemp, MaxTemp},
 }
 
-const MinTemp uint32 = 0      // 0.00k
-const MaxTemp uint32 = 827315 //8000.00c
+const MinTemp uint64 = 0      // 0.00k
+const MaxTemp uint64 = 827315 //8000.00c
 
 var Zapaljiv = map[Materijal]bool{
 	Prazno:    false,
@@ -188,8 +194,8 @@ var Zapaljiv = map[Materijal]bool{
 
 type Cestica struct {
 	Materijal   Materijal
-	Temperatura uint32
-	BaferTemp   uint32
+	Temperatura uint64
+	BaferTemp   uint64
 	SekMat      Materijal
 	Ticker      int32
 }
@@ -224,8 +230,7 @@ func NewCestica(materijal Materijal) Cestica {
 }
 
 func UpdateTemp(matrix [][]Cestica, i int, j int) {
-
-	if matrix[i][j].Materijal == Prazno || matrix[i][j].Materijal == Zid {
+	if matrix[i][j].Materijal == Zid {
 		matrix[i][j].BaferTemp = 29315
 		return
 	}
@@ -236,20 +241,24 @@ func UpdateTemp(matrix [][]Cestica, i int, j int) {
 	parcePice := float32(temperatura) / 9
 	for k := -1; k < 2; k++ {
 		for l := -1; l < 2; l++ {
-			if matrix[i+k][j+l].Materijal != Prazno && matrix[i+k][j+l].Materijal != Zid {
-				matrix[i+k][j+l].BaferTemp += uint32(parcePice)
-				temperatura = temperatura - uint32(parcePice)
+			if matrix[i+k][j+l].Materijal != Zid {
+				if matrix[i+k][j+l].Materijal == Prazno || matrix[i][j].Materijal == Prazno {
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice/100)
+					temperatura = temperatura - uint64(parcePice/100)
+				} else {
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice)
+					temperatura = temperatura - uint64(parcePice)
+				}
 			}
 		}
 	}
 	matrix[i][j].BaferTemp += temperatura
 	/**/
-
 }
 
 func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 
-	if matrix[i][j].Materijal == Prazno || matrix[i][j].Materijal == Zid {
+	if matrix[i][j].Materijal == Zid {
 		return
 	}
 
@@ -268,7 +277,6 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 			}
 		}
 	} else if materijal == SlanaVoda {
-
 		if temperatura < MapaFaza[materijal].TackaTopljenja {
 			matrix[i][j].Materijal = MapaFaza[materijal].Nize
 			matrix[i][j].SekMat = SlanaVoda

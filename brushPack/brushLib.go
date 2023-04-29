@@ -26,13 +26,13 @@ func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 						matrix[tx][ty] = mat.NewCestica(screenPack.TrenutniMat)
 					}
 				} else {
-					if screenPack.TrenutniMat == mat.Toplo && matrix[tx][ty].Materijal != mat.Prazno && matrix[tx][ty].Materijal != mat.Zid {
+					if screenPack.TrenutniMat == mat.Toplo && matrix[tx][ty].Materijal != mat.Zid {
 						if matrix[tx][ty].Temperatura+1000 > mat.MaxTemp {
 							matrix[tx][ty].Temperatura = mat.MaxTemp
 						} else {
 							matrix[tx][ty].Temperatura += 1000
 						}
-					} else if screenPack.TrenutniMat == mat.Hladno && matrix[tx][ty].Materijal != mat.Prazno && matrix[tx][ty].Materijal != mat.Zid {
+					} else if screenPack.TrenutniMat == mat.Hladno && matrix[tx][ty].Materijal != mat.Zid {
 						if matrix[tx][ty].Temperatura-1000 > mat.MaxTemp {
 							matrix[tx][ty].Temperatura = mat.MinTemp
 						} else {
