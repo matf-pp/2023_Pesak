@@ -6,12 +6,12 @@ github.com/hugolgst/rich-go v0.0.0-20210925091458-d59fb695d9c0 h1:IkZfZBWufGFLvc
 github.com/hugolgst/rich-go v0.0.0-20210925091458-d59fb695d9c0/go.mod h1:nGaW7CGfNZnhtiFxMpc4OZdqIexGXjUlBnlmpZmjEKA=
 github.com/lxn/win v0.0.0-20210218163916-a377121e959e h1:H+t6A/QJMbhCSEH5rAuRxh+CtW96g0Or0Fxa9IKr4uc=
 github.com/lxn/win v0.0.0-20210218163916-a377121e959e/go.mod h1:KxxjdtRkfNoYDCUP5ryK7XJJNTnpC8atvtmTheChOtk=
-github.com/sajberk/rich-go v0.0.0-20230426131756-87be57ea4731 h1:J4oeJCX9lpa+m8kbuca/UYBcQ4I5V1BoRpxoquqGK9I=
-github.com/sajberk/rich-go v0.0.0-20230426131756-87be57ea4731/go.mod h1:JKYIUUBCH9PjLDSjdmi4ZinOOJez9bxseb2KkyxIAcs=
+github.com/sajberk/rich-go v0.0.0-20230426132632-eabe51b71683 h1:c6BKdkq4o0ZITi71vLHaSPVnJgAdG32wFKC6HOo29es=
+github.com/sajberk/rich-go v0.0.0-20230426132632-eabe51b71683/go.mod h1:JKYIUUBCH9PjLDSjdmi4ZinOOJez9bxseb2KkyxIAcs=
 github.com/sergeymakinen/go-bmp v1.0.0-beta.1 h1:6f85uJkYkOrDE6nVI+G1CmS7qa89KfeDyXe4YDIRWfE=
 github.com/sergeymakinen/go-bmp v1.0.0-beta.1/go.mod h1:/mxlAQZRLxSvJFNIEGGLBE/m40f3ZnUifpgVDlcUIEY=
-github.com/veandco/go-sdl2 v0.4.34 h1:dqbUhV/SSJ35grdYTLv3iVxtO1NzNmgzMV//hyCyypY=
-github.com/veandco/go-sdl2 v0.4.34/go.mod h1:OROqMhHD43nT4/i9crJukyVecjPNYYuCofep6SNiAjY=
+github.com/veandco/go-sdl2 v0.4.35 h1:NohzsfageDWGtCd9nf7Pc3sokMK/MOK+UA2QMJARWzQ=
+github.com/veandco/go-sdl2 v0.4.35/go.mod h1:OROqMhHD43nT4/i9crJukyVecjPNYYuCofep6SNiAjY=
 golang.org/x/sys v0.0.0-20201018230417-eeed37f84f13 h1:5jaG59Zhd+8ZXe8C+lgiAGqkOaZBruqrWclLkgAww34=
 golang.org/x/sys v0.0.0-20201018230417-eeed37f84f13/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce h1:+JknDZhAj8YMt7GC73Ei8pv4MzjDUNPHgQWJdtMAaDU=

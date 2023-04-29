@@ -12,6 +12,7 @@ import (
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
+	"github.com/veandco/go-sdl2/mix"
 )
 
 // Njanjavi uradi ovo pls /limun
@@ -33,6 +34,7 @@ var fpsCap = 120
 const pozadinaGuia = 0x111122
 
 var keystates = sdl.GetKeyboardState()
+
 
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
@@ -57,6 +59,24 @@ func main() {
 		panic(err)
 	}
 	defer sdl.Quit()
+
+	err = mix.Init(mix.INIT_MP3)
+	if err != nil {
+		panic(err)
+	}
+	defer mix.Quit()
+
+	err = mix.OpenAudio(44100, mix.INIT_MP3, 2, 1024)
+	if err != nil {
+		panic(err)
+	}
+
+	var mus *mix.Music
+	mus, err = mix.LoadMUS("audio/bitstorm.mp3")
+	err = mus.Play(-1)
+	if err != nil {
+		panic(err)
+	}
 
 	window := screenPack.CreateWindow()
 	defer window.Destroy()
