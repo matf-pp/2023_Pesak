@@ -24,7 +24,6 @@ const korisnikJeLimun = true
 // njanja: ovo je loša praksa majmuni
 // e a reci je l si provalio bukvalno je kao `using` u cpp -s
 var boja = mat.Boja
-var gus = mat.Lambda
 
 // FPS cap, kontam da je zgodno za testiranje staviti neki nizak, 0 = unlimited
 // 250 FPS-a ?!?!?!?! /limun

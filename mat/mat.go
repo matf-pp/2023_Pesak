@@ -24,9 +24,10 @@ const (
 	Para      Materijal = 10
 	Vatra     Materijal = 11
 	TecniAzot Materijal = 12
-	Plazma    Materijal = 13
-	Toplo     Materijal = 14
-	Hladno    Materijal = 15
+	Kiselina  Materijal = 13
+	Plazma    Materijal = 14
+	Toplo     Materijal = 15
+	Hladno    Materijal = 16
 	Zid       Materijal = 256
 )
 
@@ -46,6 +47,7 @@ var Ime = map[Materijal]string{
 	Para:      "Para",
 	Vatra:     "Vatra",
 	TecniAzot: "Tecni Azot",
+	Kiselina:  "Kiselina",
 	Plazma:    "Plazma",
 	Toplo:     "Toplo",
 	Hladno:    "Hladno",
@@ -68,6 +70,7 @@ var Boja = map[Materijal]uint32{
 	Para:      0x6666ff,
 	Vatra:     0xd73502,
 	TecniAzot: 0x99ff99,
+	Kiselina:  0xc800c8,
 	Plazma:    0xff99ff,
 	Toplo:     0xff0000,
 	Hladno:    0x00ffff,
@@ -91,6 +94,7 @@ var Gustina = map[Materijal]int32{
 	Para:      -5,
 	Vatra:     -5,
 	TecniAzot: 3,
+	Kiselina:  2,
 	Plazma:    0,
 	Zid:       0,
 }
@@ -110,30 +114,12 @@ var GustinaBoja = map[Materijal]uint32 {
 	Para:   	0xc800c8,
 	Vatra:     	0xc800c8,
 	TecniAzot: 	0x006400,
+	Kiselina:   0x005000,
 	Plazma:    	0xff00ff,
 	Zid:		0,
 }
 
-// ToplotnaProvodljivost
-var Lambda = map[Materijal]uint64{
-	Prazno: 	26,      // 0.026
-	Metal:  	50200,   // 50.2
-	Led:    	1600,    // 1.6
-	Kamen:  	288800,  // 288.8
-	Drvo:      	150,	 // 0.15
-	Sljunak:   	550,	 // 0.55
-	Pesak:  	2050,    // 2.05
-	So:        	6000,	 // 6
-	Rdja:      	50200,   // 50.2
-	Lava:   	1300000, // 1300
-	Voda:   	600,     // 0.6
-	SlanaVoda:  600,	 // 0.6
-	Para:   	16,      // 0.016
-	Vatra:     	10,		 // 0.01 ovo inače nema smisla, samo placeholder ako odlučimo da projektujemo neki gas /limun
-	TecniAzot:  25,		 // 0.025
-	Plazma:    	1500000, // lupio sam broj zato što https://adsabs.harvard.edu/full/1962SvA.....5..495I /limun
-	Zid:       	0,
-}
+// sklonio Lambda zato što se ne koristi uopšte /limun
 
 // 0000 nece on nidje
 // ---1 pada direkt
@@ -156,6 +142,7 @@ var AStanje = map[Materijal]int{
 	Para:      0b0111,
 	Vatra:     0b0111,
 	TecniAzot: 0b0111,
+	Kiselina:  0b0111,
 	Plazma:    0b1111,
 	Zid:       0b0000,
 }
@@ -194,6 +181,7 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Para:      {Voda, Para, 37315, MaxTemp},       //100.00c
 	Vatra:     {Prazno, Plazma, 57315, 527315},    //300.00c, 5000.00c
 	TecniAzot: {TecniAzot, Prazno, MinTemp, 7315}, //-200.00c
+	Kiselina:  {Kiselina, Kiselina, MinTemp, MaxTemp},
 	Plazma:    {Vatra, Plazma, 527315, MaxTemp},  //5000.00c
 	Zid:       {Zid, Zid, MinTemp, MaxTemp},
 }
@@ -217,6 +205,7 @@ var Zapaljiv = map[Materijal]bool{
 	Para:      false,
 	Vatra:     false, ///da li je voda mokra xDDD
 	TecniAzot: false,
+	Kiselina:  false,
 	Plazma:    false,
 	Zid:       false,
 }
@@ -503,11 +492,25 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 		return
 	}
 
-	// dangerzone: start /limun
 	if (astanje & 0b0001) != 0 {
 		komsija := matrix[i][j+smer]
 		//												( 1  *      G[v] = 2             <  1  *      g[ps] =  5) == True
 		//                                              (-1  *      G[v] = 2             < -1  *      g[pr] = -5) == True
+		// kiselinaCheck /limun
+		if komsija.Materijal != Prazno && komsija.Materijal != Zid {
+			if (trenutna.Materijal == Kiselina && komsija.Materijal != Kiselina) /*|| (trenutna.Materijal != Kiselina && komsija1.Materijal == Kiselina)*/ {
+				temp := trenutna.Temperatura
+				matrix[i][j] = NewCestica(Prazno)
+				matrix[i][j].Temperatura = temp
+
+				komTemp := komsija.Temperatura
+				matrix[i][j+smer] = NewCestica(Prazno)
+				matrix[i][j+smer].Temperatura = komTemp
+
+				pomeren = true
+				return
+			}
+		}
 		if (AStanje[komsija.Materijal]&0b0001 != 0) && smer*int(Gustina[komsija.Materijal]) < smer*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je //ovaj komentar je zastareo i odnosi se na neku davno zaboravljenu arhitekturu projekta zakopanu tu negde izmedju Atlantide i Drazinog groba
 			matrix[i][j+smer] = trenutna
 			matrix[i][j] = komsija
@@ -522,6 +525,21 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	if (astanje & 0b0010) != 0 {
 		rFaktor := rand.Intn(2)*2 - 1 //{-1, 1}
 		komsija1 := matrix[i+rFaktor][j+smer]
+		// kiselinaCheck /limun
+		if komsija1.Materijal != Prazno && komsija1.Materijal != Zid {
+			if (trenutna.Materijal == Kiselina && komsija1.Materijal != Kiselina) /*|| (trenutna.Materijal != Kiselina && komsija1.Materijal == Kiselina)*/ {
+				temp := trenutna.Temperatura
+				matrix[i][j] = NewCestica(Prazno)
+				matrix[i][j].Temperatura = temp
+
+				komTemp := komsija1.Temperatura
+				matrix[i+rFaktor][j+smer] = NewCestica(Prazno)
+				matrix[i+rFaktor][j+smer].Temperatura = komTemp
+
+				pomeren = true
+				return
+			}
+		}
 		if (AStanje[komsija1.Materijal]&0b0010 != 0) && smer*int(Gustina[komsija1.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
 			matrix[i+rFaktor][j+smer] = trenutna
 			matrix[i][j] = komsija1
@@ -539,11 +557,27 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	/**/
 	if (astanje & 0b0100) != 0 {
 		rFaktor := rand.Intn(2)*2 - 1 //{-1, 1}
-		if matrix[i+rFaktor][j].Materijal == Prazno {
+		komsija2 := matrix[i+rFaktor][j]
+		// kiselinaCheck /limun
+		if komsija2.Materijal != Prazno && komsija2.Materijal != Zid /*|| (trenutna.Materijal != Kiselina && komsija1.Materijal == Kiselina)*/ {
+			if (trenutna.Materijal == Kiselina && komsija2.Materijal != Kiselina) {
+				temp := trenutna.Temperatura
+				matrix[i][j] = NewCestica(Prazno)
+				matrix[i][j].Temperatura = temp
+
+				komTemp := komsija2.Temperatura
+				matrix[i+rFaktor][j] = NewCestica(Prazno)
+				matrix[i+rFaktor][j].Temperatura = komTemp
+
+				pomeren = true
+				return
+			}
+		}
+		if komsija2.Materijal == Prazno {
 			if matrix[i+rFaktor+rFaktor][j].Materijal == Prazno {
 				matrix[i+rFaktor+rFaktor][j], matrix[i][j] = trenutna, matrix[i+rFaktor+rFaktor][j]
 			} else {
-				matrix[i+rFaktor][j], matrix[i][j] = trenutna, matrix[i+rFaktor][j]
+				komsija2, matrix[i][j] = trenutna, komsija2
 			}
 		} else if matrix[i-rFaktor][j].Materijal == Prazno {
 			if matrix[i-rFaktor-rFaktor][j].Materijal == Prazno {
