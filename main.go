@@ -140,7 +140,7 @@ func main() {
 				sdl.Delay(uint32(expectedFrameTime - realFrameTime))
 			}
 		}
-		fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
+		//fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
 	}
 
 }
@@ -244,14 +244,35 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				// ja držim nisko zvuk pa je možda do toga /limun
 				musicPack.Zvuk += 5
 			}
+			if keystates[sdl.SCANCODE_B] != 0 {
+				brushPack.KruzniBrush = !brushPack.KruzniBrush
+			}
+			if keystates[sdl.SCANCODE_LSHIFT] != 0 {
+				brushPack.ShiftOn = !brushPack.ShiftOn
+			}
 
 		// njanja: za ovo mi je potreban diskretan klik a ne frejm sa dugmetom dole
 		// p.s. hoćemo da ostavimo komentare ristoviću da ih vidi
-		//boze pomogi -s
+		// boze pomogi -s
 		// paa, barem imajte naznaku za svaku liniju čiji je čiji /limun
 		case *sdl.MouseButtonEvent:
 			if t.State == sdl.PRESSED {
 				screenPack.ProveriPritisakNaGumb(matrix, t.X, t.Y)
+			}
+		
+		case *sdl.MouseWheelEvent:
+			if brushPack.ShiftOn {
+				if t.Y > 0 {
+					screenPack.SledeciMaterijal()
+				} else {
+					screenPack.PrethodniMaterijal()
+				}
+			} else {
+				if t.Y > 0 {
+					screenPack.VelicinaKursora = screenPack.VelicinaKursora + 1
+				} else {
+					screenPack.VelicinaKursora = screenPack.VelicinaKursora - 1
+				}
 			}
 
 		// drag and drop slike je odmah učitava

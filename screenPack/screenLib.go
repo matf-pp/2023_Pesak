@@ -169,3 +169,23 @@ func UpdateRazmere(){
 	MarginaZaGumbad = BrojKolona*(SirinaDugmeta+SirinaUIMargine) + SirinaUIMargine
 	SirinaProzora += MarginaZaGumbad
 }
+
+func SledeciMaterijal() {
+	if TrenutniMat < 16 {
+		TrenutniMat++
+		return
+	} else {
+		TrenutniMat = 0
+		return
+	}
+}
+
+func PrethodniMaterijal() {
+	if TrenutniMat > 0 {
+		TrenutniMat--
+		return
+	} else {
+		TrenutniMat = 16
+		return
+	}
+}

@@ -10,7 +10,8 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-const KruzniBrush = false
+var KruzniBrush = false
+var ShiftOn = false
 
 func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 	//TODO za srednji klik da uzme materijal na koj mis trenutno pokazuje i postavi ga kao trenutni
