@@ -8,6 +8,7 @@ require (
 	github.com/sajberk/rich-go v0.0.0-20230426132632-eabe51b71683
 	github.com/sergeymakinen/go-bmp v1.0.0-beta.1
 	github.com/veandco/go-sdl2 v0.4.35
+	github.com/zhcppy/steganography v0.0.0-20200214063801-216747564e7d
 )
 
 require (

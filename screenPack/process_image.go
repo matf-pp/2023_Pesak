@@ -30,6 +30,7 @@ func Distance(c1 color.RGBA, hexColor uint32) float64 {
 
 // otvara sliku risajzuje je i pretvori je u matricu pescanih boja velicine kanvasa
 func UcitajSliku(filePath string, matrix [][]mat.Cestica) error {
+	//encdec(false, "", filePath) TODO
 	file, err := os.Open(filePath)
 	if err != nil {
 		panic(err)
@@ -97,7 +98,7 @@ func UcitajSliku(filePath string, matrix [][]mat.Cestica) error {
 
 			// njanja: spera kaže da ne moram da apdejtujem oba ali ja mu ne verujem
 			matrix[x][y] = mat.NewCestica(best_mat)
-//			bafer[x][y] = matrix[x][y]
+			//			bafer[x][y] = matrix[x][y]
 			// nevernice neverni vise nije ni bitno ubili smo bafer -s
 		}
 	}

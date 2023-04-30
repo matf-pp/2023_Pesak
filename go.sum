@@ -12,6 +12,8 @@ github.com/sergeymakinen/go-bmp v1.0.0-beta.1 h1:6f85uJkYkOrDE6nVI+G1CmS7qa89Kfe
 github.com/sergeymakinen/go-bmp v1.0.0-beta.1/go.mod h1:/mxlAQZRLxSvJFNIEGGLBE/m40f3ZnUifpgVDlcUIEY=
 github.com/veandco/go-sdl2 v0.4.35 h1:NohzsfageDWGtCd9nf7Pc3sokMK/MOK+UA2QMJARWzQ=
 github.com/veandco/go-sdl2 v0.4.35/go.mod h1:OROqMhHD43nT4/i9crJukyVecjPNYYuCofep6SNiAjY=
+github.com/zhcppy/steganography v0.0.0-20200214063801-216747564e7d h1:hqbPvFbMo288Ha2EUKUg0UeweMrEb7xrsvEGKOHJLeY=
+github.com/zhcppy/steganography v0.0.0-20200214063801-216747564e7d/go.mod h1:nGcI6D9fs8EeKHOs0OZ0TmSm8q9CK340Iqz7FaNqjao=
 golang.org/x/sys v0.0.0-20201018230417-eeed37f84f13 h1:5jaG59Zhd+8ZXe8C+lgiAGqkOaZBruqrWclLkgAww34=
 golang.org/x/sys v0.0.0-20201018230417-eeed37f84f13/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce h1:+JknDZhAj8YMt7GC73Ei8pv4MzjDUNPHgQWJdtMAaDU=

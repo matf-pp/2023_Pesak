@@ -63,5 +63,16 @@ func SaveImage(matrix [][]mat.Cestica, scaleFactor int) {
 	if err != nil {
 		log.Panic("Failed to encode PNG")
 	}
+	// njanja: radiće uskoro
+	/*
+		metadata := ""
+		for i := 0; i < width; i++ {
+			for j := 0; j < height; j++ {
+				metadata += fmt.Sprintf("%d:%d:%d;", matrix[i][j].Temperatura, matrix[i][j].SekMat, matrix[i][j].Ticker)
+			}
+		}
 
+
+		encdec(true, metadata, filepath.Join(imgDir, fileName))
+	*/
 }

@@ -145,7 +145,7 @@ func main() {
 				sdl.Delay(uint32(expectedFrameTime - realFrameTime))
 			}
 		}
-		fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
+		//fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
 	}
 
 }
@@ -289,7 +289,7 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 			} else {
 				if t.Y > 0 {
 					if screenPack.VelicinaKursora < screenPack.MaxKursor {
-					screenPack.VelicinaKursora = screenPack.VelicinaKursora + 1
+						screenPack.VelicinaKursora = screenPack.VelicinaKursora + 1
 					}
 				} else {
 					if screenPack.VelicinaKursora > 1 {
