@@ -279,14 +279,14 @@ func UpdateTemp(matrix [][]Cestica, i int, j int) {
 		for l := -1; l < 2; l++ {
 			if matrix[i+k][j+l].Materijal != Zid {
 				if matrix[i+k][j+l].Materijal == Prazno || matrix[i][j].Materijal == Prazno {
-					matrix[i+k][j+l].BaferTemp += uint64(parcePice/100)
-					temperatura = temperatura - uint64(parcePice/100)
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice/1000)
+					temperatura = temperatura - uint64(parcePice/1000)
 				} else if matrix[i][j].Materijal == Voda && matrix[i+k][j+l].Materijal == Vatra {
 					matrix[i+k][j+l].BaferTemp += uint64(parcePice)
 					temperatura = temperatura - uint64(parcePice)
 				} else if matrix[i][j].Materijal == Vatra && matrix[i+k][j+l].Materijal == Voda {
-					matrix[i+k][j+l].BaferTemp += uint64(parcePice/100)
-					temperatura = temperatura - uint64(parcePice/100)
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice/1000)
+					temperatura = temperatura - uint64(parcePice/1000)
 				} else {
 					matrix[i+k][j+l].BaferTemp += uint64(parcePice)
 					temperatura = temperatura - uint64(parcePice)

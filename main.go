@@ -1,29 +1,25 @@
 package main
 
 import (
-	"main/brushPack"
-	"main/fontPack"
 	"main/mat"
+	"main/fontPack"
+	"main/brushPack"
+	"main/musicPack"
 	"main/matrixPack"
 	"main/screenPack"
-	"math"
 
 	"fmt"
 	"math/rand"
 
+	// ako mix zabaguje, $export CGO_CFLAGS=-I/usr/include/SDL2 	/limun
 	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-// Njanjavi uradi ovo pls /limun je l se to odnosi na keyed fields ili na konfig fajl jer prvo sam uradio a drugo msm da nikada neću
-// njanja: todo dodati keyed fields u rectovima da nas ne smaraju žute linije (ili bar mene jer koliko sam shvatio vi ovo bukvalno pišete u noutpedu)
-// njanja: todo izbaciti sve ove gluposti koje redovno menjamo u konfig fajl i staviti da bude gitignorovan
-
 // njanja: pazite ovo
 const korisnikNijeNanja = false
-const korisnikJeLimun = false
-const kruzniBrush = false
+const korisnikJeLimun = true
 
 // njanja: ovo je loša praksa majmuni
 // e a reci je l si provalio bukvalno je kao `using` u cpp -s
@@ -31,14 +27,12 @@ var boja = mat.Boja
 var gus = mat.Lambda
 
 // FPS cap, kontam da je zgodno za testiranje staviti neki nizak, 0 = unlimited
-var fpsCap = 0
+// 250 FPS-a ?!?!?!?! /limun
+var fpsCap = 120
 
 var pozadinaGuia uint32 = 0x111122
 
 var keystates = sdl.GetKeyboardState()
-
-var mutirana = false
-var zvuk = 33
 
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
@@ -46,54 +40,26 @@ func main() {
 		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
 	}
 
-	screenPack.MarginaZaGumbad = screenPack.BrojKolona*(screenPack.SirinaDugmeta+screenPack.SirinaUIMargine) + screenPack.SirinaUIMargine
-	screenPack.SirinaProzora += screenPack.MarginaZaGumbad
+	screenPack.UpdateRazmere()
 
-	var font *ttf.Font
-	err := ttf.Init()
-	if err != nil {
-		panic(err)
-	}
+	var font = fontPack.FontInit()
 	defer ttf.Quit()
 
-	err = sdl.Init(sdl.INIT_EVERYTHING)
-	if err != nil {
-		panic(err)
-	}
+	screenPack.InitEverything()
 	defer sdl.Quit()
 
-	err = mix.Init(mix.INIT_MP3)
-	if err != nil {
-		panic(err)
-	}
+	musicPack.MusicInit()
 	defer mix.Quit()
-
-	err = mix.OpenAudio(44100, mix.INIT_MP3, 2, 1024)
-	if err != nil {
-		panic(err)
-	}
-
-	var mus *mix.Music
-	mus, _ = mix.LoadMUS("audio/bitstorm.mp3")
-	err = mus.Play(-1)
-	if err != nil {
-		panic(err)
-	}
+	musicPack.OpenAudio()
+	mus := musicPack.LoadMusic("audio/bitstorm.mp3")
 
 	window := screenPack.CreateWindow()
 	defer window.Destroy()
 
-	// njanja: ovo vratiti u neki screenpack nešto ako baš treba mada ne kontam poentu funkcija koje se izvršavaju bukvalno jednom i koje služe samo da kod ne bi bio u mejnu
-	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
-	if err != nil {
-		panic(err)
-	}
+	renderer := screenPack.CreateRenderer(window)
 	defer renderer.Destroy()
 
-	texture, err := renderer.CreateTexture(uint32(sdl.PIXELFORMAT_RGB24), sdl.TEXTUREACCESS_STATIC, matrixPack.SirinaKan, matrixPack.VisinaKan)
-	if err != nil {
-		panic(err)
-	}
+	texture := screenPack.CreateTexture(renderer)
 	defer texture.Destroy()
 
 	pixels := make([]byte, matrixPack.SirinaKan*matrixPack.VisinaKan*3)
@@ -125,13 +91,14 @@ func main() {
 			matrixPack.ResetSound = false
 		}
 
-		if mutirana {
+		if musicPack.Mutirana {
 			_ = mix.VolumeMusic(0)
 		} else {
-			_ = mix.VolumeMusic(zvuk)
+			_ = mix.VolumeMusic(musicPack.Zvuk)
 		}
 
 		// njanja: ovo je vraćalo surface? nz je l to potrebno ???
+		// ne znam ni ja /limun
 		screenPack.RenderujGumbZaSveMaterijale(renderer)
 
 		plejGumb := screenPack.CreatePlayGumb()
@@ -161,27 +128,7 @@ func main() {
 
 		//window.UpdateSurface()
 
-		// njanja: koliko odvratne zagrade
-		if kruzniBrush {
-			// krug
-			renderer.SetDrawColor(255, 255, 255, 255)
-			radius := int(screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici)
-			numSegments := int(math.Ceil(float64(radius) / 2.0))
-			for i := 0; i < numSegments; i++ {
-				angle1 := float64(i) / float64(numSegments) * math.Pi * 2.0
-				angle2 := float64(i+1) / float64(numSegments) * math.Pi * 2.0
-				x1 := float64(screenPack.KursorPoslednjiX) + float64(radius)*math.Cos(angle1)
-				y1 := float64(screenPack.KursorPoslednjiY) + float64(radius)*math.Sin(angle1)
-				x2 := float64(screenPack.KursorPoslednjiX) + float64(radius)*math.Cos(angle2)
-				y2 := float64(screenPack.KursorPoslednjiY) + float64(radius)*math.Sin(angle2)
-				renderer.DrawLine(int32(x1), int32(y1), int32(x2), int32(y2))
-			}
-		} else {
-			// kvadrat
-			renderer.SetDrawColor(255, 255, 255, 255)
-			cetkica := sdl.Rect{X: screenPack.KursorPoslednjiX - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, Y: screenPack.KursorPoslednjiY - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, W: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici), H: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici)}
-			renderer.DrawRect(&cetkica)
-		}
+		brushPack.OblikCetkice(brushPack.KruzniBrush, renderer)
 
 		renderer.SetDrawColor(uint8(pozadinaGuia>>16), uint8(pozadinaGuia>>8), uint8(pozadinaGuia), 255)
 		renderer.Present()
@@ -209,6 +156,7 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 		case *sdl.QuitEvent:
 			running = false
 
+		// ne volim ovo /limun
 		case *sdl.KeyboardEvent:
 			if keystates[sdl.SCANCODE_ESCAPE] != 0 {
 				running = false
@@ -284,17 +232,18 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				matrixPack.ResetSound = !matrixPack.ResetSound
 			}
 			if keystates[sdl.SCANCODE_M] != 0 {
-				mutirana = !mutirana
+				musicPack.Mutirana = !musicPack.Mutirana
 			}
 			if keystates[sdl.SCANCODE_Z] != 0 {
-				if zvuk > 0 {
-					zvuk -= 5
+				if musicPack.Zvuk > 0 {
+					musicPack.Zvuk -= 5
 				}
 			}
 			if keystates[sdl.SCANCODE_X] != 0 {
 				// do daske! /limun
 				// njanja: e isk msm da je difolt preglasan
-				zvuk += 5
+				// ja držim nisko zvuk pa je možda do toga /limun
+				musicPack.Zvuk += 5
 			}
 
 		// njanja: za ovo mi je potreban diskretan klik a ne frejm sa dugmetom dole

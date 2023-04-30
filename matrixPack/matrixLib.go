@@ -12,8 +12,7 @@ import (
 
 // mora ovo ovde /limun
 var BrPiksPoCestici int32 = 9000
-
-const SirinaKan, VisinaKan = 240, 144
+const SirinaKan, VisinaKan = 240, 180
 
 var Pause bool = false
 var TMode bool = false
@@ -85,7 +84,6 @@ var MinTempRendered uint64 = 29315
 var MaxTempRendered uint64 = 29316
 
 func IzracunajBoju(zrno mat.Cestica) uint32 {
-
 	boja := mat.Boja[zrno.Materijal]
 
 	if zrno.Materijal == mat.Vatra {

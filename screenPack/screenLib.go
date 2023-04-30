@@ -103,7 +103,6 @@ func CreateRenderer(window *sdl.Window) *sdl.Renderer {
 	if err != nil {
 		panic(err)
 	}
-	defer renderer.Destroy()
 
 	return renderer
 }
@@ -130,6 +129,7 @@ func RenderujGumbZaSveMaterijale(renderer *sdl.Renderer) {
 		renderer.FillRect(&gumb)
 	}
 	// zašto je ovo vraćalo surface
+	// ne sećam se, možda je bio neki check /limun
 }
 
 func CreatePlayGumb() sdl.Rect {
@@ -148,4 +148,24 @@ func CreateResetGumb() sdl.Rect {
 	resetGumb := sdl.Rect{X: int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
 		Y: int32(VisinaProzora - VisinaUIMargine - VisinaDugmeta), W: SirinaDugmeta, H: VisinaDugmeta}
 	return resetGumb
+}
+
+func CreateTexture(renderer *sdl.Renderer) *sdl.Texture {
+	texture, err := renderer.CreateTexture(uint32(sdl.PIXELFORMAT_RGB24), sdl.TEXTUREACCESS_STATIC, matrixPack.SirinaKan, matrixPack.VisinaKan)
+	if err != nil {
+		panic(err)
+	}
+	return texture
+}
+
+func InitEverything() {
+	err := sdl.Init(sdl.INIT_EVERYTHING)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func UpdateRazmere(){
+	MarginaZaGumbad = BrojKolona*(SirinaDugmeta+SirinaUIMargine) + SirinaUIMargine
+	SirinaProzora += MarginaZaGumbad
 }

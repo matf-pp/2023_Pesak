@@ -4,7 +4,13 @@ import (
 	"main/mat"
 	"main/matrixPack"
 	"main/screenPack"
+
+	"math"
+
+	"github.com/veandco/go-sdl2/sdl"
 )
+
+const KruzniBrush = false
 
 func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 	//TODO za srednji klik da uzme materijal na koj mis trenutno pokazuje i postavi ga kao trenutni
@@ -61,5 +67,29 @@ func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 				}
 			}
 		}
+	}
+}
+
+func OblikCetkice(KruzniBrush bool, renderer *sdl.Renderer) {
+	// njanja: koliko odvratne zagrade
+	if KruzniBrush {
+		// krug
+		renderer.SetDrawColor(255, 255, 255, 255)
+		radius := int(screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici)
+		numSegments := int(math.Ceil(float64(radius) / 2.0))
+		for i := 0; i < numSegments; i++ {
+			angle1 := float64(i) / float64(numSegments) * math.Pi * 2.0
+			angle2 := float64(i+1) / float64(numSegments) * math.Pi * 2.0
+			x1 := float64(screenPack.KursorPoslednjiX) + float64(radius)*math.Cos(angle1)
+			y1 := float64(screenPack.KursorPoslednjiY) + float64(radius)*math.Sin(angle1)
+			x2 := float64(screenPack.KursorPoslednjiX) + float64(radius)*math.Cos(angle2)
+			y2 := float64(screenPack.KursorPoslednjiY) + float64(radius)*math.Sin(angle2)
+			renderer.DrawLine(int32(x1), int32(y1), int32(x2), int32(y2))
+		}
+	} else {
+		// kvadrat
+		renderer.SetDrawColor(255, 255, 255, 255)
+		cetkica := sdl.Rect{X: screenPack.KursorPoslednjiX - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, Y: screenPack.KursorPoslednjiY - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, W: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici), H: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici)}
+		renderer.DrawRect(&cetkica)
 	}
 }

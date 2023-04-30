@@ -24,6 +24,15 @@ func SetFont() *ttf.Font {
 	return font
 }
 
+func FontInit() *ttf.Font {
+	var font *ttf.Font
+	err := ttf.Init()
+	if err != nil {
+		panic(err)
+	}
+	return font
+}
+
 func TextMaker(font *ttf.Font, renderer *sdl.Renderer, matrica [][]mat.Cestica) {
 	var infoText = ""
 	// PESAK
