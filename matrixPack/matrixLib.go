@@ -57,7 +57,6 @@ func Render(matrix [][]mat.Cestica, renderer *sdl.Renderer, texture *sdl.Texture
 	var hexColor uint32 = 0
 	for i := 0; i < VisinaKan; i++ {
 		for j := 0; j < SirinaKan; j++ {
-			// njanja: braaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaate je l stvarno toliko teško kompajleru da implicitno konvertuje int u int32
 			if TMode {
 				bojaTemp := IzracunajTempBoju(matrix[j][i])
 				hexColor = bojaTemp

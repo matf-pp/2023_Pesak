@@ -12,10 +12,10 @@ import (
 
 var AutoFitScreen = true
 
-const SirinaUIMargine = 10
-const VisinaUIMargine = 10
-const SirinaDugmeta = 40
-const VisinaDugmeta = 20
+var SirinaUIMargine int32 = 10
+var VisinaUIMargine int32 = 10
+var SirinaDugmeta int32 = 40
+var VisinaDugmeta int32 = 20
 
 // njanja: gumb magija ne radi kad nije u mejnu stignite ako hoćete
 // ja sada: https://cdn.discordapp.com/emojis/1068966756556738590.webp
@@ -43,19 +43,22 @@ func FitToScreen(screenPercentage int) (int32, int32, int32) {
 	resolution := screenresolution.GetPrimary()
 	adjustedScale := int32((float64(screenPercentage) / float64(100)) * float64(resolution.Height) / float64(matrixPack.VisinaKan))
 
+	VisinaUIMargine *= int32(resolution.Height) / 1080
+	SirinaUIMargine *= int32(resolution.Height) / 1080
+	VisinaDugmeta *= int32(resolution.Height) / 1080
+	SirinaDugmeta *= int32(resolution.Height) / 1080
+
 	return adjustedScale, matrixPack.SirinaKan * adjustedScale, matrixPack.VisinaKan * adjustedScale
 }
 
 func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
-	//njanja: ovo je detekcija klika na gumb
 	if x > SirinaProzora-MarginaZaGumbad+SirinaUIMargine && x < SirinaProzora-SirinaUIMargine {
-		// njanja: TODO namestiti da se ređaju u više kolona ako baš mora //mora -s
 		// materijali
 		if y < (VisinaUIMargine+VisinaDugmeta)*int32(len(mat.Boja)-1) && y%(VisinaUIMargine+VisinaDugmeta) > VisinaUIMargine {
 			TrenutniMat = mat.Materijal(y / (VisinaUIMargine + VisinaDugmeta))
 		}
 
-		// njanja: hardkodovan broj specijalnih dugmića
+		// njanja: hardkodovan broj specijalnih dugmića hvala bogu
 		// PAUZA
 		if y > VisinaProzora-3*(VisinaDugmeta+VisinaUIMargine) && y < VisinaProzora-3*(VisinaDugmeta+VisinaUIMargine)+VisinaDugmeta {
 			matrixPack.Pause = !matrixPack.Pause
@@ -65,7 +68,6 @@ func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
 			SaveImage(matrix, int(matrixPack.BrPiksPoCestici))
 			sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "pesak", "sačuvan B)", nil)
 		}
-		// njanja: nz je l ovo najpametniji način ali radi
 		// RESET
 		if y > VisinaProzora-1*(VisinaDugmeta+VisinaUIMargine) && y < VisinaProzora-1*(VisinaDugmeta+VisinaUIMargine)+VisinaDugmeta {
 			for j := 0; j < matrixPack.VisinaKan; j++ {
@@ -79,7 +81,6 @@ func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
 }
 
 func CreateWindow() *sdl.Window {
-	// njanja: dodao marginu za gumbad
 	window, err := sdl.CreateWindow("pesak", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
 		SirinaProzora, VisinaProzora, sdl.WINDOW_SHOWN)
 	if err != nil {
@@ -107,11 +108,24 @@ func CreateRenderer(window *sdl.Window) *sdl.Renderer {
 	return renderer
 }
 
-// njanja: ovo renderuje gumbad za sve materijale
+// njanja: mislim da se više ne ređaju u više kolona otkad je struktura promenjena TODO
 func RenderujGumbZaSveMaterijale(renderer *sdl.Renderer) {
 	for i, _ := range mat.Boja {
-		gumb := sdl.Rect{int32(SirinaProzora - MarginaZaGumbad + ((int32(i)%BrojKolona)*(SirinaDugmeta+SirinaUIMargine) + SirinaUIMargine)),
-			int32(VisinaUIMargine + int32(i)/BrojKolona*(VisinaDugmeta+VisinaUIMargine)), SirinaDugmeta, VisinaDugmeta}
+		if i == TrenutniMat {
+			gumb := sdl.Rect{X: int32(SirinaProzora - MarginaZaGumbad + ((int32(i)%BrojKolona)*(SirinaDugmeta+SirinaUIMargine) + SirinaUIMargine) - SirinaUIMargine/3),
+				Y: int32(VisinaUIMargine+int32(i)/BrojKolona*(VisinaDugmeta+VisinaUIMargine)) - VisinaUIMargine/3, W: SirinaDugmeta + 2*SirinaUIMargine/3, H: VisinaDugmeta + 2*VisinaUIMargine/3}
+			renderer.SetDrawColor(uint8(mat.Boja[i]>>16), uint8(mat.Boja[i]>>8), uint8(mat.Boja[i]), 255)
+			renderer.FillRect(&gumb)
+
+			gumb = sdl.Rect{X: int32(SirinaProzora - MarginaZaGumbad + ((int32(i)%BrojKolona)*(SirinaDugmeta+SirinaUIMargine) + SirinaUIMargine)),
+				Y: int32(VisinaUIMargine + int32(i)/BrojKolona*(VisinaDugmeta+VisinaUIMargine)), W: SirinaDugmeta, H: VisinaDugmeta}
+			renderer.SetDrawColor(uint8(mat.Boja[i]>>16)/3*2, uint8(mat.Boja[i]>>8)/3*2, uint8(mat.Boja[i])/3*2, 255)
+			renderer.FillRect(&gumb)
+
+			continue
+		}
+		gumb := sdl.Rect{X: int32(SirinaProzora - MarginaZaGumbad + ((int32(i)%BrojKolona)*(SirinaDugmeta+SirinaUIMargine) + SirinaUIMargine)),
+			Y: int32(VisinaUIMargine + int32(i)/BrojKolona*(VisinaDugmeta+VisinaUIMargine)), W: SirinaDugmeta, H: VisinaDugmeta}
 		renderer.SetDrawColor(uint8(mat.Boja[i]>>16), uint8(mat.Boja[i]>>8), uint8(mat.Boja[i]), 255)
 		renderer.FillRect(&gumb)
 	}
@@ -119,19 +133,19 @@ func RenderujGumbZaSveMaterijale(renderer *sdl.Renderer) {
 }
 
 func CreatePlayGumb() sdl.Rect {
-	plejGumb := sdl.Rect{int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
-		int32(VisinaProzora - 3*VisinaUIMargine - 3*VisinaDugmeta), SirinaDugmeta, VisinaDugmeta}
+	plejGumb := sdl.Rect{X: int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
+		Y: int32(VisinaProzora - 3*VisinaUIMargine - 3*VisinaDugmeta), W: SirinaDugmeta, H: VisinaDugmeta}
 	return plejGumb
 }
 
 func CreateSaveGumb() sdl.Rect {
-	sejvGumb := sdl.Rect{int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
-		int32(VisinaProzora - 2*VisinaUIMargine - 2*VisinaDugmeta), SirinaDugmeta, VisinaDugmeta}
+	sejvGumb := sdl.Rect{X: int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
+		Y: int32(VisinaProzora - 2*VisinaUIMargine - 2*VisinaDugmeta), W: SirinaDugmeta, H: VisinaDugmeta}
 	return sejvGumb
 }
 
 func CreateResetGumb() sdl.Rect {
-	resetGumb := sdl.Rect{int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
-		int32(VisinaProzora - VisinaUIMargine - VisinaDugmeta), SirinaDugmeta, VisinaDugmeta}
+	resetGumb := sdl.Rect{X: int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
+		Y: int32(VisinaProzora - VisinaUIMargine - VisinaDugmeta), W: SirinaDugmeta, H: VisinaDugmeta}
 	return resetGumb
 }

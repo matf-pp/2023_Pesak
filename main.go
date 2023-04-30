@@ -6,6 +6,7 @@ import (
 	"main/mat"
 	"main/matrixPack"
 	"main/screenPack"
+	"math"
 
 	"fmt"
 	"math/rand"
@@ -15,13 +16,14 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-// Njanjavi uradi ovo pls /limun
+// Njanjavi uradi ovo pls /limun je l se to odnosi na keyed fields ili na konfig fajl jer prvo sam uradio a drugo msm da nikada neću
 // njanja: todo dodati keyed fields u rectovima da nas ne smaraju žute linije (ili bar mene jer koliko sam shvatio vi ovo bukvalno pišete u noutpedu)
 // njanja: todo izbaciti sve ove gluposti koje redovno menjamo u konfig fajl i staviti da bude gitignorovan
 
 // njanja: pazite ovo
 const korisnikNijeNanja = false
 const korisnikJeLimun = false
+const kruzniBrush = true
 
 // njanja: ovo je loša praksa majmuni
 // e a reci je l si provalio bukvalno je kao `using` u cpp -s
@@ -47,9 +49,7 @@ func main() {
 	screenPack.MarginaZaGumbad = screenPack.BrojKolona*(screenPack.SirinaDugmeta+screenPack.SirinaUIMargine) + screenPack.SirinaUIMargine
 	screenPack.SirinaProzora += screenPack.MarginaZaGumbad
 
-	// njanja: da vidimo hoće li ovo raditi lepo
 	var font *ttf.Font
-	//var text *sdl.Surface
 	err := ttf.Init()
 	if err != nil {
 		panic(err)
@@ -74,7 +74,7 @@ func main() {
 	}
 
 	var mus *mix.Music
-	mus, err = mix.LoadMUS("audio/bitstorm.mp3")
+	mus, _ = mix.LoadMUS("audio/bitstorm.mp3")
 	err = mus.Play(-1)
 	if err != nil {
 		panic(err)
@@ -101,15 +101,12 @@ func main() {
 	font = fontPack.SetFont()
 	defer font.Close()
 
-	// njanja: diskord integracija oterana u poseban fajl jer je mrvicu čonki
-	// ume da pravi probleme i male blek skrinove na početku dok se ne konektuje ili ne tajmautuje pa ga pozivam kao korutinu
 	go connectToDiscord()
 
 	var matrica [][]mat.Cestica = matrixPack.NapraviSlajs()
 
 	matrica = matrixPack.ZazidajMatricu(matrica)
 
-	// enejblujemo dropove, stavite ovo gde hoćete
 	sdl.EventState(sdl.DROPFILE, sdl.ENABLE)
 
 	running := true
@@ -124,7 +121,7 @@ func main() {
 		matrixPack.Render(matrica, renderer, texture, pixels, screenPack.SirinaProzora-screenPack.MarginaZaGumbad, screenPack.VisinaProzora)
 
 		if matrixPack.ResetSound {
-			err = mus.Play(-1)
+			_ = mus.Play(-1)
 			matrixPack.ResetSound = false
 		}
 
@@ -162,14 +159,30 @@ func main() {
 			fontPack.TextMaker(font, renderer, matrica)
 		}
 
-		window.UpdateSurface()
+		//window.UpdateSurface()
 
-		// njanja: ovo renderuje krug oko četkice, ne može u brush fju jer se ona ne zove u svakom frejmu
-		// takođe kursor flikeruje jer bude na kratko izbrisan kad se pozove updatesurface par linija iznad pa dok ne bude ponovo nacrtan
-		// ako mene pitate mislim da daje odličan retro look
-		cetkica := sdl.Rect{X: screenPack.KursorPoslednjiX - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, Y: screenPack.KursorPoslednjiY - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, W: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici), H: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici)}
-		renderer.SetDrawColor(255, 255, 255, 255)
-		renderer.DrawRect(&cetkica)
+		// njanja: koliko odvratne zagrade
+		if kruzniBrush {
+			// krug
+			renderer.SetDrawColor(255, 255, 255, 255)
+			radius := int(screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici)
+			numSegments := int(math.Ceil(float64(radius) / 2.0))
+			for i := 0; i < numSegments; i++ {
+				angle1 := float64(i) / float64(numSegments) * math.Pi * 2.0
+				angle2 := float64(i+1) / float64(numSegments) * math.Pi * 2.0
+				x1 := float64(screenPack.KursorPoslednjiX) + float64(radius)*math.Cos(angle1)
+				y1 := float64(screenPack.KursorPoslednjiY) + float64(radius)*math.Sin(angle1)
+				x2 := float64(screenPack.KursorPoslednjiX) + float64(radius)*math.Cos(angle2)
+				y2 := float64(screenPack.KursorPoslednjiY) + float64(radius)*math.Sin(angle2)
+				renderer.DrawLine(int32(x1), int32(y1), int32(x2), int32(y2))
+			}
+		} else {
+			// kvadrat
+			renderer.SetDrawColor(255, 255, 255, 255)
+			cetkica := sdl.Rect{X: screenPack.KursorPoslednjiX - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, Y: screenPack.KursorPoslednjiY - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, W: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici), H: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici)}
+			renderer.DrawRect(&cetkica)
+		}
+
 		renderer.SetDrawColor(uint8(pozadinaGuia>>16), uint8(pozadinaGuia>>8), uint8(pozadinaGuia), 255)
 		renderer.Present()
 
@@ -280,6 +293,7 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 			}
 			if keystates[sdl.SCANCODE_X] != 0 {
 				// do daske! /limun
+				// njanja: e isk msm da je difolt preglasan
 				zvuk += 5
 			}
 
