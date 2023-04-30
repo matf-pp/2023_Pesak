@@ -248,7 +248,9 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				brushPack.KruzniBrush = !brushPack.KruzniBrush
 			}
 			if keystates[sdl.SCANCODE_LSHIFT] != 0 {
-				brushPack.ShiftOn = !brushPack.ShiftOn
+				brushPack.ShiftOn = true
+			} else {
+				brushPack.ShiftOn = false
 			}
 
 		// njanja: za ovo mi je potreban diskretan klik a ne frejm sa dugmetom dole
@@ -269,9 +271,13 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				}
 			} else {
 				if t.Y > 0 {
+					if screenPack.VelicinaKursora < 20 {
 					screenPack.VelicinaKursora = screenPack.VelicinaKursora + 1
+					}
 				} else {
-					screenPack.VelicinaKursora = screenPack.VelicinaKursora - 1
+					if screenPack.VelicinaKursora > 1 {
+						screenPack.VelicinaKursora = screenPack.VelicinaKursora - 1
+					}
 				}
 			}
 
