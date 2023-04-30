@@ -37,14 +37,14 @@ $ ./main
  
 ## Controls
 - LMB  -  paint
+- MMB  -  pick pointed material
 - RMB  -  clear
-- 1-0  -  pick materials
-- [/]  -  heat up/cool down
+- 1-0  -  pick materials (or from sidebar, or by shift+scroll)
 - P  -  pause/resume simulation
 - T  -  temperature mode
 - D  -  gustina mode
 - N  -  normal mode
-- up/down arrows  -  resize brush
+- G  -  change the direction of gravity
 - M  -  mute/unmute sound
 - Z/X  -  change volume
 - esc  -  exit
