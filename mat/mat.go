@@ -192,7 +192,7 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Kiselina:  {Kiselina, Kiselina, MinTemp, MaxTemp},
 	Para:      {Voda, Para, 37315, MaxTemp},       //100.00c
 	Vatra:     {Dim, Plazma, 57315, 527315},    //300.00c, 5000.00c
-	Dim:       {Prazno, Vatra, 32315, 87312}, //50.00c, 600.00c
+	Dim:       {Prazno, Vatra, 32315, MaxTemp}, //50.00c, 600.00c
 	TecniAzot: {TecniAzot, Prazno, MinTemp, 7315}, //-200.00c
 	Plazma:    {Vatra, Plazma, 527315, MaxTemp},  //5000.00c
 	Zid:       {Zid, Zid, MinTemp, MaxTemp},
@@ -396,6 +396,9 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 	} else {
 		if temperatura < MapaFaza[materijal].TackaTopljenja {
 			matrix[i][j].Materijal = MapaFaza[materijal].Nize
+			if matrix[i][j].Materijal == Vatra && matrix[i][j].Ticker > vatraTiker{
+				matrix[i][j].Ticker = vatraTiker
+			}
 		} else if temperatura > MapaFaza[materijal].TackaKljucanja {
 			matrix[i][j].Materijal = MapaFaza[materijal].Vise
 			if matrix[i][j].SekMat == SlanaVoda {
