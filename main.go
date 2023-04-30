@@ -237,7 +237,7 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				screenPack.TrenutniMat = mat.Hladno
 			}
 			if keystates[sdl.SCANCODE_DOWN] != 0 {
-				if screenPack.VelicinaKursora > 0 {
+				if screenPack.VelicinaKursora > 1 {
 					screenPack.VelicinaKursora = screenPack.VelicinaKursora - 1
 				}
 			}
