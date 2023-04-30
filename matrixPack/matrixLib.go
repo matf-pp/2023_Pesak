@@ -95,12 +95,12 @@ func IzracunajBoju(zrno mat.Cestica) uint32 {
 	var boja uint32
 
 	if zrno.Materijal == mat.Vatra {
-		if zrno.Ticker > 8 {
+		if zrno.Ticker > 11 {
 			return 0xfac000
 		} else if zrno.Ticker < 0 {
 			return 0x400500
 		}
-		boje := [9]uint32{0x801100, 0xb62203, 0xd73502, 0xfc6400, 0xff7500, 0xfac000, 0xfac000, 0xfac000, 0xfac000}
+		boje := [12]uint32{0x801100, 0xb62203, 0xd73502, 0xfc6400, 0xfc6400, 0xff7500, 0xff7500, 0xff7500, 0xfac000, 0xfac000, 0xfac000, 0xfac000}
 		boja = boje[zrno.Ticker]
 	} else if zrno.Materijal == mat.Drvo && zrno.Temperatura > 47315 { //200.00c
 		temperatura := zrno.Temperatura

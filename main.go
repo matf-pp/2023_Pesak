@@ -266,6 +266,9 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 			} else {
 				brushPack.ShiftOn = false
 			}
+			if keystates[sdl.SCANCODE_G] != 0 {
+				mat.Obrnuto *= -1
+			}
 
 		// njanja: za ovo mi je potreban diskretan klik a ne frejm sa dugmetom dole
 		// p.s. hoćemo da ostavimo komentare ristoviću da ih vidi
@@ -285,7 +288,7 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				}
 			} else {
 				if t.Y > 0 {
-					if screenPack.VelicinaKursora < 20 {
+					if screenPack.VelicinaKursora < screenPack.MaxKursor {
 					screenPack.VelicinaKursora = screenPack.VelicinaKursora + 1
 					}
 				} else {

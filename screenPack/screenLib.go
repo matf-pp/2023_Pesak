@@ -32,7 +32,7 @@ var KursorPoslednjiY = int32(0)
 
 // var velicinaKursora int32 = 4
 var VelicinaKursora int32 = 8
-var MaxKursor int32 = 32
+var MaxKursor int32 = 64
 var GUIBoja uint32 = 0x111122
 
 var TrenutniMat mat.Materijal = mat.Pesak

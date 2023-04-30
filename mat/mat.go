@@ -4,6 +4,8 @@ import (
 	"math/rand"
 )
 
+var Obrnuto = 1
+
 type Materijal int
 
 const (
@@ -18,11 +20,11 @@ const (
 	Rdja      Materijal = 254
 	Lava      Materijal = 8
 	Voda      Materijal = 9
+	Kiselina  Materijal = 10
 	SlanaVoda Materijal = 255
-	Para      Materijal = 10
-	Vatra     Materijal = 11
-	TecniAzot Materijal = 12
-	Kiselina  Materijal = 13
+	Para      Materijal = 11
+	Vatra     Materijal = 12
+	TecniAzot Materijal = 13
 	Plazma    Materijal = 14
 	Toplo     Materijal = 15
 	Hladno    Materijal = 16
@@ -41,11 +43,11 @@ var Ime = map[Materijal]string{
 	Rdja:      "Rdja",
 	Lava:      "Lava",
 	Voda:      "Voda",
+	Kiselina:  "Kiselina",
 	SlanaVoda: "SlanaVoda",
 	Para:      "Para",
 	Vatra:     "Vatra",
 	TecniAzot: "Tecni Azot",
-	Kiselina:  "Kiselina",
 	Plazma:    "Plazma",
 	Toplo:     "Toplo",
 	Hladno:    "Hladno",
@@ -64,12 +66,12 @@ var Boja = map[Materijal]uint32{
 	Rdja:      0x6f0f2b,
 	Lava:      0xff6600,
 	Voda:      0x3333ff,
+	Kiselina:  0xb0bf1a,
 	SlanaVoda: 0x4444ff,
 	Para:      0x6666ff,
 	Vatra:     0xd73502,
 	TecniAzot: 0x99ff99,
-	Kiselina:  0xc800c8,
-	Plazma:    0xff99ff,
+	Plazma:    0x5f007f,
 	Toplo:     0xff0000,
 	Hladno:    0x00ffff,
 	Zid:       0xffffff,
@@ -88,11 +90,11 @@ var Gustina = map[Materijal]int32{
 	Rdja:      5,
 	Lava:      4,
 	Voda:      2,
+	Kiselina:  2,
 	SlanaVoda: 3,
 	Para:      -5,
 	Vatra:     -5,
 	TecniAzot: 3,
-	Kiselina:  2,
 	Plazma:    0,
 	Zid:       0,
 }
@@ -108,11 +110,11 @@ var GustinaBoja = map[Materijal]uint32 {
 	Rdja:      	0x00ff00,
 	Lava:   	0x00c800,
 	Voda:   	0x005000,
+	Kiselina:   0x005800,
 	SlanaVoda: 	0x005a00,
 	Para:   	0xc800c8,
 	Vatra:     	0xc800c8,
 	TecniAzot: 	0x006400,
-	Kiselina:   0x005000,
 	Plazma:    	0xff00ff,
 	Zid:		0,
 }
@@ -137,10 +139,10 @@ var AStanje = map[Materijal]int{
 	Lava:      0b0111,
 	Voda:      0b0111,
 	SlanaVoda: 0b0111,
+	Kiselina:  0b0111,
 	Para:      0b0111,
 	Vatra:     0b0111,
 	TecniAzot: 0b0111,
-	Kiselina:  0b0111,
 	Plazma:    0b1111,
 	Zid:       0b0000,
 }
@@ -176,10 +178,10 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Lava:      {Lava, Lava, MinTemp, MaxTemp},
 	Voda:      {Led, Para, 27315, 37315},          //0.00c, 100.00c
 	SlanaVoda: {Led, Para, 25315, 37315},          //-20.00c, 100c
+	Kiselina:  {Kiselina, Kiselina, MinTemp, MaxTemp},
 	Para:      {Voda, Para, 37315, MaxTemp},       //100.00c
 	Vatra:     {Prazno, Plazma, 57315, 527315},    //300.00c, 5000.00c
 	TecniAzot: {TecniAzot, Prazno, MinTemp, 7315}, //-200.00c
-	Kiselina:  {Kiselina, Kiselina, MinTemp, MaxTemp},
 	Plazma:    {Vatra, Plazma, 527315, MaxTemp},  //5000.00c
 	Zid:       {Zid, Zid, MinTemp, MaxTemp},
 }
@@ -237,7 +239,7 @@ func NewCestica(materijal Materijal) Cestica {
 	}
 	if materijal == Vatra {
 		zrno.Temperatura = 77315 //500.00c
-		zrno.Ticker = 8
+		zrno.Ticker = 32
 	}
 	if materijal == Lava {
 		zrno.SekMat = Kamen
@@ -265,18 +267,19 @@ func UpdateTemp(matrix [][]Cestica, i int, j int) {
 	for k := -1; k < 2; k++ {
 		for l := -1; l < 2; l++ {
 			if matrix[i+k][j+l].Materijal != Zid {
+				if matrix[i+k][j+l].Materijal == Prazno && matrix[i][j].Materijal == Prazno{
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice/10)
+					temperatura = temperatura - uint64(parcePice/10)
+				}
 				if matrix[i+k][j+l].Materijal == Prazno || matrix[i][j].Materijal == Prazno {
-					matrix[i+k][j+l].BaferTemp += uint64(parcePice/1000)
-					temperatura = temperatura - uint64(parcePice/1000)
-				} else if matrix[i][j].Materijal == Voda && matrix[i+k][j+l].Materijal == Vatra {
-					matrix[i+k][j+l].BaferTemp += uint64(parcePice)
-					temperatura = temperatura - uint64(parcePice)
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice/100)
+					temperatura = temperatura - uint64(parcePice/100)
 				} else if matrix[i][j].Materijal == Vatra && matrix[i+k][j+l].Materijal == Voda {
-					matrix[i+k][j+l].BaferTemp += uint64(parcePice/1000)
-					temperatura = temperatura - uint64(parcePice/1000)
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice/100)
+					temperatura = temperatura - uint64(parcePice/100)
 				} else {
-					matrix[i+k][j+l].BaferTemp += uint64(parcePice)
-					temperatura = temperatura - uint64(parcePice)
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice/5)
+					temperatura = temperatura - uint64(parcePice/5)
 				}
 			}
 		}
@@ -406,6 +409,20 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 		}
 		if matrix[i][j].Ticker < 0 {
 			matrix[i][j].Materijal = Rdja
+			matrix[i][j].Ticker = 511
+		}
+	}
+
+	if materijal == Kiselina {
+		for k := -1; k < 2; k++ {
+			for l := -1; l < 2; l++ {
+				komsa := matrix[i+k][j+l]
+				if komsa.Materijal != Kiselina && komsa.Materijal != Zid && komsa.Materijal != Prazno {
+					matrix[i+k][j+l].Ticker -= 10
+					matrix[i+k][j+l].Temperatura += 100
+					matrix[i][j].Ticker -= 2
+				}
+			}
 		}
 	}
 
@@ -427,10 +444,10 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 				random := rand.Intn(10)
 				if random > 6 {
 				matrix[i][j].Ticker = matrix[i][j].Ticker - 1
-					if matrix[i+k][j-1].Materijal == Prazno {
-						matrix[i+k][j-1].Materijal = Vatra
-						matrix[i+k][j-1].Temperatura = 87315 //600.00c
-						matrix[i+k][j-1].Ticker = 8
+					if matrix[i+k][j-1*Obrnuto].Materijal == Prazno {
+						matrix[i+k][j-1*Obrnuto].Materijal = Vatra
+						matrix[i+k][j-1*Obrnuto].Temperatura = 87315 //600.00c
+						matrix[i+k][j-1*Obrnuto].Ticker = 32
 					}
 				}
 			}
@@ -449,11 +466,17 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 				matrix[i][j].SekMat = Prazno
 			}
 		}
+
 		if matrix[i][j].Ticker < 1 {
 			matrix[i][j].Materijal = Vatra
 			matrix[i][j].SekMat = Prazno
 			matrix[i][j].Ticker = 8
 		}
+
+	}
+
+	if matrix[i][j].Ticker < 0 {
+		matrix[i][j].Materijal = Prazno
 	}
 
 }
@@ -475,6 +498,8 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 		smer = -1
 	}
 
+	smer *= Obrnuto
+
 	if (astanje & 0b1000) != 0 {
 		lRand := rand.Intn(3) - 1
 		rRand := rand.Intn(3) - 1
@@ -494,22 +519,7 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 		komsija := matrix[i][j+smer]
 		//												( 1  *      G[v] = 2             <  1  *      g[ps] =  5) == True
 		//                                              (-1  *      G[v] = 2             < -1  *      g[pr] = -5) == True
-		// kiselinaCheck /limun
-		if komsija.Materijal != Prazno && komsija.Materijal != Zid {
-			if (trenutna.Materijal == Kiselina && komsija.Materijal != Kiselina) || (trenutna.Materijal != Kiselina && komsija.Materijal == Kiselina) {
-				temp := trenutna.Temperatura
-				matrix[i][j] = NewCestica(Prazno)
-				matrix[i][j].Temperatura = temp
-
-				komTemp := komsija.Temperatura
-				matrix[i][j+smer] = NewCestica(Prazno)
-				matrix[i][j+smer].Temperatura = komTemp
-
-				pomeren = true
-				return
-			}
-		}
-		if (AStanje[komsija.Materijal]&0b0001 != 0) && smer*int(Gustina[komsija.Materijal]) < smer*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je //ovaj komentar je zastareo i odnosi se na neku davno zaboravljenu arhitekturu projekta zakopanu tu negde izmedju Atlantide i Drazinog groba
+		if (AStanje[komsija.Materijal]&0b0001 != 0) && Obrnuto*smer*int(Gustina[komsija.Materijal]) < Obrnuto*smer*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je //ovaj komentar je zastareo i odnosi se na neku davno zaboravljenu arhitekturu projekta zakopanu tu negde izmedju Atlantide i Drazinog groba
 			matrix[i][j+smer] = trenutna
 			matrix[i][j] = komsija
 			pomeren = true
@@ -523,29 +533,14 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	if (astanje & 0b0010) != 0 {
 		rFaktor := rand.Intn(2)*2 - 1 //{-1, 1}
 		komsija1 := matrix[i+rFaktor][j+smer]
-		// kiselinaCheck /limun
-		if komsija1.Materijal != Prazno && komsija1.Materijal != Zid {
-			if (trenutna.Materijal == Kiselina && komsija1.Materijal != Kiselina) /*|| (trenutna.Materijal != Kiselina && komsija1.Materijal == Kiselina)*/ {
-				temp := trenutna.Temperatura
-				matrix[i][j] = NewCestica(Prazno)
-				matrix[i][j].Temperatura = temp
-
-				komTemp := komsija1.Temperatura
-				matrix[i+rFaktor][j+smer] = NewCestica(Prazno)
-				matrix[i+rFaktor][j+smer].Temperatura = komTemp
-
-				pomeren = true
-				return
-			}
-		}
-		if (AStanje[komsija1.Materijal]&0b0010 != 0) && smer*int(Gustina[komsija1.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
+		if (AStanje[komsija1.Materijal]&0b0010 != 0) && Obrnuto*smer*int(Gustina[komsija1.Materijal]) < Obrnuto*smer*int(Gustina[trenutna.Materijal]) {
 			matrix[i+rFaktor][j+smer] = trenutna
 			matrix[i][j] = komsija1
 			pomeren = true
 			return
 		}
 		komsija2 := matrix[i-rFaktor][j+smer]
-		if (AStanje[komsija2.Materijal]&0b0010 != 0) && smer*int(Gustina[komsija2.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
+		if (AStanje[komsija2.Materijal]&0b0010 != 0) && Obrnuto*smer*int(Gustina[komsija2.Materijal]) < Obrnuto*smer*int(Gustina[trenutna.Materijal]) {
 			matrix[i-rFaktor][j+smer] = trenutna
 			matrix[i][j] = komsija2
 			pomeren = true
