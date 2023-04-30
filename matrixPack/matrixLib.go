@@ -21,7 +21,7 @@ var NMode bool = false
 var DMode bool = false
 var TxtMode bool = true
 var ResetSound bool = false
-var KruzniBrush = false
+var KruzniBrush = true
 
 func ClampCoords(x int32, y int32) (int32, int32) {
 	return mathPack.MinInt32(mathPack.MaxInt32(x, 0), SirinaKan-1),
@@ -65,7 +65,7 @@ func Render(matrix [][]mat.Cestica, renderer *sdl.Renderer, texture *sdl.Texture
 				gustTemp := mat.GustinaBoja[matrix[j][i].Materijal]
 				hexColor = gustTemp
 			} else {
-				if matrix[j][i].Materijal == mat.Vatra {
+				if matrix[j][i].Materijal == mat.Vatra || matrix[j][i].Materijal == mat.Dim {
 					hexColor = IzracunajBoju(matrix[j][i])
 				} else if matrix[j][i].Materijal == mat.Drvo && matrix[j][i].Temperatura > 47315 {
 					hexColor = IzracunajBoju(matrix[j][i])
@@ -94,6 +94,15 @@ func IzracunajBoju(zrno mat.Cestica) uint32 {
 	
 	var boja uint32
 
+	if zrno.Materijal == mat.Dim{
+		if zrno.Ticker > 40 {
+			return 0x323232
+		} else if zrno.Ticker < 0 {
+			return 0xaca696
+		}
+		boje := [6]uint32{0x484343, 0x534c4c, 0x5c4343, 0x63635d, 0x6d6d5c}
+		boja = boje[zrno.Ticker/10]
+	}
 	if zrno.Materijal == mat.Vatra {
 		if zrno.Ticker > 11 {
 			return 0xfac000

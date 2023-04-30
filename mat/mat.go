@@ -17,17 +17,19 @@ const (
 	Sljunak   Materijal = 5
 	Pesak     Materijal = 6
 	So        Materijal = 7
-	Rdja      Materijal = 254
+	Rdja      Materijal = 253
 	Lava      Materijal = 8
 	Voda      Materijal = 9
-	Kiselina  Materijal = 10
-	SlanaVoda Materijal = 255
-	Para      Materijal = 11
-	Vatra     Materijal = 12
-	TecniAzot Materijal = 13
-	Plazma    Materijal = 14
-	Toplo     Materijal = 15
-	Hladno    Materijal = 16
+	Zejtin    Materijal = 10
+	Kiselina  Materijal = 11
+	SlanaVoda Materijal = 254
+	Para      Materijal = 12
+	Vatra     Materijal = 13
+	Dim       Materijal = 255
+	TecniAzot Materijal = 14
+	Plazma    Materijal = 15
+	Toplo     Materijal = 16
+	Hladno    Materijal = 17
 	Zid       Materijal = 256
 )
 
@@ -43,10 +45,12 @@ var Ime = map[Materijal]string{
 	Rdja:      "Rdja",
 	Lava:      "Lava",
 	Voda:      "Voda",
+	Zejtin:    "Zejtin",
 	Kiselina:  "Kiselina",
 	SlanaVoda: "SlanaVoda",
 	Para:      "Para",
 	Vatra:     "Vatra",
+	Dim:       "Dim",
 	TecniAzot: "Tecni Azot",
 	Plazma:    "Plazma",
 	Toplo:     "Toplo",
@@ -66,10 +70,12 @@ var Boja = map[Materijal]uint32{
 	Rdja:      0x6f0f2b,
 	Lava:      0xff6600,
 	Voda:      0x3333ff,
+	Zejtin:    0x3b3131,
 	Kiselina:  0xb0bf1a,
 	SlanaVoda: 0x4444ff,
 	Para:      0x6666ff,
 	Vatra:     0xd73502,
+	Dim:       0x222222,
 	TecniAzot: 0x99ff99,
 	Plazma:    0x5f007f,
 	Toplo:     0xff0000,
@@ -90,10 +96,12 @@ var Gustina = map[Materijal]int32{
 	Rdja:      5,
 	Lava:      4,
 	Voda:      2,
+	Zejtin:    1,
 	Kiselina:  2,
 	SlanaVoda: 3,
-	Para:      -5,
-	Vatra:     -5,
+	Para:      -3,
+	Vatra:     -4,
+	Dim:       -5,
 	TecniAzot: 3,
 	Plazma:    0,
 	Zid:       0,
@@ -110,16 +118,16 @@ var GustinaBoja = map[Materijal]uint32 {
 	Rdja:      	0x00ff00,
 	Lava:   	0x00c800,
 	Voda:   	0x005000,
+	Zejtin:     0x000000,//@luka molim popuni -s
 	Kiselina:   0x005800,
 	SlanaVoda: 	0x005a00,
 	Para:   	0xc800c8,
 	Vatra:     	0xc800c8,
+	Dim:        0x000000,//@luka molim popuni -s
 	TecniAzot: 	0x006400,
 	Plazma:    	0xff00ff,
 	Zid:		0,
 }
-
-// sklonio Lambda zato što se ne koristi uopšte /limun
 
 // 0000 nece on nidje
 // ---1 pada direkt
@@ -138,10 +146,12 @@ var AStanje = map[Materijal]int{
 	Rdja:      0b0011,
 	Lava:      0b0111,
 	Voda:      0b0111,
+	Zejtin:    0b0111,
 	SlanaVoda: 0b0111,
 	Kiselina:  0b0111,
 	Para:      0b0111,
 	Vatra:     0b0111,
+	Dim:       0b0111,
 	TecniAzot: 0b0111,
 	Plazma:    0b1111,
 	Zid:       0b0000,
@@ -177,10 +187,12 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Rdja:      {Rdja, Lava, MinTemp, 177315},  // metal
 	Lava:      {Lava, Lava, MinTemp, MaxTemp},
 	Voda:      {Led, Para, 27315, 37315},          //0.00c, 100.00c
+	Zejtin:    {Zejtin, Zejtin, MinTemp, MaxTemp}, //TODO: mast i uljana para? je l to postoji?
 	SlanaVoda: {Led, Para, 25315, 37315},          //-20.00c, 100c
 	Kiselina:  {Kiselina, Kiselina, MinTemp, MaxTemp},
 	Para:      {Voda, Para, 37315, MaxTemp},       //100.00c
-	Vatra:     {Prazno, Plazma, 57315, 527315},    //300.00c, 5000.00c
+	Vatra:     {Dim, Plazma, 57315, 527315},    //300.00c, 5000.00c
+	Dim:       {Prazno, Vatra, 32315, 87312}, //50.00c, 600.00c
 	TecniAzot: {TecniAzot, Prazno, MinTemp, 7315}, //-200.00c
 	Plazma:    {Vatra, Plazma, 527315, MaxTemp},  //5000.00c
 	Zid:       {Zid, Zid, MinTemp, MaxTemp},
@@ -201,9 +213,11 @@ var Zapaljiv = map[Materijal]bool{
 	Rdja:      false,
 	Lava:      false,
 	Voda:      false,
+	Zejtin:    true, //hvala Bogu najzad jos nesto sem drveta.. //da inace jasno mi je ako necega nema u mapi difolt je false i sve ove false linije su suvisne pa sta je l smeta nekome citak kod makar negde u celom projektu ;_;
 	SlanaVoda: false,
 	Para:      false,
 	Vatra:     false, ///da li je voda mokra xDDD
+	Dim:       false,
 	TecniAzot: false,
 	Kiselina:  false,
 	Plazma:    false,
@@ -233,13 +247,20 @@ func NewCestica(materijal Materijal) Cestica {
 	if materijal == Drvo {
 		zrno.Ticker = 64
 	}
+	if materijal == Zejtin {
+		zrno.Ticker = 4
+	}
 	if materijal == Para {
 		zrno.SekMat = Voda
 		zrno.Temperatura = 42315 //150.00c
 	}
 	if materijal == Vatra {
 		zrno.Temperatura = 77315 //500.00c
-		zrno.Ticker = 32
+		zrno.Ticker = vatraTiker
+	}
+	if materijal == Dim {
+		zrno.Temperatura = 47315 //200.00c
+		zrno.Ticker = dimTiker
 	}
 	if materijal == Lava {
 		zrno.SekMat = Kamen
@@ -278,8 +299,8 @@ func UpdateTemp(matrix [][]Cestica, i int, j int) {
 					matrix[i+k][j+l].BaferTemp += uint64(parcePice/100)
 					temperatura = temperatura - uint64(parcePice/100)
 				} else {
-					matrix[i+k][j+l].BaferTemp += uint64(parcePice/5)
-					temperatura = temperatura - uint64(parcePice/5)
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice/2)
+					temperatura = temperatura - uint64(parcePice/2)
 				}
 			}
 		}
@@ -288,7 +309,19 @@ func UpdateTemp(matrix [][]Cestica, i int, j int) {
 	/**/
 }
 
+const vatraTiker = 16
+const dimTiker = 64
+
 func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
+
+//	izvinjenej svakome ko cita ovu funkciju
+//od celog projekta ovo je najruzniji i najgore napisan deo
+//ALI ono sto je bitno je da radi (:
+
+//TODO: srediti sve ovo, izbaciti u funkcije i interfejse sve sto:
+//	1) ne bi smanjilo performans
+//	2) bi moglo da se izdvoji
+//	3) ne bi dodatno zakomplikovalo kod
 
 	if matrix[i][j].Materijal == Zid {
 		return
@@ -299,11 +332,22 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 	materijal := trenutna.Materijal
 	temperatura := trenutna.Temperatura
 
+	if materijal == Dim {
+		if trenutna.Ticker < 0 {
+			matrix[i][j].Materijal = Prazno
+		} else if trenutna.Ticker > dimTiker {
+			matrix[i][j].Ticker = dimTiker
+		} else {
+			matrix[i][j].Ticker--
+		}
+	}
+
 	if materijal == Vatra {
 		if trenutna.Ticker == 0 {
-			matrix[i][j].Materijal = Prazno
-		} else if trenutna.Ticker > 10 {
-			matrix[i][j].Ticker = 10
+			matrix[i][j].Materijal = Dim
+			matrix[i][j].Ticker = dimTiker
+		} else if trenutna.Ticker > vatraTiker {
+			matrix[i][j].Ticker = vatraTiker
 		} else {
 			matrix[i][j].Ticker--
 		}
@@ -447,7 +491,7 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 					if matrix[i+k][j-1*Obrnuto].Materijal == Prazno {
 						matrix[i+k][j-1*Obrnuto].Materijal = Vatra
 						matrix[i+k][j-1*Obrnuto].Temperatura = 87315 //600.00c
-						matrix[i+k][j-1*Obrnuto].Ticker = 32
+						matrix[i+k][j-1*Obrnuto].Ticker = vatraTiker
 					}
 				}
 			}
@@ -470,7 +514,7 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 		if matrix[i][j].Ticker < 1 {
 			matrix[i][j].Materijal = Vatra
 			matrix[i][j].SekMat = Prazno
-			matrix[i][j].Ticker = 8
+			matrix[i][j].Ticker = vatraTiker
 		}
 
 	}
@@ -548,16 +592,21 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 		}
 	}
 	/**/
+	// proverava moze li se zameniti ne samo sa horizontalnim susedom vec i sa dva odjednom, da bi se brze iznivelisala
 	if (astanje & 0b0100) != 0 {
 		rFaktor := rand.Intn(2)*2 - 1 //{-1, 1}
-		if matrix[i+rFaktor][j].Materijal == Prazno{
-			if matrix[i+rFaktor+rFaktor][j].Materijal == Prazno {
+		komsa1 := matrix[i+rFaktor][j]
+		komsa2 := matrix[i-rFaktor][j]
+		komsa11 := matrix[i+rFaktor+rFaktor][j]
+		komsa22 :=matrix[i-rFaktor-rFaktor][j]
+		if (AStanje[komsa1.Materijal] & 0b0100) != 0 {
+			if (AStanje[komsa11.Materijal] & 0b0100) != 0 {
 				matrix[i+rFaktor+rFaktor][j], matrix[i][j] = trenutna, matrix[i+rFaktor+rFaktor][j]
 			} else {
 				matrix[i+rFaktor][j], matrix[i][j] = trenutna, matrix[i+rFaktor][j]
 			}
-		} else if matrix[i-rFaktor][j].Materijal == Prazno {
-			if matrix[i-rFaktor-rFaktor][j].Materijal == Prazno {
+		} else if (AStanje[komsa2.Materijal] & 0b0100) != 0 {
+			if (AStanje[komsa22.Materijal] & 0b0100) != 0 {
 				matrix[i-rFaktor-rFaktor][j], matrix[i][j] = trenutna, matrix[i-rFaktor-rFaktor][j]
 			} else {
 				matrix[i-rFaktor][j], matrix[i][j] = trenutna, matrix[i-rFaktor][j]
