@@ -42,9 +42,11 @@ $ ./main
 - [/]  -  heat up/cool down
 - P  -  pause/resume simulation
 - T  -  temperature mode
-- G  -  gustina mode
+- D  -  gustina mode
 - N  -  normal mode
 - up/down arrows  -  resize brush
+- M  -  mute/unmute sound
+- Z/X  -  change volume
 - esc  -  exit
 
 <!-- ![GUI](https://i.imgur.com/JoI7s4I.png) -->
