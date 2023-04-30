@@ -145,7 +145,7 @@ func main() {
 				sdl.Delay(uint32(expectedFrameTime - realFrameTime))
 			}
 		}
-		//fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
+		fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
 	}
 
 }

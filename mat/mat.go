@@ -555,27 +555,11 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	/**/
 	if (astanje & 0b0100) != 0 {
 		rFaktor := rand.Intn(2)*2 - 1 //{-1, 1}
-		komsija2 := matrix[i+rFaktor][j]
-		// kiselinaCheck /limun
-		if komsija2.Materijal != Prazno && komsija2.Materijal != Zid /*|| (trenutna.Materijal != Kiselina && komsija1.Materijal == Kiselina)*/ {
-			if (trenutna.Materijal == Kiselina && komsija2.Materijal != Kiselina) {
-				temp := trenutna.Temperatura
-				matrix[i][j] = NewCestica(Prazno)
-				matrix[i][j].Temperatura = temp
-
-				komTemp := komsija2.Temperatura
-				matrix[i+rFaktor][j] = NewCestica(Prazno)
-				matrix[i+rFaktor][j].Temperatura = komTemp
-
-				pomeren = true
-				return
-			}
-		}
-		if komsija2.Materijal == Prazno {
+		if matrix[i+rFaktor][j].Materijal == Prazno{
 			if matrix[i+rFaktor+rFaktor][j].Materijal == Prazno {
 				matrix[i+rFaktor+rFaktor][j], matrix[i][j] = trenutna, matrix[i+rFaktor+rFaktor][j]
 			} else {
-				komsija2, matrix[i][j] = trenutna, komsija2
+				matrix[i+rFaktor][j], matrix[i][j] = trenutna, matrix[i+rFaktor][j]
 			}
 		} else if matrix[i-rFaktor][j].Materijal == Prazno {
 			if matrix[i-rFaktor-rFaktor][j].Materijal == Prazno {
