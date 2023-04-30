@@ -8,8 +8,6 @@ var Obrnuto = 1
 
 type Materijal int
 
-var Obrnuto = 1
-
 const (
 	Prazno    Materijal = 0
 	Metal     Materijal = 1
@@ -495,9 +493,9 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	astanje := AStanje[trenutna.Materijal]
 	smer := 0
 	if Gustina[trenutna.Materijal] > 0 {
-		smer = 1 * Obrnuto
+		smer = 1
 	} else {
-		smer = -1 * Obrnuto
+		smer = -1
 	}
 
 	smer *= Obrnuto
@@ -521,26 +519,7 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 		komsija := matrix[i][j+smer]
 		//												( 1  *      G[v] = 2             <  1  *      g[ps] =  5) == True
 		//                                              (-1  *      G[v] = 2             < -1  *      g[pr] = -5) == True
-<<<<<<< HEAD
 		if (AStanje[komsija.Materijal]&0b0001 != 0) && Obrnuto*smer*int(Gustina[komsija.Materijal]) < Obrnuto*smer*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je //ovaj komentar je zastareo i odnosi se na neku davno zaboravljenu arhitekturu projekta zakopanu tu negde izmedju Atlantide i Drazinog groba
-=======
-		// kiselinaCheck /limun
-		if komsija.Materijal != Prazno && komsija.Materijal != Zid {
-			if (trenutna.Materijal == Kiselina && komsija.Materijal != Kiselina) || (trenutna.Materijal != Kiselina && komsija.Materijal == Kiselina) {
-				temp := trenutna.Temperatura
-				matrix[i][j] = NewCestica(Prazno)
-				matrix[i][j].Temperatura = temp
-
-				komTemp := komsija.Temperatura
-				matrix[i][j+smer] = NewCestica(Prazno)
-				matrix[i][j+smer].Temperatura = komTemp
-
-				pomeren = true
-				return
-			}
-		}
-		if (AStanje[komsija.Materijal]&0b0001 != 0) && smer*Obrnuto*int(Gustina[komsija.Materijal]) < smer*Obrnuto*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je //ovaj komentar je zastareo i odnosi se na neku davno zaboravljenu arhitekturu projekta zakopanu tu negde izmedju Atlantide i Drazinog groba
->>>>>>> 53e5ddc7cb66a2b8c2142593d5a8dfb7f0709281
 			matrix[i][j+smer] = trenutna
 			matrix[i][j] = komsija
 			pomeren = true
@@ -554,37 +533,14 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	if (astanje & 0b0010) != 0 {
 		rFaktor := rand.Intn(2)*2 - 1 //{-1, 1}
 		komsija1 := matrix[i+rFaktor][j+smer]
-<<<<<<< HEAD
 		if (AStanje[komsija1.Materijal]&0b0010 != 0) && Obrnuto*smer*int(Gustina[komsija1.Materijal]) < Obrnuto*smer*int(Gustina[trenutna.Materijal]) {
-=======
-		// kiselinaCheck /limun
-		if komsija1.Materijal != Prazno && komsija1.Materijal != Zid {
-			if (trenutna.Materijal == Kiselina && komsija1.Materijal != Kiselina) /*|| (trenutna.Materijal != Kiselina && komsija1.Materijal == Kiselina)*/ {
-				temp := trenutna.Temperatura
-				matrix[i][j] = NewCestica(Prazno)
-				matrix[i][j].Temperatura = temp
-
-				komTemp := komsija1.Temperatura
-				matrix[i+rFaktor][j+smer] = NewCestica(Prazno)
-				matrix[i+rFaktor][j+smer].Temperatura = komTemp
-
-				pomeren = true
-				return
-			}
-		}
-		if (AStanje[komsija1.Materijal]&0b0010 != 0) && smer*Obrnuto*int(Gustina[komsija1.Materijal]) < smer*Obrnuto*int(Gustina[trenutna.Materijal]) {
->>>>>>> 53e5ddc7cb66a2b8c2142593d5a8dfb7f0709281
 			matrix[i+rFaktor][j+smer] = trenutna
 			matrix[i][j] = komsija1
 			pomeren = true
 			return
 		}
 		komsija2 := matrix[i-rFaktor][j+smer]
-<<<<<<< HEAD
 		if (AStanje[komsija2.Materijal]&0b0010 != 0) && Obrnuto*smer*int(Gustina[komsija2.Materijal]) < Obrnuto*smer*int(Gustina[trenutna.Materijal]) {
-=======
-		if (AStanje[komsija2.Materijal]&0b0010 != 0) && smer*Obrnuto*int(Gustina[komsija2.Materijal]) < smer*Obrnuto*int(Gustina[trenutna.Materijal]) {
->>>>>>> 53e5ddc7cb66a2b8c2142593d5a8dfb7f0709281
 			matrix[i-rFaktor][j+smer] = trenutna
 			matrix[i][j] = komsija2
 			pomeren = true
