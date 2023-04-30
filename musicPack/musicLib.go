@@ -4,7 +4,7 @@ import (
 	"github.com/veandco/go-sdl2/mix"
 )
 
-var Mutirana = true
+var Mutirana = false
 var Zvuk = 33
 
 func MusicInit() {
