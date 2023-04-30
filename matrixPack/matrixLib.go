@@ -65,8 +65,13 @@ func Render(matrix [][]mat.Cestica, renderer *sdl.Renderer, texture *sdl.Texture
 				gustTemp := mat.GustinaBoja[matrix[j][i].Materijal]
 				hexColor = gustTemp
 			} else {
-				boja := IzracunajBoju(matrix[j][i])
-				hexColor = boja
+				if matrix[j][i].Materijal == mat.Vatra {
+					hexColor = IzracunajBoju(matrix[j][i])
+				} else if matrix[j][i].Materijal == mat.Drvo && matrix[j][i].Temperatura > 47315 {
+					hexColor = IzracunajBoju(matrix[j][i])
+				} else {
+					hexColor = mat.Boja[matrix[j][i].Materijal]
+				}
 			}
 
 			pixels[count] = byte((hexColor >> 16) & 0xFF)
@@ -86,7 +91,8 @@ var MinTempRendered uint64 = 29315
 var MaxTempRendered uint64 = 29316
 
 func IzracunajBoju(zrno mat.Cestica) uint32 {
-	boja := mat.Boja[zrno.Materijal]
+	
+	var boja uint32
 
 	if zrno.Materijal == mat.Vatra {
 		if zrno.Ticker > 8 {
