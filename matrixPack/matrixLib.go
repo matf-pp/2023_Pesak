@@ -12,7 +12,8 @@ import (
 
 // mora ovo ovde /limun
 var BrPiksPoCestici int32 = 9000
-const SirinaKan, VisinaKan = 240, 180
+
+const SirinaKan, VisinaKan = 240, 144
 
 var Pause bool = false
 var TMode bool = false

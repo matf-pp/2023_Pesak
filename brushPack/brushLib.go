@@ -90,7 +90,7 @@ func OblikCetkice(KruzniBrush bool, renderer *sdl.Renderer) {
 	} else {
 		// kvadrat
 		renderer.SetDrawColor(255, 255, 255, 255)
-		cetkica := sdl.Rect{X: screenPack.KursorPoslednjiX - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, Y: screenPack.KursorPoslednjiY - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, W: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici), H: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici)}
+		cetkica := sdl.Rect{X: (screenPack.KursorPoslednjiX/matrixPack.BrPiksPoCestici)*matrixPack.BrPiksPoCestici - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, Y: (screenPack.KursorPoslednjiY/matrixPack.BrPiksPoCestici)*matrixPack.BrPiksPoCestici - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, W: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici), H: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici)}
 		renderer.DrawRect(&cetkica)
 	}
 }
