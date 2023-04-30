@@ -38,7 +38,7 @@ var pozadinaGuia uint32 = 0x111122
 var keystates = sdl.GetKeyboardState()
 
 var mutirana = false
-var zvuk = 100
+var zvuk = 33
 
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
