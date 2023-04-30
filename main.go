@@ -1,11 +1,11 @@
 package main
 
 import (
-	"main/mat"
-	"main/fontPack"
 	"main/brushPack"
-	"main/musicPack"
+	"main/fontPack"
+	"main/mat"
 	"main/matrixPack"
+	"main/musicPack"
 	"main/screenPack"
 
 	"fmt"
@@ -18,8 +18,8 @@ import (
 )
 
 // njanja: pazite ovo
-const korisnikNijeNanja = true
-const korisnikJeLimun = true
+const korisnikNijeNanja = false
+const korisnikJeLimun = false
 
 // njanja: ovo je loša praksa majmuni
 // e a reci je l si provalio bukvalno je kao `using` u cpp -s
@@ -36,7 +36,7 @@ var keystates = sdl.GetKeyboardState()
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
 	if screenPack.AutoFitScreen {
-		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(40)
+		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
 	}
 
 	screenPack.UpdateRazmere()
@@ -259,7 +259,7 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 			if t.State == sdl.PRESSED {
 				screenPack.ProveriPritisakNaGumb(matrix, t.X, t.Y)
 			}
-		
+
 		case *sdl.MouseWheelEvent:
 			if brushPack.ShiftOn {
 				if t.Y < 0 {

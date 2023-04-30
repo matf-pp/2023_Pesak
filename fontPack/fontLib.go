@@ -14,13 +14,13 @@ import (
 
 const FontPath = "./assets/Minecraft.ttf"
 const FontSize = 40
+const OutlineSize = 2
 
 func SetFont() *ttf.Font {
 	font, err := ttf.OpenFont(FontPath, int(screenPack.VisinaProzora)/FontSize)
 	if err != nil {
 		panic(err)
 	}
-
 	return font
 }
 
@@ -61,7 +61,23 @@ func TextMaker(font *ttf.Font, renderer *sdl.Renderer, matrica [][]mat.Cestica) 
 
 	}
 
-	text, err := font.RenderUTF8Blended(infoText, sdl.Color{R: 255, G: 0, B: 0, A: 255})
+	font.SetOutline(2)
+	text, err := font.RenderUTF8Blended(infoText, sdl.Color{R: 0, G: 0, B: 0, A: 255})
+	if err == nil {
+		texture, err := renderer.CreateTextureFromSurface(text)
+		if err == nil {
+			_, _, width, height, err := texture.Query()
+			if err != nil {
+				panic(err)
+			}
+			renderer.Copy(texture, nil, &sdl.Rect{X: 3*matrixPack.BrPiksPoCestici - OutlineSize/2, Y: 3*matrixPack.BrPiksPoCestici - OutlineSize/2, W: width, H: height})
+		}
+		defer texture.Destroy()
+	}
+	defer text.Free()
+
+	font.SetOutline(0)
+	text, err = font.RenderUTF8Blended(infoText, sdl.Color{R: 255, G: 255, B: 255, A: 255})
 	if err == nil {
 		texture, err := renderer.CreateTextureFromSurface(text)
 		if err == nil {
