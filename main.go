@@ -23,7 +23,7 @@ import (
 // njanja: pazite ovo
 const korisnikNijeNanja = false
 const korisnikJeLimun = false
-const kruzniBrush = true
+const kruzniBrush = false
 
 // njanja: ovo je loša praksa majmuni
 // e a reci je l si provalio bukvalno je kao `using` u cpp -s
