@@ -42,7 +42,7 @@ var TrenutniMat mat.Materijal = mat.Pesak
 func FitToScreen(screenPercentage int) (int32, int32, int32) {
 	resolution := screenresolution.GetPrimary()
 	adjustedScale := int32((float64(screenPercentage) / float64(100)) * float64(resolution.Height) / float64(matrixPack.VisinaKan))
-	print(adjustedScale * matrixPack.VisinaKan)
+
 	VisinaUIMargine = int32(float64(VisinaUIMargine*adjustedScale*matrixPack.VisinaKan) / 720)
 	SirinaUIMargine = int32(float64(SirinaUIMargine*adjustedScale*matrixPack.VisinaKan) / 720)
 	VisinaDugmeta = int32(float64(VisinaDugmeta*adjustedScale*matrixPack.VisinaKan) / 720)
