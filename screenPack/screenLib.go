@@ -43,10 +43,10 @@ func FitToScreen(screenPercentage int) (int32, int32, int32) {
 	resolution := screenresolution.GetPrimary()
 	adjustedScale := int32((float64(screenPercentage) / float64(100)) * float64(resolution.Height) / float64(matrixPack.VisinaKan))
 
-	VisinaUIMargine *= int32(resolution.Height) / 1080
-	SirinaUIMargine *= int32(resolution.Height) / 1080
-	VisinaDugmeta *= int32(resolution.Height) / 1080
-	SirinaDugmeta *= int32(resolution.Height) / 1080
+	VisinaUIMargine *= int32(float64(resolution.Height) / 1080)
+	SirinaUIMargine *= int32(float64(resolution.Height) / 1080)
+	VisinaDugmeta *= int32(float64(resolution.Height) / 1080)
+	SirinaDugmeta *= int32(float64(resolution.Height) / 1080)
 
 	return adjustedScale, matrixPack.SirinaKan * adjustedScale, matrixPack.VisinaKan * adjustedScale
 }
