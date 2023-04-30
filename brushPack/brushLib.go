@@ -25,25 +25,57 @@ func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 	}
 
 	if state == 1 {
-		for i := -screenPack.VelicinaKursora; i < screenPack.VelicinaKursora; i++ {
-			for j := -screenPack.VelicinaKursora; j < screenPack.VelicinaKursora; j++ {
-				tx, ty := matrixPack.ClampCoords(x/matrixPack.BrPiksPoCestici+i, y/matrixPack.BrPiksPoCestici+j)
-				if screenPack.TrenutniMat != mat.Toplo && screenPack.TrenutniMat != mat.Hladno {
-					if matrix[tx][ty].Materijal == mat.Prazno || (screenPack.TrenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid) {
-						matrix[tx][ty] = mat.NewCestica(screenPack.TrenutniMat)
-					}
-				} else {
-					if screenPack.TrenutniMat == mat.Toplo && matrix[tx][ty].Materijal != mat.Zid {
-						if matrix[tx][ty].Temperatura+1000 > mat.MaxTemp {
-							matrix[tx][ty].Temperatura = mat.MaxTemp
-						} else {
-							matrix[tx][ty].Temperatura += 1000
+		if !KruzniBrush {
+			for i := -screenPack.VelicinaKursora; i < screenPack.VelicinaKursora; i++ {
+				for j := -screenPack.VelicinaKursora; j < screenPack.VelicinaKursora; j++ {
+					tx, ty := matrixPack.ClampCoords(x/matrixPack.BrPiksPoCestici+i, y/matrixPack.BrPiksPoCestici+j)
+					if screenPack.TrenutniMat != mat.Toplo && screenPack.TrenutniMat != mat.Hladno {
+						if matrix[tx][ty].Materijal == mat.Prazno || (screenPack.TrenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid) {
+							matrix[tx][ty] = mat.NewCestica(screenPack.TrenutniMat)
 						}
-					} else if screenPack.TrenutniMat == mat.Hladno && matrix[tx][ty].Materijal != mat.Zid {
-						if matrix[tx][ty].Temperatura-1000 > mat.MaxTemp {
-							matrix[tx][ty].Temperatura = mat.MinTemp
+					} else {
+						if screenPack.TrenutniMat == mat.Toplo && matrix[tx][ty].Materijal != mat.Zid {
+							if matrix[tx][ty].Temperatura+1000 > mat.MaxTemp {
+								matrix[tx][ty].Temperatura = mat.MaxTemp
+							} else {
+								matrix[tx][ty].Temperatura += 1000
+							}
+						} else if screenPack.TrenutniMat == mat.Hladno && matrix[tx][ty].Materijal != mat.Zid {
+							if matrix[tx][ty].Temperatura-1000 > mat.MaxTemp {
+								matrix[tx][ty].Temperatura = mat.MinTemp
+							} else {
+								matrix[tx][ty].Temperatura -= 1000
+							}
+						}
+					}
+				}
+			}
+		} else {
+			for i := -screenPack.VelicinaKursora; i < screenPack.VelicinaKursora; i++ {
+				for j := -screenPack.VelicinaKursora; j < screenPack.VelicinaKursora; j++ {
+					if i*i + j*j >= screenPack.VelicinaKursora * screenPack.VelicinaKursora {
+						//
+					} else {
+						tx, ty := matrixPack.ClampCoords(x/matrixPack.BrPiksPoCestici+i, y/matrixPack.BrPiksPoCestici+j)
+						
+						if screenPack.TrenutniMat != mat.Toplo && screenPack.TrenutniMat != mat.Hladno {
+							if matrix[tx][ty].Materijal == mat.Prazno || (screenPack.TrenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid) {
+								matrix[tx][ty] = mat.NewCestica(screenPack.TrenutniMat)
+							}
 						} else {
-							matrix[tx][ty].Temperatura -= 1000
+							if screenPack.TrenutniMat == mat.Toplo && matrix[tx][ty].Materijal != mat.Zid {
+								if matrix[tx][ty].Temperatura+1000 > mat.MaxTemp {
+									matrix[tx][ty].Temperatura = mat.MaxTemp
+								} else {
+									matrix[tx][ty].Temperatura += 1000
+								}
+							} else if screenPack.TrenutniMat == mat.Hladno && matrix[tx][ty].Materijal != mat.Zid {
+								if matrix[tx][ty].Temperatura-1000 > mat.MaxTemp {
+									matrix[tx][ty].Temperatura = mat.MinTemp
+								} else {
+									matrix[tx][ty].Temperatura -= 1000
+								}
+							}
 						}
 					}
 				}

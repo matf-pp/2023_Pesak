@@ -1,8 +1,6 @@
 package mat
 
 import (
-	//"fmt"
-	//"math"
 	"math/rand"
 )
 

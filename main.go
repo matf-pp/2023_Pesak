@@ -18,7 +18,7 @@ import (
 )
 
 // njanja: pazite ovo
-const korisnikNijeNanja = false
+const korisnikNijeNanja = true
 const korisnikJeLimun = true
 
 // njanja: ovo je loša praksa majmuni
@@ -36,7 +36,7 @@ var keystates = sdl.GetKeyboardState()
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
 	if screenPack.AutoFitScreen {
-		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
+		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(40)
 	}
 
 	screenPack.UpdateRazmere()
@@ -262,7 +262,7 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 		
 		case *sdl.MouseWheelEvent:
 			if brushPack.ShiftOn {
-				if t.Y > 0 {
+				if t.Y < 0 {
 					screenPack.SledeciMaterijal()
 				} else {
 					screenPack.PrethodniMaterijal()
