@@ -6,6 +6,8 @@ import (
 
 type Materijal int
 
+var Obrnuto = 1
+
 const (
 	Prazno    Materijal = 0
 	Metal     Materijal = 1
@@ -470,9 +472,9 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	astanje := AStanje[trenutna.Materijal]
 	smer := 0
 	if Gustina[trenutna.Materijal] > 0 {
-		smer = 1
+		smer = 1 * Obrnuto
 	} else {
-		smer = -1
+		smer = -1 * Obrnuto
 	}
 
 	if (astanje & 0b1000) != 0 {
@@ -509,7 +511,7 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 				return
 			}
 		}
-		if (AStanje[komsija.Materijal]&0b0001 != 0) && smer*int(Gustina[komsija.Materijal]) < smer*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je //ovaj komentar je zastareo i odnosi se na neku davno zaboravljenu arhitekturu projekta zakopanu tu negde izmedju Atlantide i Drazinog groba
+		if (AStanje[komsija.Materijal]&0b0001 != 0) && smer*Obrnuto*int(Gustina[komsija.Materijal]) < smer*Obrnuto*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je //ovaj komentar je zastareo i odnosi se na neku davno zaboravljenu arhitekturu projekta zakopanu tu negde izmedju Atlantide i Drazinog groba
 			matrix[i][j+smer] = trenutna
 			matrix[i][j] = komsija
 			pomeren = true
@@ -538,14 +540,14 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 				return
 			}
 		}
-		if (AStanje[komsija1.Materijal]&0b0010 != 0) && smer*int(Gustina[komsija1.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
+		if (AStanje[komsija1.Materijal]&0b0010 != 0) && smer*Obrnuto*int(Gustina[komsija1.Materijal]) < smer*Obrnuto*int(Gustina[trenutna.Materijal]) {
 			matrix[i+rFaktor][j+smer] = trenutna
 			matrix[i][j] = komsija1
 			pomeren = true
 			return
 		}
 		komsija2 := matrix[i-rFaktor][j+smer]
-		if (AStanje[komsija2.Materijal]&0b0010 != 0) && smer*int(Gustina[komsija2.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
+		if (AStanje[komsija2.Materijal]&0b0010 != 0) && smer*Obrnuto*int(Gustina[komsija2.Materijal]) < smer*Obrnuto*int(Gustina[trenutna.Materijal]) {
 			matrix[i-rFaktor][j+smer] = trenutna
 			matrix[i][j] = komsija2
 			pomeren = true
