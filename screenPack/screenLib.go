@@ -59,15 +59,22 @@ func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
 		}
 
 		// njanja: hardkodovan broj specijalnih dugmića hvala bogu
+		// BRUSH SHAPE
+		if y > VisinaProzora-4*(VisinaDugmeta+VisinaUIMargine) && y < VisinaProzora-4*(VisinaDugmeta+VisinaUIMargine)+VisinaDugmeta {
+			matrixPack.KruzniBrush = !matrixPack.KruzniBrush
+		}
+
 		// PAUZA
 		if y > VisinaProzora-3*(VisinaDugmeta+VisinaUIMargine) && y < VisinaProzora-3*(VisinaDugmeta+VisinaUIMargine)+VisinaDugmeta {
 			matrixPack.Pause = !matrixPack.Pause
 		}
+
 		// SEJV
 		if y > VisinaProzora-2*(VisinaDugmeta+VisinaUIMargine) && y < VisinaProzora-2*(VisinaDugmeta+VisinaUIMargine)+VisinaDugmeta {
 			SaveImage(matrix, int(matrixPack.BrPiksPoCestici))
 			sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "pesak", "sačuvan B)", nil)
 		}
+
 		// RESET
 		if y > VisinaProzora-1*(VisinaDugmeta+VisinaUIMargine) && y < VisinaProzora-1*(VisinaDugmeta+VisinaUIMargine)+VisinaDugmeta {
 			for j := 0; j < matrixPack.VisinaKan; j++ {
@@ -77,6 +84,7 @@ func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
 			}
 			matrixPack.ZazidajMatricu(matrix)
 		}
+
 	}
 }
 
@@ -130,6 +138,18 @@ func RenderujGumbZaSveMaterijale(renderer *sdl.Renderer) {
 	}
 	// zašto je ovo vraćalo surface
 	// ne sećam se, možda je bio neki check /limun
+}
+
+func CreateSpecialGumb(index int32) sdl.Rect {
+	gumb := sdl.Rect{X: int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
+		Y: int32(VisinaProzora - index*VisinaUIMargine - index*VisinaDugmeta), W: SirinaDugmeta, H: VisinaDugmeta}
+	return gumb
+}
+
+func CreateBrushGumb() sdl.Rect {
+	brushGumb := sdl.Rect{X: int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
+		Y: int32(VisinaProzora - 4*VisinaUIMargine - 4*VisinaDugmeta), W: SirinaDugmeta, H: VisinaDugmeta}
+	return brushGumb
 }
 
 func CreatePlayGumb() sdl.Rect {

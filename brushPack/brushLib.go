@@ -10,7 +10,6 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-var KruzniBrush = false
 var ShiftOn = false
 
 func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
@@ -25,7 +24,7 @@ func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 	}
 
 	if state == 1 {
-		if !KruzniBrush {
+		if !matrixPack.KruzniBrush {
 			for i := -screenPack.VelicinaKursora; i < screenPack.VelicinaKursora; i++ {
 				for j := -screenPack.VelicinaKursora; j < screenPack.VelicinaKursora; j++ {
 					tx, ty := matrixPack.ClampCoords(x/matrixPack.BrPiksPoCestici+i, y/matrixPack.BrPiksPoCestici+j)
@@ -53,11 +52,11 @@ func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 		} else {
 			for i := -screenPack.VelicinaKursora; i < screenPack.VelicinaKursora; i++ {
 				for j := -screenPack.VelicinaKursora; j < screenPack.VelicinaKursora; j++ {
-					if i*i + j*j >= screenPack.VelicinaKursora * screenPack.VelicinaKursora {
+					if i*i+j*j >= screenPack.VelicinaKursora*screenPack.VelicinaKursora {
 						//
 					} else {
 						tx, ty := matrixPack.ClampCoords(x/matrixPack.BrPiksPoCestici+i, y/matrixPack.BrPiksPoCestici+j)
-						
+
 						if screenPack.TrenutniMat != mat.Toplo && screenPack.TrenutniMat != mat.Hladno {
 							if matrix[tx][ty].Materijal == mat.Prazno || (screenPack.TrenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid) {
 								matrix[tx][ty] = mat.NewCestica(screenPack.TrenutniMat)

@@ -99,10 +99,15 @@ func main() {
 		// njanja: ovo je vraćalo surface? nz je l to potrebno ???
 		// ne znam ni ja /limun
 		screenPack.RenderujGumbZaSveMaterijale(renderer)
-
-		plejGumb := screenPack.CreatePlayGumb()
-		// todo: izbeći ove konverzije i samo koristiti rgba direktno
 		var hexColor uint32
+
+		brushGumb := screenPack.CreateSpecialGumb(4)
+		hexColor = 0x00ffff
+		renderer.SetDrawColor(uint8(hexColor>>16), uint8(hexColor>>8), uint8(hexColor), 255)
+		renderer.FillRect(&brushGumb)
+
+		plejGumb := screenPack.CreateSpecialGumb(3)
+		// todo: izbeći ove konverzije i samo koristiti rgba direktno
 		if matrixPack.Pause {
 			hexColor = 0x00ff00
 		} else {
@@ -111,12 +116,12 @@ func main() {
 		renderer.SetDrawColor(uint8(hexColor>>16), uint8(hexColor>>8), uint8(hexColor), 255)
 		renderer.FillRect(&plejGumb)
 
-		sejvGumb := screenPack.CreateSaveGumb()
+		sejvGumb := screenPack.CreateSpecialGumb(2)
 		hexColor = 0x0000ff
 		renderer.SetDrawColor(uint8(hexColor>>16), uint8(hexColor>>8), uint8(hexColor), 255)
 		renderer.FillRect(&sejvGumb)
 
-		resetGumb := screenPack.CreateResetGumb()
+		resetGumb := screenPack.CreateSpecialGumb(1)
 		hexColor = 0xff0000
 		renderer.SetDrawColor(uint8(hexColor>>16), uint8(hexColor>>8), uint8(hexColor), 255)
 		renderer.FillRect(&resetGumb)
@@ -127,7 +132,7 @@ func main() {
 
 		//window.UpdateSurface()
 
-		brushPack.OblikCetkice(brushPack.KruzniBrush, renderer)
+		brushPack.OblikCetkice(matrixPack.KruzniBrush, renderer)
 
 		renderer.SetDrawColor(uint8(pozadinaGuia>>16), uint8(pozadinaGuia>>8), uint8(pozadinaGuia), 255)
 		renderer.Present()
@@ -206,6 +211,15 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 					screenPack.VelicinaKursora = screenPack.VelicinaKursora + 1
 				}
 			}
+			if keystates[sdl.SCANCODE_C] != 0 {
+				for j := 0; j < matrixPack.VisinaKan; j++ {
+					for i := 0; i < matrixPack.SirinaKan; i++ {
+						matrix[i][j] = mat.NewCestica(mat.Prazno)
+					}
+				}
+				matrixPack.ZazidajMatricu(matrix)
+
+			}
 			if keystates[sdl.SCANCODE_P] != 0 {
 				matrixPack.Pause = !matrixPack.Pause
 			}
@@ -245,7 +259,7 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				musicPack.Zvuk += 5
 			}
 			if keystates[sdl.SCANCODE_B] != 0 {
-				brushPack.KruzniBrush = !brushPack.KruzniBrush
+				matrixPack.KruzniBrush = !matrixPack.KruzniBrush
 			}
 			if keystates[sdl.SCANCODE_LSHIFT] != 0 {
 				brushPack.ShiftOn = true
