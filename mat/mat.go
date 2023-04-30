@@ -118,12 +118,12 @@ var GustinaBoja = map[Materijal]uint32 {
 	Rdja:      	0x00ff00,
 	Lava:   	0x00c800,
 	Voda:   	0x005000,
-	Zejtin:     0x000000,//@luka molim popuni -s
+	Zejtin:     0x00aa00,//@luka molim popuni -s // oki /limun
 	Kiselina:   0x005800,
 	SlanaVoda: 	0x005a00,
 	Para:   	0xc800c8,
 	Vatra:     	0xc800c8,
-	Dim:        0x000000,//@luka molim popuni -s
+	Dim:        0xfa00fa,//@luka molim popuni -s // doki /limun
 	TecniAzot: 	0x006400,
 	Plazma:    	0xff00ff,
 	Zid:		0,
