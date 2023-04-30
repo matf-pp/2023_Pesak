@@ -496,7 +496,7 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 		//                                              (-1  *      G[v] = 2             < -1  *      g[pr] = -5) == True
 		// kiselinaCheck /limun
 		if komsija.Materijal != Prazno && komsija.Materijal != Zid {
-			if (trenutna.Materijal == Kiselina && komsija.Materijal != Kiselina) /*|| (trenutna.Materijal != Kiselina && komsija1.Materijal == Kiselina)*/ {
+			if (trenutna.Materijal == Kiselina && komsija.Materijal != Kiselina) || (trenutna.Materijal != Kiselina && komsija.Materijal == Kiselina) {
 				temp := trenutna.Temperatura
 				matrix[i][j] = NewCestica(Prazno)
 				matrix[i][j].Temperatura = temp
