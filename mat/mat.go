@@ -187,7 +187,7 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Rdja:      {Rdja, Lava, MinTemp, 177315},  // metal
 	Lava:      {Lava, Lava, MinTemp, MaxTemp},
 	Voda:      {Led, Para, 27315, 37315},          //0.00c, 100.00c
-	Zejtin:    {Zejtin, Zejtin, MinTemp, MaxTemp}, //TODO: mast i uljana para? je l to postoji?
+	Zejtin:    {Zejtin, Vatra, MinTemp, 67315}, //TODO: mast? 400.00c
 	SlanaVoda: {Led, Para, 25315, 37315},          //-20.00c, 100c
 	Kiselina:  {Kiselina, Kiselina, MinTemp, MaxTemp},
 	Para:      {Voda, Para, 37315, MaxTemp},       //100.00c
