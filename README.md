@@ -1,5 +1,8 @@
 ![](https://i.imgur.com/ORAnuBg.png)
 # 2023_Pesak
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d6f8126a67144bc1af6f7131f8c921d1)](https://app.codacy.com/gh/matf-pp/2023_Pesak?utm_source=github.com&utm_medium=referral&utm_content=matf-pp/2023_Pesak&utm_campaign=Badge_Grade)
+
 Pesak is a 2D [falling-sand](https://en.wikipedia.org/wiki/Falling-sand_game) simulation game written in Go and SDL2. It's designed to simulate interactions between tens of thousands of particles while taking into account their properties such as temperature, density and thermal conductivity. Players can experiment with combining different materials and simulate natural proccesses such as the water cycle. The simulation is also completely modular, making it easy to add new materials to the game and its interface. Pesak supports multiple display modes and many quality-of-life features, providing a fun and engaging experience.
 
 Now with Discord Rich Presence support!
