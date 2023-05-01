@@ -1,20 +1,22 @@
 package screenPack
 
 import (
-	stego "github.com/zhcppy/steganography"
+	stego "github.com/sajberk/steganography"
 )
 
-// ovo inače ne radi pa ću forkovati repo da ga sredim i dodaću kasnije šta fali idemo po 00 00 release - njanja
-func encdec(encode bool, text, inputpath string) {
+// njanja: ne pitajte me ništa razdvojiću ovo u dve fje kad se naspavam
+func encdec(encode bool, text, inputpath string) (msg string) {
 	if encode {
 		err := stego.Encode(&stego.TextCarrier{CarrierFileName: inputpath, TextContent: text})
 		if err != nil {
 			panic(err)
 		}
+		return ""
 	} else {
-		err := stego.Decode(&stego.TextCarrier{CarrierFileName: inputpath})
+		msg, err := stego.Decode(&stego.TextCarrier{CarrierFileName: inputpath})
 		if err != nil {
 			panic(err)
 		}
+		return msg
 	}
 }

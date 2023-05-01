@@ -3,6 +3,8 @@ package screenPack
 import (
 	"main/mat"
 	"main/matrixPack"
+	"strconv"
+	"strings"
 
 	"image"
 	"image/color"
@@ -30,7 +32,6 @@ func Distance(c1 color.RGBA, hexColor uint32) float64 {
 
 // otvara sliku risajzuje je i pretvori je u matricu pescanih boja velicine kanvasa
 func UcitajSliku(filePath string, matrix [][]mat.Cestica) error {
-	//encdec(false, "", filePath) TODO
 	file, err := os.Open(filePath)
 	if err != nil {
 		panic(err)
@@ -80,6 +81,20 @@ func UcitajSliku(filePath string, matrix [][]mat.Cestica) error {
 		}
 	}
 
+	// njanja: ovo je ekstremno kul napisaću možda nekad uljudne komentare
+	// ugl koristimo steganografiju da bismo na slici čuvali temperaturu i to
+	saveData := ""
+	if format == "png" {
+		saveData = encdec(false, "", filePath)
+	}
+	hasMetadata := false
+	var pixelList []string
+	if saveData != "" {
+		hasMetadata = true
+		pixelList = strings.Split(saveData, ";")
+	}
+
+	i := 0
 	// tražimo najbolji materijal i postavljamo materijale u matriks
 	for y := 0; y < newHeight; y++ {
 		for x := 0; x < newWidth; x++ {
@@ -95,11 +110,18 @@ func UcitajSliku(filePath string, matrix [][]mat.Cestica) error {
 					}
 				}
 			}
-
-			// njanja: spera kaže da ne moram da apdejtujem oba ali ja mu ne verujem
 			matrix[x][y] = mat.NewCestica(best_mat)
-			//			bafer[x][y] = matrix[x][y]
-			// nevernice neverni vise nije ni bitno ubili smo bafer -s
+
+			if hasMetadata {
+				pixelData := strings.Split(pixelList[i], ":")
+				temp, _ := strconv.Atoi(pixelData[0])
+				sekmat, _ := strconv.Atoi(pixelData[1])
+				ticker, _ := strconv.Atoi(pixelData[2])
+				matrix[x][y].Temperatura = uint64(temp)
+				matrix[x][y].SekMat = mat.Materijal(sekmat)
+				matrix[x][y].Ticker = int32(ticker)
+				i++
+			}
 		}
 	}
 

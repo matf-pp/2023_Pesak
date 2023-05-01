@@ -7,6 +7,7 @@ import (
 	"image/png"
 	"log"
 	"main/mat"
+	"main/matrixPack"
 	"os"
 	"path/filepath"
 )
@@ -19,12 +20,21 @@ func SaveImage(matrix [][]mat.Cestica, scaleFactor int) {
 
 	targetWidth := width * scaleFactor
 	targetHeight := height * scaleFactor
+	// ^ potencijalno nam treba veća slika jer enkriptujemo podatke
 
 	newImg := image.NewRGBA(image.Rect(0, 0, targetWidth, targetHeight))
+	var hexColor uint32
+	var RGBColor color.RGBA
 	for y := 0; y < targetHeight; y++ {
 		for x := 0; x < targetWidth; x++ {
-			var hexColor = mat.Boja[matrix[x/scaleFactor][y/scaleFactor].Materijal]
-			var RGBColor color.RGBA
+
+			if matrix[x/scaleFactor][y/scaleFactor].Materijal == mat.Vatra || matrix[x/scaleFactor][y/scaleFactor].Materijal == mat.Drvo || matrix[x/scaleFactor][y/scaleFactor].Materijal == mat.Dim {
+
+				hexColor = matrixPack.IzracunajBoju(matrix[x/scaleFactor][y/scaleFactor])
+			} else {
+				hexColor = mat.Boja[matrix[x/scaleFactor][y/scaleFactor].Materijal]
+			}
+
 			RGBColor.R = uint8((hexColor >> 16) & 0xFF)
 			RGBColor.G = uint8((hexColor >> 8) & 0xFF)
 			RGBColor.B = uint8(hexColor & 0xFF)
@@ -63,16 +73,15 @@ func SaveImage(matrix [][]mat.Cestica, scaleFactor int) {
 	if err != nil {
 		log.Panic("Failed to encode PNG")
 	}
-	// njanja: radiće uskoro
-	/*
-		metadata := ""
-		for i := 0; i < width; i++ {
-			for j := 0; j < height; j++ {
-				metadata += fmt.Sprintf("%d:%d:%d;", matrix[i][j].Temperatura, matrix[i][j].SekMat, matrix[i][j].Ticker)
-			}
+
+	// njanja: ovo je jezivo sporo i moraćemo da ga kompresujemo plus ubrzamo samo nz kako
+	metadata := ""
+	for i := 0; i < height; i++ {
+		for j := 0; j < width; j++ {
+			metadata += fmt.Sprintf("%d:%d:%d;", matrix[j][i].Temperatura, matrix[j][i].SekMat, matrix[j][i].Ticker)
 		}
+	}
 
+	encdec(true, metadata, filepath.Join(imgDir, fileName))
 
-		encdec(true, metadata, filepath.Join(imgDir, fileName))
-	*/
 }
