@@ -1,13 +1,14 @@
 package screenPack
 
 import (
+	"main/src/mat"
+	"main/src/matrixPack"
+
 	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"log"
-	"main/mat"
-	"main/matrixPack"
 	"os"
 	"path/filepath"
 )

@@ -1,12 +1,13 @@
 package main
 
 import (
-	"main/brushPack"
-	"main/fontPack"
-	"main/mat"
-	"main/matrixPack"
-	"main/musicPack"
-	"main/screenPack"
+	"main/src/mat"
+	"main/src/rpcPack"
+	"main/src/fontPack"
+	"main/src/brushPack"
+	"main/src/musicPack"
+	"main/src/matrixPack"
+	"main/src/screenPack"
 
 	"fmt"
 	"math/rand"
@@ -27,7 +28,7 @@ var boja = mat.Boja
 
 // FPS cap, kontam da je zgodno za testiranje staviti neki nizak, 0 = unlimited
 // 250 FPS-a ?!?!?!?! /limun
-var fpsCap = 120
+var fpsCap = 0
 
 var pozadinaGuia uint32 = 0x111122
 
@@ -36,7 +37,7 @@ var keystates = sdl.GetKeyboardState()
 func main() {
 	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
 	if screenPack.AutoFitScreen {
-		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
+		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(40)
 	}
 
 	screenPack.UpdateRazmere()
@@ -50,7 +51,7 @@ func main() {
 	musicPack.MusicInit()
 	defer mix.Quit()
 	musicPack.OpenAudio()
-	mus := musicPack.LoadMusic("audio/bitstorm.mp3")
+	mus := musicPack.LoadMusic("res/audio/bitstorm.mp3")
 
 	window := screenPack.CreateWindow()
 	defer window.Destroy()
@@ -66,7 +67,7 @@ func main() {
 	font = fontPack.SetFont()
 	defer font.Close()
 
-	go connectToDiscord()
+	go rpcPack.ConnectToDiscord()
 
 	var matrica [][]mat.Cestica = matrixPack.NapraviSlajs()
 

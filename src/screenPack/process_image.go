@@ -1,11 +1,11 @@
 package screenPack
 
 import (
-	"main/mat"
-	"main/matrixPack"
+	"main/src/mat"
+	"main/src/matrixPack"
+
 	"strconv"
 	"strings"
-
 	"image"
 	"image/color"
 	_ "image/jpeg"

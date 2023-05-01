@@ -1,9 +1,9 @@
 package fontPack
 
 import (
-	"main/mat"
-	"main/matrixPack"
-	"main/screenPack"
+	"main/src/mat"
+	"main/src/matrixPack"
+	"main/src/screenPack"
 
 	"fmt"
 	"strconv"
@@ -12,7 +12,7 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-const FontPath = "./assets/Minecraft.ttf"
+const FontPath = "./res/fonts/Minecraft.ttf"
 const FontSize = 40
 const OutlineSize = 2
 

@@ -1,9 +1,9 @@
 package brushPack
 
 import (
-	"main/mat"
-	"main/matrixPack"
-	"main/screenPack"
+	"main/src/mat"
+	"main/src/matrixPack"
+	"main/src/screenPack"
 
 	"math"
 

@@ -1,10 +1,10 @@
 package matrixPack
 
 import (
-	"main/mat"
-	"main/mathPack"
-	"unsafe"
+	"main/src/mat"
+	"main/src/mathPack"
 
+	"unsafe"
 	"strconv"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -13,7 +13,7 @@ import (
 // mora ovo ovde /limun
 var BrPiksPoCestici int32 = 9000
 
-const SirinaKan, VisinaKan = 100, 100
+const SirinaKan, VisinaKan = 240, 135
 
 var Pause bool = false
 var TMode bool = false

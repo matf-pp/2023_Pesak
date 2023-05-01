@@ -1,4 +1,4 @@
-package main
+package rpcPack
 
 import (
 	"time"
@@ -6,15 +6,15 @@ import (
 	"github.com/sajberk/rich-go/client"
 )
 
-func connectToDiscord() {
-	client.Login("1100118057147437207") // ovo sranje zapravo pravi probleme i ne radi kad si oflajn
+func ConnectToDiscord() {
+	client.Login("1100118057147437207") // ovo zapravo pravi probleme i ne radi kad si oflajn
 
 	now := time.Now()
 	client.SetActivity(client.Activity{
 		State:      "bleja u pesku",
 		Details:    "sipa pesak",
 		LargeImage: "bleja",
-		LargeText:  "je l se učitalo ovo", //xDDD -s //;D -nj
+		LargeText:  "je l se učitalo ovo", //xDDD -s //;D -nj //:3 -l
 		Timestamps: &client.Timestamps{
 			Start: &now,
 		},
