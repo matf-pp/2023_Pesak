@@ -49,6 +49,7 @@ $ ./main
 - N  -  normal mode
 - G  -  change the direction of gravity
 - M  -  mute/unmute sound
+- R  -  restart music from the begining
 - Z/X  -  change volume
 - esc  -  exit
 
