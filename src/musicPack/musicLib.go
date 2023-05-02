@@ -1,3 +1,4 @@
+//paket za pustanje muzike
 package musicPack
 
 import (

@@ -1,3 +1,4 @@
+//discord rich presence u Pesku
 package rpcPack
 
 import (

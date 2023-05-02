@@ -17,7 +17,7 @@ import (
 	"github.com/sergeymakinen/go-bmp"
 )
 
-// euklidska razdaljina između boja
+//Distance prima boju u RGBA formatu i boju u uint32 formatu i vraca euklidsku razdaljinu izmenju njih
 func Distance(c1 color.RGBA, hexColor uint32) float64 {
 	var c2 color.RGBA
 	c2.R = uint8((hexColor >> 16) & 0xFF)
@@ -30,7 +30,7 @@ func Distance(c1 color.RGBA, hexColor uint32) float64 {
 	return math.Sqrt(float64(rDelta*rDelta + gDelta*gDelta + bDelta*bDelta))
 }
 
-// otvara sliku risajzuje je i pretvori je u matricu pescanih boja velicine kanvasa
+//UcitajSliku otvara sliku risajzuje je i pretvori je u matricu pescanih boja velicine kanvasa
 func UcitajSliku(filePath string, matrix [][]mat.Cestica) error {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -99,18 +99,18 @@ func UcitajSliku(filePath string, matrix [][]mat.Cestica) error {
 	for y := 0; y < newHeight; y++ {
 		for x := 0; x < newWidth; x++ {
 			color := resized.At(x, y).(color.RGBA)
-			var min_dist float64 = Distance(color, uint32(mat.Prazno))
-			var best_mat mat.Materijal = mat.Prazno
+			var minDist = Distance(color, uint32(mat.Prazno))
+			var bestMat mat.Materijal = mat.Prazno
 			for materijal, matBoja := range mat.Boja {
 				if materijal != mat.Zid {
 					var dist = Distance(color, matBoja)
-					if dist < min_dist {
-						min_dist = dist
-						best_mat = materijal
+					if dist < minDist {
+						minDist = dist
+						bestMat = materijal
 					}
 				}
 			}
-			matrix[x][y] = mat.NewCestica(best_mat)
+			matrix[x][y] = mat.NewCestica(bestMat)
 
 			if hasMetadata {
 				pixelData := strings.Split(pixelList[i], ":")

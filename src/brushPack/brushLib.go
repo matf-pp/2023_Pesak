@@ -1,3 +1,6 @@
+//Sadrzi f-je
+//	Brush koja pise/brise po platnu
+//  OblikCetkice koja crta okvir cetke na ekranu
 package brushPack
 
 import (
@@ -10,6 +13,7 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+//da li je shif.... cekaj bre sto je ovo ovde? @luka @nemanja
 var ShiftOn = false
 
 func obojCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32) {
@@ -61,10 +65,8 @@ func obrisiCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32){
 	}
 }
 
+//Brush prima matricu Cestica koordinate Cestice i stanje misa; ne vraca nista; promeni stanje matrice odgovarajuce 
 func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
-	//TODO za srednji klik da uzme materijal na koj mis trenutno pokazuje i postavi ga kao trenutni
-	//ukoliko nije u pitanju Zid ili Prazno. Nije mi pri ruci mis, mrzi me da trazim koj je to stejt -s
-	//a jeste sabani mogli ste ovo trideset puta uraditi danas -s
 	if x > matrixPack.SirinaKan*matrixPack.BrPiksPoCestici {
 		return
 	}
@@ -125,6 +127,7 @@ func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 	}
 }
 
+//OblikCetkice prima bulovsku promenjivu i renderer; nista ne vraca; renderuje okvir cetke
 func OblikCetkice(KruzniBrush bool, renderer *sdl.Renderer) {
 	// njanja: koliko odvratne zagrade
 	if KruzniBrush {

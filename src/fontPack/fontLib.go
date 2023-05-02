@@ -1,3 +1,4 @@
+//Podesavanje fonta i ispisivanje teksta na ekranu
 package fontPack
 
 import (
@@ -12,18 +13,20 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-const FontPath = "./res/fonts/Minecraft.ttf"
-const FontSize = 40
-const OutlineSize = 2
+const fontPath = "./res/fonts/Minecraft.ttf"
+const fontSize = 40
+const outlineSize = 2
 
+//SetFont ne prima nista; vraca font
 func SetFont() *ttf.Font {
-	font, err := ttf.OpenFont(FontPath, int(screenPack.VisinaProzora)/FontSize)
+	font, err := ttf.OpenFont(fontPath, int(screenPack.VisinaProzora)/fontSize)
 	if err != nil {
 		panic(err)
 	}
 	return font
 }
 
+//FontInit nagadjam da inicijalizuje font
 func FontInit() *ttf.Font {
 	var font *ttf.Font
 	err := ttf.Init()
@@ -33,6 +36,7 @@ func FontInit() *ttf.Font {
 	return font
 }
 
+//TextMaker prima font, renderer i matricu Cestica; ne vraca nista; ispisuje odgovarajuci tekst na ekranu
 func TextMaker(font *ttf.Font, renderer *sdl.Renderer, matrica [][]mat.Cestica) {
 	var infoText = ""
 	// PESAK
@@ -74,7 +78,7 @@ func TextMaker(font *ttf.Font, renderer *sdl.Renderer, matrica [][]mat.Cestica) 
 			if err != nil {
 				panic(err)
 			}
-			renderer.Copy(texture, nil, &sdl.Rect{X: 3*matrixPack.BrPiksPoCestici - OutlineSize/2, Y: 3*matrixPack.BrPiksPoCestici - OutlineSize/2, W: width, H: height})
+			renderer.Copy(texture, nil, &sdl.Rect{X: 3*matrixPack.BrPiksPoCestici - outlineSize/2, Y: 3*matrixPack.BrPiksPoCestici - outlineSize/2, W: width, H: height})
 		}
 		defer texture.Destroy()
 	}

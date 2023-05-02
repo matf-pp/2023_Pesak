@@ -1,9 +1,11 @@
+//Osobine svih materijala (u globalnim mapama) i njihove interakcije (u funkcijama Update_) nalaze se ovde
 package mat
 
 import (
 	"math/rand"
 )
 
+//Smer gravitacije
 var Obrnuto = 1
 
 type Materijal int
@@ -33,6 +35,7 @@ const (
 	Zid       Materijal = 256
 )
 
+//Ime materijala koje se ispisuje pri haverovanju misem preko cestice ili dugmeta
 var Ime = map[Materijal]string{
 	Prazno:    "Prazno",
 	Metal:     "Metal",
@@ -58,6 +61,7 @@ var Ime = map[Materijal]string{
 	Zid:       "Zid",
 }
 
+//Boja cestice (za neke materijale se zove funkcija koja u obzir uzima druge osobine)
 var Boja = map[Materijal]uint32{
 	Prazno:    0x000000,
 	Metal:     0x33334b,
@@ -83,7 +87,7 @@ var Boja = map[Materijal]uint32{
 	Zid:       0xffffff,
 }
 
-// pls samo ne dirajte ovo a ako zelite nesto drugo nazvati gustina promenite naziv ovoga i sve njegove pojave u kodu, hvala -s
+//Broj odredjuje prioritet plutanja
 var Gustina = map[Materijal]int32{
 	Prazno:    0,
 	Metal:     0,
@@ -106,6 +110,8 @@ var Gustina = map[Materijal]int32{
 	Plazma:    0,
 	Zid:       0,
 }
+
+//Boja cestica u takozvanom Gustina modu
 var GustinaBoja = map[Materijal]uint32 {
 	Prazno: 	0xc8c8c8,
 	Metal:  	0x00ff00,
@@ -118,12 +124,12 @@ var GustinaBoja = map[Materijal]uint32 {
 	Rdja:      	0x00ff00,
 	Lava:   	0x00c800,
 	Voda:   	0x005000,
-	Zejtin:     0x00aa00,//@luka molim popuni -s // oki /limun
+	Zejtin:     0x00aa00,
 	Kiselina:   0x005800,
 	SlanaVoda: 	0x005a00,
 	Para:   	0xc800c8,
 	Vatra:     	0xc800c8,
-	Dim:        0xfa00fa,//@luka molim popuni -s // doki /limun
+	Dim:        0xfa00fa,
 	TecniAzot: 	0x006400,
 	Plazma:    	0xff00ff,
 	Zid:		0,
@@ -134,6 +140,7 @@ var GustinaBoja = map[Materijal]uint32 {
 // --1- pada dijagonalno
 // -1-- curi horizontalno
 // 1--- pomera se nasumicno svuda
+//u zavisnosti od bitova materijal se ponasa drugacije u funkciji UpdatePosition
 var AStanje = map[Materijal]int{
 	Prazno:    0b1111,
 	Metal:     0b0000,
@@ -157,6 +164,7 @@ var AStanje = map[Materijal]int{
 	Zid:       0b0000,
 }
 
+//Odredjuje pri kojim temperaturama koj materijal prelazi u koj drugi
 type FaznaPromena struct {
 	Nize           Materijal
 	Vise           Materijal
@@ -164,6 +172,8 @@ type FaznaPromena struct {
 	TackaKljucanja uint64
 }
 
+
+//vidi FaznaPromena strukturu
 var MapaFaza = map[Materijal]FaznaPromena{
 
 	//k(c) = c+273.15
@@ -198,6 +208,7 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Zid:       {Zid, Zid, MinTemp, MaxTemp},
 }
 
+//Minimalna imaksimalna temperatura koje dozvoljavamo
 const MinTemp uint64 = 0      // 0.00k
 const MaxTemp uint64 = 827315 //8000.00c
 
@@ -224,6 +235,7 @@ var Zapaljiv = map[Materijal]bool{
 	Zid:       false,
 }
 
+//Struktura u kojoj cuvamo sve potrebne informacije o cestici
 type Cestica struct {
 	Materijal   Materijal
 	Temperatura uint64
@@ -232,6 +244,7 @@ type Cestica struct {
 	Ticker      int32
 }
 
+//NewCestica prima Materijal, konstruise novu Cesticu i vraca je
 func NewCestica(materijal Materijal) Cestica {
 	zrno := Cestica{
 		Materijal:   materijal,
@@ -275,6 +288,7 @@ func NewCestica(materijal Materijal) Cestica {
 	return zrno
 }
 
+//UpdateTemp prima matricu Cestica i koordinate jedne, na osnovu trenutnih temperatura sebe i suseda racuna narednu temperaturu, smesta je u BaferTemp (unutar mejna se BaferTemp primenjuje)
 func UpdateTemp(matrix [][]Cestica, i int, j int) {
 	if matrix[i][j].Materijal == Zid {
 		matrix[i][j].BaferTemp = 29315
@@ -312,6 +326,11 @@ func UpdateTemp(matrix [][]Cestica, i int, j int) {
 const vatraTiker = 16
 const dimTiker = 64
 
+//UpdatePhaseOfMatter vrsi promenu cestica iz jednog u drugi materijal, ukoliko je to potrebno
+//agregatno stanje u odnosu na temperaturu
+//nagrizanje kiseline
+//gorenje zapaljivih materijala
+//itd
 func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 
 //	izvinjenej svakome ko cita ovu funkciju
@@ -322,6 +341,8 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 //	1) ne bi smanjilo performans
 //	2) bi moglo da se izdvoji
 //	3) ne bi dodatno zakomplikovalo kod
+
+//p.s. jasno mi je da se ovo nikada nece desiti
 
 	if matrix[i][j].Materijal == Zid {
 		return
@@ -528,6 +549,7 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 
 }
 
+//UpdatePosition radi promenu pozicije cestice ukoliko je moguce i potrebno
 func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	//padanje
 

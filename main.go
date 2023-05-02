@@ -336,13 +336,7 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 		fmt.Printf("mat.Materijal: %d\t", screenPack.TrenutniMat)
 		fmt.Printf("velicina: %d\t", screenPack.VelicinaKursora)
 		fmt.Printf("pauza: %t\t", matrixPack.Pause)
-		if !korisnikJeLimun {
-			fmt.Printf("brCestica: %d\n", brCestica)
-			//			fmt.Printf("brLave: %d\n", brLave)
-			//			fmt.Printf("brKamena: %d\n", brKamena)
-		} else {
-			fmt.Printf("\n")
-		}
+		fmt.Printf("\n")
 	}
 
 	brushPack.Brush(matrix, x, y, state)
@@ -351,12 +345,8 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 
 }
 
-var brCestica int = 0
-var brLave int = 0
-var brKamena int = 0
 
 func update(matrix [][]mat.Cestica) {
-	brCestica, brKamena, brLave = matrixPack.IzbrojiCesticeKamenLavu(matrix)
 
 	for j := 1; j < matrixPack.VisinaKan-1; j++ {
 		for i := 1; i < matrixPack.SirinaKan-1; i++ {
@@ -377,7 +367,6 @@ func update(matrix [][]mat.Cestica) {
 			if temperatura < matrixPack.MinTempRendered {
 				matrixPack.MinTempRendered = temperatura
 			}
-			//todo smisli sta sa tikerima
 		}
 	}
 	for j := 1; j < matrixPack.VisinaKan-1; j++ {

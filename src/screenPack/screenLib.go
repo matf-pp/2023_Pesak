@@ -12,6 +12,7 @@ import (
 
 var AutoFitScreen = true
 
+//brate ono dimenzije margine i dugmadi pored platna
 var SirinaUIMargine int32 = 10
 var VisinaUIMargine int32 = 10
 var SirinaDugmeta int32 = 40
@@ -19,11 +20,14 @@ var VisinaDugmeta int32 = 20
 
 // njanja: gumb magija ne radi kad nije u mejnu stignite ako hoćete
 // ja sada: https://cdn.discordapp.com/emojis/1068966756556738590.webp
+
+//BrojMaterijala brate sve ovo je ja mislim dovoljno recito nazvano i ja nemam vise ni snage ni volje da
+//igram po melodiji ovog ukletog ocenjivaca nastavicu neki drugi dan ili nek neko preuzme -s
 var BrojMaterijala = len(mat.Boja) + 2
 var BrojSpecijalnihGumbadi int32 = 3
 var BrojGumbadiPoKoloni int32 = VisinaProzora/(VisinaDugmeta+VisinaUIMargine) - (BrojSpecijalnihGumbadi)
 var BrojKolona int32 = int32(math.Ceil(float64(BrojMaterijala) / float64(BrojGumbadiPoKoloni)))
-var MarginaZaGumbad int32 = 2*SirinaUIMargine + SirinaDugmeta
+var MarginaZaGumbad = 2*SirinaUIMargine + SirinaDugmeta
 var SirinaProzora = matrixPack.SirinaKan*matrixPack.BrPiksPoCestici + MarginaZaGumbad
 var VisinaProzora = matrixPack.VisinaKan * matrixPack.BrPiksPoCestici
 
@@ -195,18 +199,16 @@ func SledeciMaterijal() {
 	if TrenutniMat < 16 {
 		TrenutniMat++
 		return
-	} else {
-		TrenutniMat = 0
-		return
 	}
+	TrenutniMat = 0
+	return
 }
 
 func PrethodniMaterijal() {
 	if TrenutniMat > 0 {
 		TrenutniMat--
 		return
-	} else {
-		TrenutniMat = 16
-		return
 	}
+	TrenutniMat = 16
+	return
 }

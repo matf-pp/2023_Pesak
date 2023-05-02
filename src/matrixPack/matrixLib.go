@@ -1,3 +1,5 @@
+//f-je za pravljenje platna, racunanje boje cestica, crtanje platna
+//varijiable koje odredjuju sta ce se crtati na ekranu
 package matrixPack
 
 import (
@@ -12,22 +14,26 @@ import (
 
 // mora ovo ovde /limun
 var BrPiksPoCestici int32 = 9000
-
 const SirinaKan, VisinaKan = 240, 135
 
-var Pause bool = false
-var TMode bool = false
-var NMode bool = false
-var DMode bool = false
-var TxtMode bool = true
-var ResetSound bool = false
+//stanje simulacije, koju sliku prikazivati, koju cetku itditd
+var Pause = false
+var TMode = false
+var NMode = false
+var DMode = false
+var TxtMode = true
+//da li pustiti pesmu od pocetka
+//, nagadjam
+var ResetSound = false
 var KruzniBrush = true
 
+//ClampCoords prima koordinate i ukoliko su one van kanvasa vraca njihove projekcije na ivice
 func ClampCoords(x int32, y int32) (int32, int32) {
 	return mathPack.MinInt32(mathPack.MaxInt32(x, 0), SirinaKan-1),
 		mathPack.MinInt32(mathPack.MaxInt32(y, 0), VisinaKan-1)
 }
 
+//ZazidajMatricu dodaje dva sloja piksela Zida oko celog platna
 func ZazidajMatricu(matrix [][]mat.Cestica) [][]mat.Cestica {
 	for i := 0; i < SirinaKan; i++ {
 		matrix[i][0], matrix[i][VisinaKan-1] = mat.NewCestica(mat.Zid), mat.NewCestica(mat.Zid)
@@ -40,6 +46,8 @@ func ZazidajMatricu(matrix [][]mat.Cestica) [][]mat.Cestica {
 	return matrix
 }
 
+//NapraviSlajs je konstruktor matrice Cestica
+//TODO mozda da prima dimenzije, a one mogu biti i negde drugde
 func NapraviSlajs() [][]mat.Cestica {
 	slajs := make([][]mat.Cestica, SirinaKan)
 	for i := 0; i < SirinaKan; i++ {
@@ -52,10 +60,11 @@ func NapraviSlajs() [][]mat.Cestica {
 	return slajs
 }
 
+//Render valjda slika matricu na ekran otkud znam,,,,
 func Render(matrix [][]mat.Cestica, renderer *sdl.Renderer, texture *sdl.Texture, pixels []byte, simWidth, simHeight int32) {
 
-	var count int = 0
-	var hexColor uint32 = 0
+	var count int
+	var hexColor uint32
 	for i := 0; i < VisinaKan; i++ {
 		for j := 0; j < SirinaKan; j++ {
 			if TMode {
@@ -87,9 +96,11 @@ func Render(matrix [][]mat.Cestica, renderer *sdl.Renderer, texture *sdl.Texture
 	renderer.Copy(texture, nil, &sdl.Rect{X: 0, Y: 0, W: simWidth, H: simHeight})
 }
 
+//maksimalna i minimalna temperatura na platnu, koristimo za dinamicko bojenje u toplotnom modu
 var MinTempRendered uint64 = 29315
 var MaxTempRendered uint64 = 29316
 
+//IzracunajBoju racuna boju cestica za one koje se specilajno racunaju
 func IzracunajBoju(zrno mat.Cestica) uint32 {
 
 	var boja uint32
@@ -113,9 +124,9 @@ func IzracunajBoju(zrno mat.Cestica) uint32 {
 		boja = boje[zrno.Ticker]
 	} else if zrno.Materijal == mat.Drvo && zrno.Temperatura > 47315 { //200.00c
 		temperatura := zrno.Temperatura
-		var crvenaKomponenta uint32 = uint32(0x99 * (87315 - temperatura + 47315) / 87315)
-		var plavaKomponenta uint32 = uint32(0 * (87315 - temperatura + 47315) / 87315)
-		var zelenaKomponenta uint32 = uint32(0x44 * (87315 - temperatura + 47315) / 87315)
+		var crvenaKomponenta = uint32(0x99 * (87315 - temperatura + 47315) / 87315)
+		var plavaKomponenta = uint32(0 * (87315 - temperatura + 47315) / 87315)
+		var zelenaKomponenta = uint32(0x44 * (87315 - temperatura + 47315) / 87315)
 		boja = (crvenaKomponenta*256+zelenaKomponenta)*256 + plavaKomponenta
 	}
 
@@ -123,6 +134,7 @@ func IzracunajBoju(zrno mat.Cestica) uint32 {
 
 }
 
+//IzracunajTempBoju racuna boju cestica u zavisnosti od njihove temperature
 func IzracunajTempBoju(zrno mat.Cestica) uint32 {
 	//	minTemp := mat.MinTemp
 	//	maxTemp := mat.MaxTemp
@@ -143,11 +155,12 @@ func IzracunajTempBoju(zrno mat.Cestica) uint32 {
 		crvenaKomponenta, plavaKomponenta, zelenaKomponenta = crvenaKomponenta/2, plavaKomponenta/2, zelenaKomponenta/2
 	}
 
-	var boja uint32 = (crvenaKomponenta*256+zelenaKomponenta)*256 + plavaKomponenta
+	var boja = (crvenaKomponenta*256+zelenaKomponenta)*256 + plavaKomponenta
 	return boja
 	/**/
 }
 
+//IzracunajGustBoju racuna boju cestica u zavisnosti od njihove "gustine"
 func IzracunajGustBoju(gust int32) uint32 {
 	if gust > 0 {
 		gust *= 255 / 10
@@ -168,22 +181,4 @@ func IzracunajGustBoju(gust int32) uint32 {
 	}
 
 	return uint32(gustBoja)
-}
-
-func IzbrojiCesticeKamenLavu(matrix [][]mat.Cestica) (int, int, int) {
-	x, y, z := 0, 0, 0
-	for j := 1; j < VisinaKan-1; j++ {
-		for i := 1; i < SirinaKan-1; i++ {
-			if matrix[i][j].Materijal != mat.Prazno {
-				x++
-			}
-			if matrix[i][j].Materijal == mat.Lava {
-				y++
-			}
-			if matrix[i][j].Materijal == mat.Kamen {
-				z++
-			}
-		}
-	}
-	return x, y, z
 }
