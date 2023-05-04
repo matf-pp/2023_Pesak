@@ -9,7 +9,7 @@ import (
 	"main/src/matrixPack"
 	"main/src/screenPack"
 
-	"fmt"
+	//"fmt"
 	"math/rand"
 
 	// ako mix zabaguje, $export CGO_CFLAGS=-I/usr/include/SDL2 	/limun
@@ -18,16 +18,8 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-// njanja: pazite ovo
-const korisnikNijeNanja = false
-const korisnikJeLimun = false
-
-// njanja: ovo je loša praksa majmuni
-// e a reci je l si provalio bukvalno je kao `using` u cpp -s
 var boja = mat.Boja
 
-// FPS cap, kontam da je zgodno za testiranje staviti neki nizak, 0 = unlimited
-// 250 FPS-a ?!?!?!?! /limun
 var fpsCap = 0
 
 var pozadinaGuia uint32 = 0x111122
@@ -35,7 +27,6 @@ var pozadinaGuia uint32 = 0x111122
 var keystates = sdl.GetKeyboardState()
 
 func main() {
-	// koji procenat ekrana želimo da nam igrica zauzme (probajte da ukucate 0 ili -50 ili tako nešto wild) (spojler: radiće)
 	if screenPack.AutoFitScreen {
 		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(40)
 	}
@@ -97,8 +88,6 @@ func main() {
 			_ = mix.VolumeMusic(musicPack.Zvuk)
 		}
 
-		// njanja: ovo je vraćalo surface? nz je l to potrebno ???
-		// ne znam ni ja /limun
 		screenPack.RenderujGumbZaSveMaterijale(renderer)
 		var hexColor uint32
 
@@ -108,7 +97,6 @@ func main() {
 		renderer.FillRect(&brushGumb)
 
 		plejGumb := screenPack.CreateSpecialGumb(3)
-		// todo: izbeći ove konverzije i samo koristiti rgba direktno
 		if matrixPack.Pause {
 			hexColor = 0x00ff00
 		} else {
@@ -131,8 +119,6 @@ func main() {
 			fontPack.TextMaker(font, renderer, matrica)
 		}
 
-		//window.UpdateSurface()
-
 		brushPack.OblikCetkice(matrixPack.KruzniBrush, renderer)
 
 		renderer.SetDrawColor(uint8(pozadinaGuia>>16), uint8(pozadinaGuia>>8), uint8(pozadinaGuia), 255)
@@ -142,7 +128,6 @@ func main() {
 			expectedFrameTime := uint64(1000 / fpsCap)
 			realFrameTime := sdl.GetTicks64() - startTime
 			if expectedFrameTime > realFrameTime {
-				// o moj bože molim vas jedan jedini int ko je mislio da je ovo dobra ideja
 				sdl.Delay(uint32(expectedFrameTime - realFrameTime))
 			}
 		}
@@ -156,12 +141,10 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 	keystates = sdl.GetKeyboardState()
 
 	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-		// njanja: switch event.(type) -> switch t := event.(type)
 		switch t := event.(type) {
 		case *sdl.QuitEvent:
 			running = false
 
-		// ne volim ovo /limun
 		case *sdl.KeyboardEvent:
 			if keystates[sdl.SCANCODE_ESCAPE] != 0 {
 				running = false
@@ -254,9 +237,6 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				}
 			}
 			if keystates[sdl.SCANCODE_X] != 0 {
-				// do daske! /limun
-				// njanja: e isk msm da je difolt preglasan
-				// ja držim nisko zvuk pa je možda do toga /limun
 				musicPack.Zvuk += 5
 			}
 			if keystates[sdl.SCANCODE_B] != 0 {
@@ -271,10 +251,6 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				mat.Obrnuto *= -1
 			}
 
-		// njanja: za ovo mi je potreban diskretan klik a ne frejm sa dugmetom dole
-		// p.s. hoćemo da ostavimo komentare ristoviću da ih vidi
-		// boze pomogi -s
-		// paa, barem imajte naznaku za svaku liniju čiji je čiji /limun
 		case *sdl.MouseButtonEvent:
 			if t.State == sdl.PRESSED {
 				screenPack.ProveriPritisakNaGumb(matrix, t.X, t.Y)
@@ -299,12 +275,10 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				}
 			}
 
-		// drag and drop slike je odmah učitava
 		case *sdl.DropEvent:
 			dropEvent := event.(*sdl.DropEvent)
 			if dropEvent.Type == sdl.DROPFILE {
 				filePath := string(dropEvent.File)
-				// njanja: todo dodati support za bmp i webp
 
 				err := screenPack.UcitajSliku(filePath, matrix)
 				if err != nil {
@@ -325,18 +299,6 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 	}
 	if y > 0 && y < screenPack.VisinaProzora {
 		screenPack.KursorPoslednjiY = y
-	}
-
-	if korisnikNijeNanja {
-		//		fmt.Printf("x: %d ", x)
-		//		fmt.Printf("y: %d\t", y)
-		//		fmt.Printf("xpx: %d ", x/matrixPack.BrPiksPoCestici)
-		//		fmt.Printf("ypx: %d\t", y/matrixPack.BrPiksPoCestici)
-		fmt.Printf("mb: %d\t", state)
-		fmt.Printf("mat.Materijal: %d\t", screenPack.TrenutniMat)
-		fmt.Printf("velicina: %d\t", screenPack.VelicinaKursora)
-		fmt.Printf("pauza: %t\t", matrixPack.Pause)
-		fmt.Printf("\n")
 	}
 
 	brushPack.Brush(matrix, x, y, state)

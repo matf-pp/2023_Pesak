@@ -135,12 +135,12 @@ var GustinaBoja = map[Materijal]uint32 {
 	Zid:		0,
 }
 
-// 0000 nece on nidje
-// ---1 pada direkt
+// 0000 ne pomera se
+// ---1 pada direktno
 // --1- pada dijagonalno
 // -1-- curi horizontalno
 // 1--- pomera se nasumicno svuda
-//u zavisnosti od bitova materijal se ponasa drugacije u funkciji UpdatePosition
+// u zavisnosti od bitova materijal se ponasa drugacije u funkciji UpdatePosition
 var AStanje = map[Materijal]int{
 	Prazno:    0b1111,
 	Metal:     0b0000,
@@ -217,17 +217,17 @@ var Zapaljiv = map[Materijal]bool{
 	Metal:     false,
 	Led:       false,
 	Kamen:     false,
-	Drvo:      true, ///omggggg sooo truueeee bestieeeeee slayyyy queeen
+	Drvo:      true,
 	Sljunak:   false,
 	Pesak:     false,
 	So:        false,
 	Rdja:      false,
 	Lava:      false,
 	Voda:      false,
-	Zejtin:    true, //hvala Bogu najzad jos nesto sem drveta.. //da inace jasno mi je ako necega nema u mapi difolt je false i sve ove false linije su suvisne pa sta je l smeta nekome citak kod makar negde u celom projektu ;_;
+	Zejtin:    true,
 	SlanaVoda: false,
 	Para:      false,
-	Vatra:     false, ///da li je voda mokra xDDD
+	Vatra:     false,
 	Dim:       false,
 	TecniAzot: false,
 	Kiselina:  false,
@@ -251,7 +251,8 @@ func NewCestica(materijal Materijal) Cestica {
 		Temperatura: 29315, //20.00c
 		BaferTemp:   0,
 		SekMat:      Prazno,
-		Ticker:      1023, //za rdju gorivo itd, opada po principu nuklearnog raspada (svaki frejm ima x% sanse da ga dekrementira, na 0 prelazi u drugo stanje)
+		Ticker:      1023, //za rdju, gorivo i druge, opada po principu nuklearnog raspada
+						   //(svaki frejm ima x% sanse da ga dekrementira, na 0 prelazi u drugo stanje)
 	}
 	if materijal == Led {
 		zrno.SekMat = Voda
@@ -296,7 +297,6 @@ func UpdateTemp(matrix [][]Cestica, i int, j int) {
 	}
 	trenutna := matrix[i][j]
 
-	/**/
 	temperatura := trenutna.Temperatura
 	parcePice := float32(temperatura) / 9
 	for k := -1; k < 2; k++ {
@@ -320,7 +320,6 @@ func UpdateTemp(matrix [][]Cestica, i int, j int) {
 		}
 	}
 	matrix[i][j].BaferTemp += temperatura
-	/**/
 }
 
 const vatraTiker = 16
@@ -332,17 +331,7 @@ const dimTiker = 64
 //gorenje zapaljivih materijala
 //itd
 func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
-
-//	izvinjenej svakome ko cita ovu funkciju
-//od celog projekta ovo je najruzniji i najgore napisan deo
-//ALI ono sto je bitno je da radi (:
-
-//TODO: srediti sve ovo, izbaciti u funkcije i interfejse sve sto:
-//	1) ne bi smanjilo performans
-//	2) bi moglo da se izdvoji
-//	3) ne bi dodatno zakomplikovalo kod
-
-//p.s. jasno mi je da se ovo nikada nece desiti
+// ono sto je bitno je da radi (:
 
 	if matrix[i][j].Materijal == Zid {
 		return
@@ -429,7 +418,7 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 		}
 	}
 
-	if materijal == So { //Gospode oprosti mi za ovaj blok koda bio sam mlad i naivan nisam znao za bolje -s
+	if materijal == So {
 		rFaktor := rand.Intn(2)*2 - 1
 
 		if matrix[i][j+1].Materijal == Voda {
@@ -616,7 +605,6 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 			return
 		}
 	}
-	/**/
 	// proverava moze li se zameniti ne samo sa horizontalnim susedom vec i sa dva odjednom, da bi se brze iznivelisala
 	if (astanje & 0b0100) != 0 {
 		rFaktor := rand.Intn(2)*2 - 1 //{-1, 1}
@@ -640,7 +628,6 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 		pomeren = true
 
 	}
-	/**/
 
 	if pomeren {
 		return

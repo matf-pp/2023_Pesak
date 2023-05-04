@@ -1,4 +1,4 @@
-//Sadrzi f-je
+//	Sadrzi f-je
 //	Brush koja pise/brise po platnu
 //  OblikCetkice koja crta okvir cetke na ekranu
 package brushPack
@@ -13,7 +13,7 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-//da li je shif.... cekaj bre sto je ovo ovde? @luka @nemanja
+//da li je Shift on/off
 var ShiftOn = false
 
 func obojCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32) {
@@ -40,10 +40,6 @@ func obojCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32) {
 
 func obrisiCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32){
 	if matrix[tx][ty].Materijal != mat.Zid {
-		//napomenuo bih da prazne cestice ovde brisemo i pravimo opet da bismo resetovali temp
-		//inace bi bilo efikasnije samo postaviti im Materijal na Prazno, NAGADJAM
-		//takodje mozda je brze izmeniti polja cestice nego praviti novu, ne znam, ostavio bih to bencmarkingu
-
 		//ako je selektovan materijal ili brisanje brisi, u suprotnom kontriraj selektovanu toplotu
 		if screenPack.TrenutniMat != mat.Toplo && screenPack.TrenutniMat != mat.Hladno {
 			matrix[tx][ty] = mat.NewCestica(mat.Prazno)
@@ -129,7 +125,6 @@ func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 
 //OblikCetkice prima bulovsku promenjivu i renderer; nista ne vraca; renderuje okvir cetke
 func OblikCetkice(KruzniBrush bool, renderer *sdl.Renderer) {
-	// njanja: koliko odvratne zagrade
 	if KruzniBrush {
 		// krug
 		renderer.SetDrawColor(255, 255, 255, 255)

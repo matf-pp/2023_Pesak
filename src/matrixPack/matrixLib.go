@@ -12,7 +12,6 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-// mora ovo ovde /limun
 var BrPiksPoCestici int32 = 9000
 const SirinaKan, VisinaKan = 240, 135
 
@@ -23,7 +22,6 @@ var NMode = false
 var DMode = false
 var TxtMode = true
 //da li pustiti pesmu od pocetka
-//, nagadjam
 var ResetSound = false
 var KruzniBrush = true
 
@@ -47,7 +45,6 @@ func ZazidajMatricu(matrix [][]mat.Cestica) [][]mat.Cestica {
 }
 
 //NapraviSlajs je konstruktor matrice Cestica
-//TODO mozda da prima dimenzije, a one mogu biti i negde drugde
 func NapraviSlajs() [][]mat.Cestica {
 	slajs := make([][]mat.Cestica, SirinaKan)
 	for i := 0; i < SirinaKan; i++ {
@@ -60,7 +57,7 @@ func NapraviSlajs() [][]mat.Cestica {
 	return slajs
 }
 
-//Render valjda slika matricu na ekran otkud znam,,,,
+//Render slika matricu na ekran
 func Render(matrix [][]mat.Cestica, renderer *sdl.Renderer, texture *sdl.Texture, pixels []byte, simWidth, simHeight int32) {
 
 	var count int
@@ -124,10 +121,10 @@ func IzracunajBoju(zrno mat.Cestica) uint32 {
 		boja = boje[zrno.Ticker]
 	} else if zrno.Materijal == mat.Drvo && zrno.Temperatura > 47315 { //200.00c
 		temperatura := zrno.Temperatura
-		var crvenaKomponenta = uint32(0x99 * (87315 - temperatura + 47315) / 87315)
-		var plavaKomponenta = uint32(0 * (87315 - temperatura + 47315) / 87315)
-		var zelenaKomponenta = uint32(0x44 * (87315 - temperatura + 47315) / 87315)
-		boja = (crvenaKomponenta*256+zelenaKomponenta)*256 + plavaKomponenta
+		var crvena = uint32(0x99 * (87315 - temperatura + 47315) / 87315)
+		var plava = uint32(0 * (87315 - temperatura + 47315) / 87315)
+		var zelena = uint32(0x44 * (87315 - temperatura + 47315) / 87315)
+		boja = (crvena*256+zelena)*256 + plava
 	}
 
 	return boja
@@ -136,9 +133,6 @@ func IzracunajBoju(zrno mat.Cestica) uint32 {
 
 //IzracunajTempBoju racuna boju cestica u zavisnosti od njihove temperature
 func IzracunajTempBoju(zrno mat.Cestica) uint32 {
-	//	minTemp := mat.MinTemp
-	//	maxTemp := mat.MaxTemp
-
 	temperatura := zrno.Temperatura
 
 	// tMin         temp                  tMax
@@ -147,17 +141,16 @@ func IzracunajTempBoju(zrno mat.Cestica) uint32 {
 	//	(temp - tMin) / (tMax - tMin) = xx / 255
 	// xx = 255(temp-tMin)/(tMax-tMin)
 
-	var crvenaKomponenta uint32 = uint32(255 * (temperatura - MinTempRendered) / (MaxTempRendered - MinTempRendered))
-	var plavaKomponenta uint32 = uint32(255 - crvenaKomponenta)
-	var zelenaKomponenta uint32 = uint32(63)
+	var crvena uint32 = uint32(255 * (temperatura - MinTempRendered) / (MaxTempRendered - MinTempRendered))
+	var plava uint32 = uint32(255 - crvena)
+	var zelena uint32 = uint32(63)
 
 	if zrno.Materijal == mat.Prazno {
-		crvenaKomponenta, plavaKomponenta, zelenaKomponenta = crvenaKomponenta/2, plavaKomponenta/2, zelenaKomponenta/2
+		crvena, plava, zelena = crvena/2, plava/2, zelena/2
 	}
+	var boja = (crvena*256+zelena)*256 + plava
 
-	var boja = (crvenaKomponenta*256+zelenaKomponenta)*256 + plavaKomponenta
 	return boja
-	/**/
 }
 
 //IzracunajGustBoju racuna boju cestica u zavisnosti od njihove "gustine"

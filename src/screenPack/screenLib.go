@@ -12,17 +12,11 @@ import (
 
 var AutoFitScreen = true
 
-//brate ono dimenzije margine i dugmadi pored platna
 var SirinaUIMargine int32 = 10
 var VisinaUIMargine int32 = 10
 var SirinaDugmeta int32 = 40
 var VisinaDugmeta int32 = 20
 
-// njanja: gumb magija ne radi kad nije u mejnu stignite ako hoćete
-// ja sada: https://cdn.discordapp.com/emojis/1068966756556738590.webp
-
-//BrojMaterijala brate sve ovo je ja mislim dovoljno recito nazvano i ja nemam vise ni snage ni volje da
-//igram po melodiji ovog ukletog ocenjivaca nastavicu neki drugi dan ili nek neko preuzme -s
 var BrojMaterijala = len(mat.Boja) + 2
 var BrojSpecijalnihGumbadi int32 = 3
 var BrojGumbadiPoKoloni int32 = VisinaProzora/(VisinaDugmeta+VisinaUIMargine) - (BrojSpecijalnihGumbadi)
@@ -34,15 +28,12 @@ var VisinaProzora = matrixPack.VisinaKan * matrixPack.BrPiksPoCestici
 var KursorPoslednjiX = int32(0)
 var KursorPoslednjiY = int32(0)
 
-// var velicinaKursora int32 = 4
 var VelicinaKursora int32 = 8
 var MaxKursor int32 = 64
 var GUIBoja uint32 = 0x111122
 
 var TrenutniMat mat.Materijal = mat.Pesak
 
-// takozvano dinamičko skaliranje ekrana ili nešto ne znam lupio sam
-// ako ovo ikada u praksi izbaci nešto što ne staje u ekran javite mi da ga sredim ali mislim da je to besmislen posao
 func FitToScreen(screenPercentage int) (int32, int32, int32) {
 	resolution := screenresolution.GetPrimary()
 	adjustedScale := int32((float64(screenPercentage) / float64(100)) * float64(resolution.Height) / float64(matrixPack.VisinaKan))
@@ -57,12 +48,10 @@ func FitToScreen(screenPercentage int) (int32, int32, int32) {
 
 func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
 	if x > SirinaProzora-MarginaZaGumbad+SirinaUIMargine && x < SirinaProzora-SirinaUIMargine {
-		// materijali
 		if y < (VisinaUIMargine+VisinaDugmeta)*int32(len(mat.Boja)-1) && y%(VisinaUIMargine+VisinaDugmeta) > VisinaUIMargine {
 			TrenutniMat = mat.Materijal(y / (VisinaUIMargine + VisinaDugmeta))
 		}
 
-		// njanja: hardkodovan broj specijalnih dugmića hvala bogu
 		// BRUSH SHAPE
 		if y > VisinaProzora-4*(VisinaDugmeta+VisinaUIMargine) && y < VisinaProzora-4*(VisinaDugmeta+VisinaUIMargine)+VisinaDugmeta {
 			matrixPack.KruzniBrush = !matrixPack.KruzniBrush
@@ -120,7 +109,6 @@ func CreateRenderer(window *sdl.Window) *sdl.Renderer {
 	return renderer
 }
 
-// njanja: mislim da se više ne ređaju u više kolona otkad je struktura promenjena TODO
 func RenderujGumbZaSveMaterijale(renderer *sdl.Renderer) {
 	for i, _ := range mat.Boja {
 		if i == TrenutniMat {
@@ -141,8 +129,6 @@ func RenderujGumbZaSveMaterijale(renderer *sdl.Renderer) {
 		renderer.SetDrawColor(uint8(mat.Boja[i]>>16), uint8(mat.Boja[i]>>8), uint8(mat.Boja[i]), 255)
 		renderer.FillRect(&gumb)
 	}
-	// zašto je ovo vraćalo surface
-	// ne sećam se, možda je bio neki check /limun
 }
 
 func CreateSpecialGumb(index int32) sdl.Rect {
