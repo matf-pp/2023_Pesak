@@ -1,5 +1,5 @@
-//f-je za pravljenje platna, racunanje boje cestica, crtanje platna
-//varijiable koje odredjuju sta ce se crtati na ekranu
+//Package matrixPack sadrzi f-je za pravljenje platna, racunanje boje cestica,
+//crtanje platna i varijiable koje odredjuju sta ce se crtati na ekranu
 package matrixPack
 
 import (
@@ -12,8 +12,12 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+//BrPiksPoCestici je konstanta i odredjuje koliko je svaka cestica "fina"
 var BrPiksPoCestici int32 = 9000
-const SirinaKan, VisinaKan = 240, 135
+//SirinaKan je sirina rezolucije prozora
+const SirinaKan = 240
+//VisinaKan je visina rezolucije prozora
+const VisinaKan = 135
 
 //Pause odredjuje da li je igra pauzirana
 var Pause = false
@@ -147,9 +151,12 @@ func IzracunajTempBoju(zrno mat.Cestica) uint32 {
 	//	(temp - tMin) / (tMax - tMin) = xx / 255
 	// xx = 255(temp-tMin)/(tMax-tMin)
 
-	var crvena uint32 = uint32(255 * (temperatura - MinTempRendered) / (MaxTempRendered - MinTempRendered))
-	var plava uint32 = uint32(255 - crvena)
-	var zelena uint32 = uint32(63)
+	//crvena je uint32 iz skupa [0, 255]
+	var crvena = uint32(255 * (temperatura - MinTempRendered) / (MaxTempRendered - MinTempRendered))
+	//plava je uint32 iz skupa [0, 255]
+	var plava = uint32(255 - crvena)
+	//zelena je uint32 iz skupa [0, 255]
+	var zelena = uint32(63)
 
 	if zrno.Materijal == mat.Prazno {
 		crvena, plava, zelena = crvena/2, plava/2, zelena/2

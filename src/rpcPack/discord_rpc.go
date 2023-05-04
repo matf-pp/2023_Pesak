@@ -1,4 +1,4 @@
-//package rpcPack sluzi za Discord rich presence u Pesku
+//Package rpcPack sluzi za Discord rich presence u Pesku
 package rpcPack
 
 import (

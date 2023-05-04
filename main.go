@@ -1,3 +1,4 @@
+//Package main je glavni paket Peska
 package main
 
 import (

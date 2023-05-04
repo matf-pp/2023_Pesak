@@ -1,4 +1,4 @@
-//Podesavanje fonta i ispisivanje teksta na ekranu
+//Package fontPack sluzi za podesavanje fonta i ispisivanje teksta na ekranu
 package fontPack
 
 import (

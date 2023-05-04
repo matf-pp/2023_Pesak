@@ -1,11 +1,13 @@
-//paket za pustanje muzike
+//Package musicPack je paket za pustanje muzike
 package musicPack
 
 import (
 	"github.com/veandco/go-sdl2/mix"
 )
 
+//Mutirana odredjuje da li je muzika utisana na 0 ili nije
 var Mutirana = false
+//Zvuk odredjuje jacinu muzike
 var Zvuk = 33
 
 //MusicInit inicira muziku

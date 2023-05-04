@@ -1,4 +1,4 @@
-//	Sadrzi f-je
+//	Package brushPack sadrzi f-je
 //	Brush koja pise/brise po platnu
 //  OblikCetkice koja crta okvir cetke na ekranu
 package brushPack
@@ -13,10 +13,11 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-//ShiftOn
+//ShiftOn pamti da li je Shift trenutno pritisnut
 var ShiftOn = false
 
-func obojCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32) {
+//ObojCesticu boji cesticu
+func ObojCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32) {
 	if screenPack.TrenutniMat != mat.Toplo && screenPack.TrenutniMat != mat.Hladno {
 		if matrix[tx][ty].Materijal == mat.Prazno || (screenPack.TrenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid) {
 			matrix[tx][ty] = mat.NewCestica(screenPack.TrenutniMat)
@@ -38,7 +39,8 @@ func obojCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32) {
 	}	
 }
 
-func obrisiCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32){
+//ObrisiCesticu brise cesticu
+func ObrisiCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32){
 	if matrix[tx][ty].Materijal != mat.Zid {
 		//ako je selektovan materijal ili brisanje brisi, u suprotnom kontriraj selektovanu toplotu
 		if screenPack.TrenutniMat != mat.Toplo && screenPack.TrenutniMat != mat.Hladno {

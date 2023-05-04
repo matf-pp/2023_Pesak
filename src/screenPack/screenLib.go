@@ -11,6 +11,7 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+//AutoFitScreen odredjuje da li se ekran transformise automatski
 var AutoFitScreen = true
 
 //SirinaUIMargine je konstanta sirine ui margine
@@ -22,21 +23,34 @@ var SirinaDugmeta int32 = 40
 //VisinaDugmeta je konstanta visine dugmeta
 var VisinaDugmeta int32 = 20
 
+//BrojMaterijala je broj svih postojecih materijala + promena temperature na toplije i na hladnije
 var BrojMaterijala = len(mat.Boja) + 2
+//BrojSpecijalnihGumbadi je broj opcija koje ne pripadaju materijalima niti promeni temperature: Pause, Save i Clear
 var BrojSpecijalnihGumbadi int32 = 3
+//BrojGumbadiPoKoloni je broj materijala i promena temperatura po kolonama
 var BrojGumbadiPoKoloni int32 = VisinaProzora/(VisinaDugmeta+VisinaUIMargine) - (BrojSpecijalnihGumbadi)
+//BrojKolona odredjuje broj kolona koje ce Gumbadi sadrzati
 var BrojKolona int32 = int32(math.Ceil(float64(BrojMaterijala) / float64(BrojGumbadiPoKoloni)))
+//MarginaZaGumbad je margina koja ostavlja mesta izmedju platna i dugmica
 var MarginaZaGumbad = 2*SirinaUIMargine + SirinaDugmeta
+//SirinaProzora je sirina celog prozora
 var SirinaProzora = matrixPack.SirinaKan*matrixPack.BrPiksPoCestici + MarginaZaGumbad
+//VisinaProzora je visina celog prozora
 var VisinaProzora = matrixPack.VisinaKan * matrixPack.BrPiksPoCestici
 
+//KursorPoslednjiX je posledja x koordinata misa
 var KursorPoslednjiX = int32(0)
+//KursorPoslednjiY je posledja y koordinata misa
 var KursorPoslednjiY = int32(0)
 
+//VelicinaKursora je velicina cetke
 var VelicinaKursora int32 = 8
+//MaxKursor je maksimalna velicina cetke
 var MaxKursor int32 = 64
+//GUIBoja je pozadinska boja navigacije
 var GUIBoja uint32 = 0x111122
 
+//TrenutniMat je poslednji materijal koji je korisnik izabran
 var TrenutniMat mat.Materijal = mat.Pesak
 
 //FitToScreen je f-ja koja vraca promenjenu skalu, promenjenu visinu i sirinu kanvasa

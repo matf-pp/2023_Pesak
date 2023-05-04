@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 )
 
-// čuva kanvas kao sliku apskejlovanu na veličinu ekrana
+//SaveImage čuva kanvas kao sliku apskejlovanu na veličinu ekrana
 func SaveImage(matrix [][]mat.Cestica, scaleFactor int) {
 	// pravimo praznu sliku pa je popunjavamo
 	width := len(matrix)

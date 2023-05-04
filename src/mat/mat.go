@@ -1,13 +1,14 @@
-//Osobine svih materijala (u globalnim mapama) i njihove interakcije (u funkcijama Update_) nalaze se ovde
+//Package mat sadzi osobine svih materijala (u globalnim mapama) i njihove interakcije (u funkcijama Update_) nalaze se ovde
 package mat
 
 import (
 	"math/rand"
 )
 
-//Smer gravitacije
+//Obrnuto odredjuje smer gravitacije
 var Obrnuto = 1
 
+//Materijal je gradivna jedinica celog projekta
 type Materijal int
 
 //materijali sa kojima radimo
@@ -88,7 +89,7 @@ var Boja = map[Materijal]uint32{
 	Zid:       0xffffff,
 }
 
-//Broj odredjuje prioritet plutanja
+//Gustina je broj koji odredjuje prioritet plutanja
 var Gustina = map[Materijal]int32{
 	Prazno:    0,
 	Metal:     0,
@@ -112,7 +113,7 @@ var Gustina = map[Materijal]int32{
 	Zid:       0,
 }
 
-//Boja cestica u takozvanom Gustina modu
+//GustinaBoja je boja cestica u takozvanom Gustina modu
 var GustinaBoja = map[Materijal]uint32 {
 	Prazno: 	0xc8c8c8,
 	Metal:  	0x00ff00,
@@ -136,12 +137,13 @@ var GustinaBoja = map[Materijal]uint32 {
 	Zid:		0,
 }
 
-// 0000 ne pomera se
-// ---1 pada direktno
-// --1- pada dijagonalno
-// -1-- curi horizontalno
-// 1--- pomera se nasumicno svuda
-// u zavisnosti od bitova materijal se ponasa drugacije u funkciji UpdatePosition
+//AStanje je odredjeno pravilima:
+//0000 ne pomera se
+//---1 pada direktno
+//--1- pada dijagonalno
+//-1-- curi horizontalno
+//1--- pomera se nasumicno svuda
+//u zavisnosti od bitova materijal se ponasa drugacije u funkciji UpdatePosition
 var AStanje = map[Materijal]int{
 	Prazno:    0b1111,
 	Metal:     0b0000,
@@ -209,8 +211,9 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Zid:       {Zid, Zid, MinTemp, MaxTemp},
 }
 
-//Minimalna imaksimalna temperatura koje dozvoljavamo
+//MinTemp koju dozvoljavamo
 const MinTemp uint64 = 0      // 0.00k
+//MaxTemp koju dozvoljavamo
 const MaxTemp uint64 = 827315 //8000.00c
 
 // Zapaljiv daje true ako je zapaljiv
@@ -237,7 +240,7 @@ var Zapaljiv = map[Materijal]bool{
 	Zid:       false,
 }
 
-//Struktura u kojoj cuvamo sve potrebne informacije o cestici
+//Cestica je struktura u kojoj cuvamo sve potrebne informacije o cestici
 type Cestica struct {
 	Materijal   Materijal
 	Temperatura uint64
