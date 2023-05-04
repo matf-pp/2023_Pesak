@@ -1,3 +1,4 @@
+//Package screenPack sadrzi razne f-je vezane za prikaz slike
 package screenPack
 
 import (
@@ -12,9 +13,13 @@ import (
 
 var AutoFitScreen = true
 
+//SirinaUIMargine je konstanta sirine ui margine
 var SirinaUIMargine int32 = 10
+//VisinaUIMargine je konstanta visine ui margine
 var VisinaUIMargine int32 = 10
+//SirinaDugmeta je konstanta sirine dugmeta
 var SirinaDugmeta int32 = 40
+//VisinaDugmeta je konstanta visine dugmeta
 var VisinaDugmeta int32 = 20
 
 var BrojMaterijala = len(mat.Boja) + 2
@@ -34,6 +39,7 @@ var GUIBoja uint32 = 0x111122
 
 var TrenutniMat mat.Materijal = mat.Pesak
 
+//FitToScreen je f-ja koja vraca promenjenu skalu, promenjenu visinu i sirinu kanvasa
 func FitToScreen(screenPercentage int) (int32, int32, int32) {
 	resolution := screenresolution.GetPrimary()
 	adjustedScale := int32((float64(screenPercentage) / float64(100)) * float64(resolution.Height) / float64(matrixPack.VisinaKan))
@@ -46,6 +52,7 @@ func FitToScreen(screenPercentage int) (int32, int32, int32) {
 	return adjustedScale, matrixPack.SirinaKan * adjustedScale, matrixPack.VisinaKan * adjustedScale
 }
 
+//ProveriPritisakNaGumb proverava da li se desio pritisak vezan za neki deo Gumba
 func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
 	if x > SirinaProzora-MarginaZaGumbad+SirinaUIMargine && x < SirinaProzora-SirinaUIMargine {
 		if y < (VisinaUIMargine+VisinaDugmeta)*int32(len(mat.Boja)-1) && y%(VisinaUIMargine+VisinaDugmeta) > VisinaUIMargine {
@@ -82,6 +89,7 @@ func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
 	}
 }
 
+//CreateWindow pravi novi prozor i onda ga vraca
 func CreateWindow() *sdl.Window {
 	window, err := sdl.CreateWindow("pesak", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
 		SirinaProzora, VisinaProzora, sdl.WINDOW_SHOWN)
@@ -91,6 +99,7 @@ func CreateWindow() *sdl.Window {
 	return window
 }
 
+//CreateSurface pravi novu povrsinu i onda je vraca
 func CreateSurface(window *sdl.Window) *sdl.Surface {
 	surface, err := window.GetSurface()
 	if err != nil {
@@ -100,6 +109,7 @@ func CreateSurface(window *sdl.Window) *sdl.Surface {
 	return surface
 }
 
+//CreateRenderer pravi novi rednerer i onda ga vraca
 func CreateRenderer(window *sdl.Window) *sdl.Renderer {
 	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
@@ -109,6 +119,7 @@ func CreateRenderer(window *sdl.Window) *sdl.Renderer {
 	return renderer
 }
 
+//RenderujGumbZaSveMaterijale renderuje Gumb za svaki od materijala prisutnih u navigaciji
 func RenderujGumbZaSveMaterijale(renderer *sdl.Renderer) {
 	for i, _ := range mat.Boja {
 		if i == TrenutniMat {
@@ -131,36 +142,42 @@ func RenderujGumbZaSveMaterijale(renderer *sdl.Renderer) {
 	}
 }
 
+//CreateSpecialGumb pravi poseban Gumb i vraca ga
 func CreateSpecialGumb(index int32) sdl.Rect {
 	gumb := sdl.Rect{X: int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
 		Y: int32(VisinaProzora - index*VisinaUIMargine - index*VisinaDugmeta), W: SirinaDugmeta, H: VisinaDugmeta}
 	return gumb
 }
 
+//CreateBrushGumb pravi Gumb za Brush i vraca ga
 func CreateBrushGumb() sdl.Rect {
 	brushGumb := sdl.Rect{X: int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
 		Y: int32(VisinaProzora - 4*VisinaUIMargine - 4*VisinaDugmeta), W: SirinaDugmeta, H: VisinaDugmeta}
 	return brushGumb
 }
 
+//CreatePlayGumb pravi Gumb za dugme koje pauzira i pokrece igru, i vraca ga
 func CreatePlayGumb() sdl.Rect {
 	plejGumb := sdl.Rect{X: int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
 		Y: int32(VisinaProzora - 3*VisinaUIMargine - 3*VisinaDugmeta), W: SirinaDugmeta, H: VisinaDugmeta}
 	return plejGumb
 }
 
+//CreateSaveGumb pravi Gumb za dugme koje cuva kanvas kao sliku png formata i vraca ga
 func CreateSaveGumb() sdl.Rect {
 	sejvGumb := sdl.Rect{X: int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
 		Y: int32(VisinaProzora - 2*VisinaUIMargine - 2*VisinaDugmeta), W: SirinaDugmeta, H: VisinaDugmeta}
 	return sejvGumb
 }
 
+//CreateResetGumb pravi Gumb za dugme koje resetuje celu matricu na materijal Prazno
 func CreateResetGumb() sdl.Rect {
 	resetGumb := sdl.Rect{X: int32(SirinaProzora - SirinaUIMargine - SirinaDugmeta),
 		Y: int32(VisinaProzora - VisinaUIMargine - VisinaDugmeta), W: SirinaDugmeta, H: VisinaDugmeta}
 	return resetGumb
 }
 
+//CreateTexture pravi teksturu i vraca je
 func CreateTexture(renderer *sdl.Renderer) *sdl.Texture {
 	texture, err := renderer.CreateTexture(uint32(sdl.PIXELFORMAT_RGB24), sdl.TEXTUREACCESS_STATIC, matrixPack.SirinaKan, matrixPack.VisinaKan)
 	if err != nil {
@@ -169,6 +186,7 @@ func CreateTexture(renderer *sdl.Renderer) *sdl.Texture {
 	return texture
 }
 
+//InitEverything inicira ceo sdl
 func InitEverything() {
 	err := sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
@@ -176,11 +194,13 @@ func InitEverything() {
 	}
 }
 
+//UpdateRazmere menja razmere tako da kanvas ne prelazi u navigiju
 func UpdateRazmere() {
 	MarginaZaGumbad = BrojKolona*(SirinaDugmeta+SirinaUIMargine) + SirinaUIMargine
 	SirinaProzora += MarginaZaGumbad
 }
 
+//SledeciMaterijal se poziva prilikom skrola na dole
 func SledeciMaterijal() {
 	if TrenutniMat < 16 {
 		TrenutniMat++
@@ -190,6 +210,7 @@ func SledeciMaterijal() {
 	return
 }
 
+//PrethodniMaterijal se poziva prilikom skrola na gore
 func PrethodniMaterijal() {
 	if TrenutniMat > 0 {
 		TrenutniMat--

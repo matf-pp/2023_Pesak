@@ -1,3 +1,4 @@
+//Package screenPack sadrzi razne f-je vezane za prikaz slike
 package screenPack
 
 import (

@@ -1,4 +1,4 @@
-//discord rich presence u Pesku
+//package rpcPack sluzi za Discord rich presence u Pesku
 package rpcPack
 
 import (
@@ -7,6 +7,7 @@ import (
 	"github.com/sajberk/rich-go/client"
 )
 
+//ConnectToDiscord sluzi za povezivanje na Discord i postavljanje odredjenih labela u Discordu
 func ConnectToDiscord() {
 	client.Login("1100118057147437207") // ovo zapravo pravi probleme i ne radi kad si oflajn
 

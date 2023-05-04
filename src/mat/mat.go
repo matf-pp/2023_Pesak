@@ -10,6 +10,7 @@ var Obrnuto = 1
 
 type Materijal int
 
+//materijali sa kojima radimo
 const (
 	Prazno    Materijal = 0
 	Metal     Materijal = 1
@@ -164,7 +165,7 @@ var AStanje = map[Materijal]int{
 	Zid:       0b0000,
 }
 
-//Odredjuje pri kojim temperaturama koj materijal prelazi u koj drugi
+//FaznaPromena odredjuje pri kojim temperaturama koj materijal prelazi u koj drugi
 type FaznaPromena struct {
 	Nize           Materijal
 	Vise           Materijal
@@ -212,6 +213,7 @@ var MapaFaza = map[Materijal]FaznaPromena{
 const MinTemp uint64 = 0      // 0.00k
 const MaxTemp uint64 = 827315 //8000.00c
 
+// Zapaljiv daje true ako je zapaljiv
 var Zapaljiv = map[Materijal]bool{
 	Prazno:    false,
 	Metal:     false,
@@ -454,12 +456,12 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 				if matrix[i+k][j+l].Materijal == SlanaVoda {
 					randBr := rand.Intn(7)
 					if randBr > 3 {
-						matrix[i][j].Ticker -= 1
+						matrix[i][j].Ticker--
 					}
 				} else if matrix[i+k][j+l].Materijal == Voda {
 					randBr := rand.Intn(7)
 					if randBr > 5 {
-						matrix[i][j].Ticker -= 1
+						matrix[i][j].Ticker--
 					}
 				}
 			}

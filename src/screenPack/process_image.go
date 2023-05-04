@@ -1,3 +1,4 @@
+//Package screenPack sadrzi razne f-je vezane za prikaz slike
 package screenPack
 
 import (
@@ -8,7 +9,9 @@ import (
 	"strings"
 	"image"
 	"image/color"
+	//blank import
 	_ "image/jpeg"
+	//blank import
 	_ "image/png"
 	"math"
 	"os"

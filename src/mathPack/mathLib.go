@@ -1,4 +1,4 @@
-//Abs, Min i Maks funkcije za tipove int i int32
+//Package mathPack sadrzi Abs, Min i Maks funkcije za tipove int i int32
 package mathPack
 
 //AbsInt racuna apsolutnu vrednost promenjive tipa int

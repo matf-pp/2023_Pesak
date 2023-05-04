@@ -13,7 +13,7 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-//da li je Shift on/off
+//ShiftOn
 var ShiftOn = false
 
 func obojCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32) {

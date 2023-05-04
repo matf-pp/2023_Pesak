@@ -15,14 +15,19 @@ import (
 var BrPiksPoCestici int32 = 9000
 const SirinaKan, VisinaKan = 240, 135
 
-//stanje simulacije, koju sliku prikazivati, koju cetku itditd
+//Pause odredjuje da li je igra pauzirana
 var Pause = false
+//TMode je temperaturni mod
 var TMode = false
+//NMode je normalan mod
 var NMode = false
+//DMode je gustina(density) mod
 var DMode = false
+//TxtMode je tekst mod(nezavisan od TMode, NMode i DMode)
 var TxtMode = true
-//da li pustiti pesmu od pocetka
+//ResetSound pusta pesmu od pocetka
 var ResetSound = false
+//KruzniBrush odredjuje da li je Brush krug ili kvadrat
 var KruzniBrush = true
 
 //ClampCoords prima koordinate i ukoliko su one van kanvasa vraca njihove projekcije na ivice
@@ -93,8 +98,9 @@ func Render(matrix [][]mat.Cestica, renderer *sdl.Renderer, texture *sdl.Texture
 	renderer.Copy(texture, nil, &sdl.Rect{X: 0, Y: 0, W: simWidth, H: simHeight})
 }
 
-//maksimalna i minimalna temperatura na platnu, koristimo za dinamicko bojenje u toplotnom modu
+//MinTempRendered je minimalna promenljiva granica za temeraturu koju renderujemo u TMode
 var MinTempRendered uint64 = 29315
+//MaxTempRendered je maksimalna promenljiva granica za temeraturu koju renderujemo u TMode
 var MaxTempRendered uint64 = 29316
 
 //IzracunajBoju racuna boju cestica za one koje se specilajno racunaju
