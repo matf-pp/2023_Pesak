@@ -135,7 +135,7 @@ func CreateRenderer(window *sdl.Window) *sdl.Renderer {
 
 //RenderujGumbZaSveMaterijale renderuje Gumb za svaki od materijala prisutnih u navigaciji
 func RenderujGumbZaSveMaterijale(renderer *sdl.Renderer) {
-	for i, _ := range mat.Boja {
+	for i := range mat.Boja {
 		if i == TrenutniMat {
 			gumb := sdl.Rect{X: int32(SirinaProzora - MarginaZaGumbad + ((int32(i)%BrojKolona)*(SirinaDugmeta+SirinaUIMargine) + SirinaUIMargine) - SirinaUIMargine/3),
 				Y: int32(VisinaUIMargine+int32(i)/BrojKolona*(VisinaDugmeta+VisinaUIMargine)) - VisinaUIMargine/3, W: SirinaDugmeta + 2*SirinaUIMargine/3, H: VisinaDugmeta + 2*VisinaUIMargine/3}

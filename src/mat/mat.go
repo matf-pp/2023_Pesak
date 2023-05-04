@@ -176,7 +176,7 @@ type FaznaPromena struct {
 }
 
 
-//vidi FaznaPromena strukturu
+//MapaFaza zavisi od FaznaPromena strukture
 var MapaFaza = map[Materijal]FaznaPromena{
 
 	//k(c) = c+273.15
@@ -216,7 +216,7 @@ const MinTemp uint64 = 0      // 0.00k
 //MaxTemp koju dozvoljavamo
 const MaxTemp uint64 = 827315 //8000.00c
 
-// Zapaljiv daje true ako je zapaljiv
+//Zapaljiv daje true ako je zapaljiv
 var Zapaljiv = map[Materijal]bool{
 	Prazno:    false,
 	Metal:     false,

@@ -1,6 +1,6 @@
-//	Package brushPack sadrzi f-je
-//	Brush koja pise/brise po platnu
-//  OblikCetkice koja crta okvir cetke na ekranu
+//Package brushPack sadrzi f-je
+//Brush koja pise/brise po platnu
+//OblikCetkice koja crta okvir cetke na ekranu
 package brushPack
 
 import (

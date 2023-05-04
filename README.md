@@ -24,30 +24,30 @@ $ ./main
 ```
 
 ## What can I do in Pesak
-*    Play in sand
-*    Play with fire
-*    Heat up the sand
-*    Check how hot it is
-*    Continue heating it
-*    Turn it into lava
-*    Observe lava solidification
-*    Enjoy the scenery
-*    Save the scenery as a png file to share with friends
-*    Drag that same (or any other) image back into Pesak
+*     Play in sand
+*     Play with fire
+*     Heat up the sand
+*     Check how hot it is
+*     Continue heating it
+*     Turn it into lava
+*     Observe lava solidification
+*     Enjoy the scenery
+*     Save the scenery as a png file to share with friends
+*     Drag that same (or any other) image back into Pesak
 
 ## Controls
-*    LMB  -  paint
-*    MMB  -  pick pointed material
-*    RMB  -  clear
-*    1-0  -  pick materials (or from sidebar, or by shift+scroll)
-*    P  -  pause/resume simulation
-*    T  -  temperature mode
-*    D  -  gustina mode
-*    N  -  normal mode
-*    G  -  change the direction of gravity
-*    M  -  mute/unmute sound
-*    R  -  restart music from the begining
-*    Z/X  -  change volume
-*    esc  -  exit
+*     LMB  -  paint
+*     MMB  -  pick pointed material
+*     RMB  -  clear
+*     1-0  -  pick materials (or from sidebar, or by shift+scroll)
+*     P  -  pause/resume simulation
+*     T  -  temperature mode
+*     D  -  gustina mode
+*     N  -  normal mode
+*     G  -  change the direction of gravity
+*     M  -  mute/unmute sound
+*     R  -  restart music from the begining
+*     Z/X  -  change volume
+*     esc  -  exit
 
 <!-- ![GUI](https://i.imgur.com/JoI7s4I.png) -->
