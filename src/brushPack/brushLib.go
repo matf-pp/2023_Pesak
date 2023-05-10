@@ -78,7 +78,7 @@ func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 			for i := -screenPack.VelicinaKursora; i < screenPack.VelicinaKursora; i++ {
 				for j := -screenPack.VelicinaKursora; j < screenPack.VelicinaKursora; j++ {
 					tx, ty := matrixPack.ClampCoords(x/matrixPack.BrPiksPoCestici+i, y/matrixPack.BrPiksPoCestici+j)
-					obojCesticu(matrix, tx, ty, state)
+					ObojCesticu(matrix, tx, ty, state)
 				}
 			}
 		} else {
@@ -88,7 +88,7 @@ func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 						//
 					} else {
 						tx, ty := matrixPack.ClampCoords(x/matrixPack.BrPiksPoCestici+i, y/matrixPack.BrPiksPoCestici+j)
-						obojCesticu(matrix, tx, ty, state)
+						ObojCesticu(matrix, tx, ty, state)
 					}
 				}
 			}
@@ -107,7 +107,7 @@ func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 			for i := -screenPack.VelicinaKursora; i < screenPack.VelicinaKursora; i++ {
 				for j := -screenPack.VelicinaKursora; j < screenPack.VelicinaKursora; j++ {
 					tx, ty := matrixPack.ClampCoords(x/matrixPack.BrPiksPoCestici+i, y/matrixPack.BrPiksPoCestici+j)
-					obrisiCesticu(matrix, tx, ty, state)
+					ObrisiCesticu(matrix, tx, ty, state)
 				}
 			}
 		} else {
@@ -117,7 +117,7 @@ func Brush(matrix [][]mat.Cestica, x int32, y int32, state uint32) {
 						// opet
 					} else {
 						tx, ty := matrixPack.ClampCoords(x/matrixPack.BrPiksPoCestici+i, y/matrixPack.BrPiksPoCestici+j)
-						obrisiCesticu(matrix, tx, ty, state)
+						ObrisiCesticu(matrix, tx, ty, state)
 					}
 				}
 			}
@@ -135,16 +135,16 @@ func OblikCetkice(KruzniBrush bool, renderer *sdl.Renderer) {
 		for i := 0; i < numSegments; i++ {
 			angle1 := float64(i) / float64(numSegments) * math.Pi * 2.0
 			angle2 := float64(i+1) / float64(numSegments) * math.Pi * 2.0
-			x1 := float64(screenPack.KursorPoslednjiX) + float64(radius)*math.Cos(angle1)
-			y1 := float64(screenPack.KursorPoslednjiY) + float64(radius)*math.Sin(angle1)
-			x2 := float64(screenPack.KursorPoslednjiX) + float64(radius)*math.Cos(angle2)
-			y2 := float64(screenPack.KursorPoslednjiY) + float64(radius)*math.Sin(angle2)
+			x1 := float64(mat.KursorPoslednjiX) + float64(radius)*math.Cos(angle1)
+			y1 := float64(mat.KursorPoslednjiY) + float64(radius)*math.Sin(angle1)
+			x2 := float64(mat.KursorPoslednjiX) + float64(radius)*math.Cos(angle2)
+			y2 := float64(mat.KursorPoslednjiY) + float64(radius)*math.Sin(angle2)
 			renderer.DrawLine(int32(x1), int32(y1), int32(x2), int32(y2))
 		}
 	} else {
 		// kvadrat
 		renderer.SetDrawColor(255, 255, 255, 255)
-		cetkica := sdl.Rect{X: (screenPack.KursorPoslednjiX/matrixPack.BrPiksPoCestici)*matrixPack.BrPiksPoCestici - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, Y: (screenPack.KursorPoslednjiY/matrixPack.BrPiksPoCestici)*matrixPack.BrPiksPoCestici - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, W: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici), H: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici)}
+		cetkica := sdl.Rect{X: (mat.KursorPoslednjiX/matrixPack.BrPiksPoCestici)*matrixPack.BrPiksPoCestici - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, Y: (mat.KursorPoslednjiY/matrixPack.BrPiksPoCestici)*matrixPack.BrPiksPoCestici - screenPack.VelicinaKursora*matrixPack.BrPiksPoCestici, W: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici), H: int32(2 * screenPack.VelicinaKursora * matrixPack.BrPiksPoCestici)}
 		renderer.DrawRect(&cetkica)
 	}
 }

@@ -40,30 +40,33 @@ func FontInit() *ttf.Font {
 func TextMaker(font *ttf.Font, renderer *sdl.Renderer, matrica [][]mat.Cestica) {
 	var infoText = ""
 	// PESAK
-	if screenPack.KursorPoslednjiX < matrixPack.SirinaKan*matrixPack.BrPiksPoCestici {
-		var poslednjiPiksel = matrica[screenPack.KursorPoslednjiX/matrixPack.BrPiksPoCestici][screenPack.KursorPoslednjiY/matrixPack.BrPiksPoCestici]
-		infoText = mat.Ime[poslednjiPiksel.Materijal] + " @ " + fmt.Sprintf("%.2f", float32((-27315+int32(poslednjiPiksel.Temperatura))/100)) + "C, SekMat: " + mat.Ime[poslednjiPiksel.SekMat] + ", Ticker: " + strconv.Itoa(int(poslednjiPiksel.Ticker))
+	if mat.KursorPoslednjiX < matrixPack.SirinaKan*matrixPack.BrPiksPoCestici {
+		var poslednjiPiksel = matrica[mat.KursorPoslednjiX/matrixPack.BrPiksPoCestici][mat.KursorPoslednjiY/matrixPack.BrPiksPoCestici]
+		infoText = mat.Ime[poslednjiPiksel.Materijal][mat.IzabraniJezik] + " @ " + fmt.Sprintf("%.2f", float32((-27315+int32(poslednjiPiksel.Temperatura))/100)) + "C, SekMat: " + mat.Ime[poslednjiPiksel.SekMat][mat.IzabraniJezik] + ", Ticker: " + strconv.Itoa(int(poslednjiPiksel.Ticker))
 
 		// UI
 	} else {
-		if screenPack.KursorPoslednjiY < (screenPack.VisinaUIMargine+screenPack.VisinaDugmeta)*int32(len(mat.Boja)-1) && screenPack.KursorPoslednjiY%(screenPack.VisinaUIMargine+screenPack.VisinaDugmeta) > screenPack.VisinaUIMargine {
-			infoText = mat.Ime[mat.Materijal(screenPack.KursorPoslednjiY/(screenPack.VisinaUIMargine+screenPack.VisinaDugmeta))]
+		if mat.KursorPoslednjiY < (screenPack.VisinaUIMargine+screenPack.VisinaDugmeta)*int32(len(mat.Boja)-1) && mat.KursorPoslednjiY%(screenPack.VisinaUIMargine+screenPack.VisinaDugmeta) > screenPack.VisinaUIMargine {
+			visinaY := mat.KursorPoslednjiY/(screenPack.VisinaUIMargine+screenPack.VisinaDugmeta)
+			someMat := mat.Materijal(visinaY)
+			if len(mat.Ime[someMat]) > 0 {
+				infoText = mat.Ime[someMat][mat.IzabraniJezik]
+			}
 		}
-
-		// PAUZA
-		if screenPack.KursorPoslednjiY > screenPack.VisinaProzora-4*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && screenPack.KursorPoslednjiY < screenPack.VisinaProzora-4*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
+		// CHANGE BRUSH
+		if mat.KursorPoslednjiY > screenPack.VisinaProzora-4*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && mat.KursorPoslednjiY < screenPack.VisinaProzora-4*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
 			infoText = "Change Brush"
 		}
 		// PAUZA
-		if screenPack.KursorPoslednjiY > screenPack.VisinaProzora-3*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && screenPack.KursorPoslednjiY < screenPack.VisinaProzora-3*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
+		if mat.KursorPoslednjiY > screenPack.VisinaProzora-3*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && mat.KursorPoslednjiY < screenPack.VisinaProzora-3*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
 			infoText = "Pause"
 		}
 		// SEJV
-		if screenPack.KursorPoslednjiY > screenPack.VisinaProzora-2*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && screenPack.KursorPoslednjiY < screenPack.VisinaProzora-2*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
+		if mat.KursorPoslednjiY > screenPack.VisinaProzora-2*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && mat.KursorPoslednjiY < screenPack.VisinaProzora-2*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
 			infoText = "Save"
 		}
 		// RESET
-		if screenPack.KursorPoslednjiY > screenPack.VisinaProzora-1*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && screenPack.KursorPoslednjiY < screenPack.VisinaProzora-1*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
+		if mat.KursorPoslednjiY > screenPack.VisinaProzora-1*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && mat.KursorPoslednjiY < screenPack.VisinaProzora-1*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
 			infoText = "Clear"
 		}
 

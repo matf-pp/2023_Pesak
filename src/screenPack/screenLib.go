@@ -38,11 +38,6 @@ var SirinaProzora = matrixPack.SirinaKan*matrixPack.BrPiksPoCestici + MarginaZaG
 //VisinaProzora je visina celog prozora
 var VisinaProzora = matrixPack.VisinaKan * matrixPack.BrPiksPoCestici
 
-//KursorPoslednjiX je posledja x koordinata misa
-var KursorPoslednjiX = int32(0)
-//KursorPoslednjiY je posledja y koordinata misa
-var KursorPoslednjiY = int32(0)
-
 //VelicinaKursora je velicina cetke
 var VelicinaKursora int32 = 8
 //MaxKursor je maksimalna velicina cetke

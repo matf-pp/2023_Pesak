@@ -7,6 +7,16 @@ import (
 
 //Obrnuto odredjuje smer gravitacije
 var Obrnuto = 1
+//GravityRukavica određuje da li je rukavica za gravitaciju uključena ili isključena
+var GravityRukavica bool = false
+
+//KursorPoslednjiX je posledja x koordinata misa
+var KursorPoslednjiX = int32(0)
+//KursorPoslednjiY je posledja y koordinata misa
+var KursorPoslednjiY = int32(0)
+
+//IzabraniJezik: srpski, engleski, ...
+var IzabraniJezik = 0
 
 //Materijal je gradivna jedinica celog projekta
 type Materijal int
@@ -38,29 +48,30 @@ const (
 )
 
 //Ime materijala koje se ispisuje pri haverovanju misem preko cestice ili dugmeta
-var Ime = map[Materijal]string{
-	Prazno:    "Prazno",
-	Metal:     "Metal",
-	Led:       "Led",
-	Kamen:     "Kamen",
-	Drvo:      "Drvo",
-	Sljunak:   "Sljunak",
-	Pesak:     "Pesak",
-	So:        "So",
-	Rdja:      "Rdja",
-	Lava:      "Lava",
-	Voda:      "Voda",
-	Zejtin:    "Zejtin",
-	Kiselina:  "Kiselina",
-	SlanaVoda: "SlanaVoda",
-	Para:      "Para",
-	Vatra:     "Vatra",
-	Dim:       "Dim",
-	TecniAzot: "Tecni Azot",
-	Plazma:    "Plazma",
-	Toplo:     "Toplo",
-	Hladno:    "Hladno",
-	Zid:       "Zid",
+var Ime = map[Materijal][]string {
+			  // srpski   engleski
+	Prazno:    {"Prazno", "Nothing"},
+	Metal:     {"Metal", "Metal"},
+	Led:       {"Led", "Ice"},
+	Kamen:     {"Kamen", "Rock"},
+	Drvo:      {"Drvo", "Wood"},
+	Sljunak:   {"Sljunak", "Gravel"},
+	Pesak:     {"Pesak", "Sand"},
+	So:        {"So", "Salt"},
+	Rdja:      {"Rdja", "Rust"},
+	Lava:      {"Lava", "Lava"},
+	Voda:      {"Voda", "Water"},
+	Zejtin:    {"Zejtin", "Olive oil"},
+	Kiselina:  {"Kiselina", "Acid"},
+	SlanaVoda: {"Slana voda", "Saltwater"},
+	Para:      {"Para", "Steam"},
+	Vatra:     {"Vatra", "Fire"},
+	Dim:       {"Dim", "Smoke"},
+	TecniAzot: {"Tecni Azot", "Liquid nitrogen"},
+	Plazma:    {"Plazma", "Plazma"},
+	Toplo:     {"Toplo", "Warm"},
+	Hladno:    {"Hladno", "Cold"},
+	Zid:       {"Zid", "Wall"},
 }
 
 //Boja cestice (za neke materijale se zove funkcija koja u obzir uzima druge osobine)
@@ -337,7 +348,6 @@ const dimTiker = 64
 //itd
 func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 // ono sto je bitno je da radi (:
-
 	if matrix[i][j].Materijal == Zid {
 		return
 	}
@@ -560,7 +570,14 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	} else {
 		smer = -1
 	}
-
+	
+	if GravityRukavica {
+		if j*6 < int(KursorPoslednjiY) {
+			Obrnuto = 1
+		} else {
+			Obrnuto = -1
+		}
+	}
 	smer *= Obrnuto
 
 	if (astanje & 0b1000) != 0 {

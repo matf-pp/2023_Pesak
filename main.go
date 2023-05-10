@@ -251,6 +251,17 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 			if keystates[sdl.SCANCODE_G] != 0 {
 				mat.Obrnuto *= -1
 			}
+			if keystates[sdl.SCANCODE_F1] != 0 {
+				mat.IzabraniJezik = 0
+			}
+			if keystates[sdl.SCANCODE_F2] != 0 {
+				mat.IzabraniJezik = 1
+			}
+			if keystates[sdl.SCANCODE_LCTRL] != 0 {
+				mat.GravityRukavica = true
+			} else {
+				mat.GravityRukavica = false
+			}
 
 		case *sdl.MouseButtonEvent:
 			if t.State == sdl.PRESSED {
@@ -296,10 +307,10 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 	var state uint32
 	x, y, state = sdl.GetMouseState()
 	if x > 0 && x < screenPack.SirinaProzora {
-		screenPack.KursorPoslednjiX = x
+		mat.KursorPoslednjiX = x
 	}
 	if y > 0 && y < screenPack.VisinaProzora {
-		screenPack.KursorPoslednjiY = y
+		mat.KursorPoslednjiY = y
 	}
 
 	brushPack.Brush(matrix, x, y, state)
