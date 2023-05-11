@@ -9,6 +9,7 @@ import (
 	"main/src/musicPack"
 	"main/src/matrixPack"
 	"main/src/screenPack"
+	"main/src/gravityPack"
 	"main/src/languagePack"
 
 	//"fmt"
@@ -250,7 +251,7 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				brushPack.ShiftOn = false
 			}
 			if keystates[sdl.SCANCODE_G] != 0 {
-				mat.Obrnuto *= -1
+				gravityPack.Obrnuto *= -1
 			}
 			if keystates[sdl.SCANCODE_F1] != 0 {
 				if mat.IzabraniJezik > 0 {
@@ -267,9 +268,9 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				}
 			}
 			if keystates[sdl.SCANCODE_LCTRL] != 0 {
-				mat.GravityRukavica = true
+				gravityPack.GRuka = true
 			} else {
-				mat.GravityRukavica = false
+				gravityPack.GRuka = false
 			}
 
 		case *sdl.MouseButtonEvent:

@@ -2,13 +2,10 @@
 package mat
 
 import (
+	"main/src/gravityPack"
+
 	"math/rand"
 )
-
-//Obrnuto odredjuje smer gravitacije
-var Obrnuto = 1
-//GravityRukavica određuje da li je rukavica za gravitaciju uključena ili isključena
-var GravityRukavica bool = false
 
 //KursorPoslednjiX je posledja x koordinata misa
 var KursorPoslednjiX = int32(0)
@@ -518,10 +515,10 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 				random := rand.Intn(10)
 				if random > 6 {
 				matrix[i][j].Ticker = matrix[i][j].Ticker - 1
-					if matrix[i+k][j-1*Obrnuto].Materijal == Prazno {
-						matrix[i+k][j-1*Obrnuto].Materijal = Vatra
-						matrix[i+k][j-1*Obrnuto].Temperatura = 87315 //600.00c
-						matrix[i+k][j-1*Obrnuto].Ticker = vatraTiker
+					if matrix[i+k][j-1*gravityPack.Obrnuto].Materijal == Prazno {
+						matrix[i+k][j-1*gravityPack.Obrnuto].Materijal = Vatra
+						matrix[i+k][j-1*gravityPack.Obrnuto].Temperatura = 87315 //600.00c
+						matrix[i+k][j-1*gravityPack.Obrnuto].Ticker = vatraTiker
 					}
 				}
 			}
@@ -573,14 +570,22 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 		smer = -1
 	}
 	
-	if GravityRukavica {
-		if j*6 < int(KursorPoslednjiY) {
-			Obrnuto = 1
-		} else {
-			Obrnuto = -1
-		}
+	oktant := 1
+	smerI, smerJ := 0, 1
+	smerILevo, smerJLevo, smerIDesno, smerJDesno := -1, 1, 1, 1
+	smerILevo2, smerJLevo2, smerIDesno2, smerJDesno2 := -1, 0, 1, 0
+	if gravityPack.GRuka {
+		oktant = gravityPack.ProveriOktant(6 * i, 6 * j, int(KursorPoslednjiX), int(KursorPoslednjiY))
+		smerI, smerJ = gravityPack.GdePadaDole(oktant)
+		smerILevo, smerJLevo, smerIDesno, smerJDesno = gravityPack.GdePadaUkosoDole(oktant)
+		smerILevo2, smerJLevo2, smerIDesno2, smerJDesno2 = gravityPack.GdeIdeLevoDesno(oktant)
 	}
-	smer *= Obrnuto
+	smerI *= gravityPack.Obrnuto * smer
+	smerJ *= gravityPack.Obrnuto * smer
+	smerILevo *= gravityPack.Obrnuto * smer
+	smerJLevo *= gravityPack.Obrnuto * smer
+	smerIDesno *= gravityPack.Obrnuto * smer
+	smerJDesno *= gravityPack.Obrnuto * smer
 
 	if (astanje & 0b1000) != 0 {
 		lRand := rand.Intn(3) - 1
@@ -598,11 +603,11 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	}
 
 	if (astanje & 0b0001) != 0 {
-		komsija := matrix[i][j+smer]
+		komsija := matrix[i+smerI][j+smerJ]
 		//												( 1  *      G[v] = 2             <  1  *      g[ps] =  5) == True
 		//                                              (-1  *      G[v] = 2             < -1  *      g[pr] = -5) == True
-		if (AStanje[komsija.Materijal]&0b0001 != 0) && Obrnuto*smer*int(Gustina[komsija.Materijal]) < Obrnuto*smer*int(Gustina[trenutna.Materijal]) { ///ovde samo dodati || bafer[i][j+smer].Materijal == Prazno za blokovsko padanje, slicno u ostalim delovima ove f je //ovaj komentar je zastareo i odnosi se na neku davno zaboravljenu arhitekturu projekta zakopanu tu negde izmedju Atlantide i Drazinog groba
-			matrix[i][j+smer] = trenutna
+		if (AStanje[komsija.Materijal]&0b0001 != 0) && smer*int(Gustina[komsija.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
+			matrix[i+smerI][j+smerJ] = trenutna
 			matrix[i][j] = komsija
 			pomeren = true
 		}
@@ -614,39 +619,55 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	/**/
 	if (astanje & 0b0010) != 0 {
 		rFaktor := rand.Intn(2)*2 - 1 //{-1, 1}
-		komsija1 := matrix[i+rFaktor][j+smer]
-		if (AStanje[komsija1.Materijal]&0b0010 != 0) && Obrnuto*smer*int(Gustina[komsija1.Materijal]) < Obrnuto*smer*int(Gustina[trenutna.Materijal]) {
-			matrix[i+rFaktor][j+smer] = trenutna
-			matrix[i][j] = komsija1
-			pomeren = true
-			return
-		}
-		komsija2 := matrix[i-rFaktor][j+smer]
-		if (AStanje[komsija2.Materijal]&0b0010 != 0) && Obrnuto*smer*int(Gustina[komsija2.Materijal]) < Obrnuto*smer*int(Gustina[trenutna.Materijal]) {
-			matrix[i-rFaktor][j+smer] = trenutna
-			matrix[i][j] = komsija2
-			pomeren = true
-			return
+		// koristi rFaktor da izabere smerILevo ili smerIDesno
+		// ali ujedno i postavlja rFaktor na izabrani
+		// smerJ samo prati rFaktor /limun
+		if rFaktor == -1 {
+			rFaktor = smerILevo
+			smerJ = smerJLevo
+			komsija := matrix[i+rFaktor][j+smerJ]
+			if (AStanje[komsija.Materijal]&0b0010 != 0) && smer*int(Gustina[komsija.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
+				matrix[i+rFaktor][j+smerJ] = trenutna
+				matrix[i][j] = komsija
+				pomeren = true
+				return
+			}
+		} else {
+			rFaktor = smerIDesno
+			smerJ = smerJDesno
+			komsija := matrix[i+rFaktor][j+smerJ]
+			if (AStanje[komsija.Materijal]&0b0010 != 0) && smer*int(Gustina[komsija.Materijal]) < smer*int(Gustina[trenutna.Materijal]) {
+				matrix[i+rFaktor][j+smerJ] = trenutna
+				matrix[i][j] = komsija
+				pomeren = true
+				return
+			}
 		}
 	}
 	// proverava moze li se zameniti ne samo sa horizontalnim susedom vec i sa dva odjednom, da bi se brze iznivelisala
 	if (astanje & 0b0100) != 0 {
 		rFaktor := rand.Intn(2)*2 - 1 //{-1, 1}
-		komsa1 := matrix[i+rFaktor][j]
-		komsa2 := matrix[i-rFaktor][j]
-		komsa11 := matrix[i+rFaktor+rFaktor][j]
-		komsa22 :=matrix[i-rFaktor-rFaktor][j]
-		if (AStanje[komsa1.Materijal] & 0b0100) != 0 {
-			if (AStanje[komsa11.Materijal] & 0b0100) != 0 {
-				matrix[i+rFaktor+rFaktor][j], matrix[i][j] = trenutna, matrix[i+rFaktor+rFaktor][j]
+		lFaktor := 0
+		if rFaktor == -1 {
+			rFaktor = smerILevo2
+			lFaktor = smerJLevo2
+		} else {
+			rFaktor = smerIDesno2
+			lFaktor = smerJDesno2
+		}
+		komsija := matrix[i+rFaktor][j+lFaktor]
+		komsijaDalji := matrix[i+rFaktor+rFaktor][j+lFaktor]
+		if (AStanje[komsija.Materijal] & 0b0100) != 0 {
+			if (AStanje[komsijaDalji.Materijal] & 0b0100) != 0 {
+				matrix[i+rFaktor+rFaktor][j+lFaktor], matrix[i][j] = trenutna, matrix[i+rFaktor+rFaktor][j+lFaktor]
 			} else {
-				matrix[i+rFaktor][j], matrix[i][j] = trenutna, matrix[i+rFaktor][j]
+				matrix[i+rFaktor][j+lFaktor], matrix[i][j] = trenutna, matrix[i+rFaktor][j+lFaktor]
 			}
-		} else if (AStanje[komsa2.Materijal] & 0b0100) != 0 {
-			if (AStanje[komsa22.Materijal] & 0b0100) != 0 {
-				matrix[i-rFaktor-rFaktor][j], matrix[i][j] = trenutna, matrix[i-rFaktor-rFaktor][j]
+		} else if (AStanje[komsija.Materijal] & 0b0100) != 0 {
+			if (AStanje[komsijaDalji.Materijal] & 0b0100) != 0 {
+				matrix[i-rFaktor-rFaktor][j+lFaktor], matrix[i][j] = trenutna, matrix[i-rFaktor-rFaktor][j+lFaktor]
 			} else {
-				matrix[i-rFaktor][j], matrix[i][j] = trenutna, matrix[i-rFaktor][j]
+				matrix[i-rFaktor][j+lFaktor], matrix[i][j] = trenutna, matrix[i-rFaktor][j+lFaktor]
 			}
 		}
 		pomeren = true
