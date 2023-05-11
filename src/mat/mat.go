@@ -15,8 +15,10 @@ var KursorPoslednjiX = int32(0)
 //KursorPoslednjiY je posledja y koordinata misa
 var KursorPoslednjiY = int32(0)
 
-//IzabraniJezik: srpski, engleski, ...
+//IzabraniJezik: srpski, engleski, poljski, ...
 var IzabraniJezik = 0
+//BrJezika je broj jezika
+var BrJezika = 3
 
 //Materijal je gradivna jedinica celog projekta
 type Materijal int
@@ -50,28 +52,28 @@ const (
 //Ime materijala koje se ispisuje pri haverovanju misem preko cestice ili dugmeta
 var Ime = map[Materijal][]string {
 			  // srpski   engleski
-	Prazno:    {"Prazno", "Nothing"},
-	Metal:     {"Metal", "Metal"},
-	Led:       {"Led", "Ice"},
-	Kamen:     {"Kamen", "Rock"},
-	Drvo:      {"Drvo", "Wood"},
-	Sljunak:   {"Sljunak", "Gravel"},
-	Pesak:     {"Pesak", "Sand"},
-	So:        {"So", "Salt"},
-	Rdja:      {"Rdja", "Rust"},
-	Lava:      {"Lava", "Lava"},
-	Voda:      {"Voda", "Water"},
-	Zejtin:    {"Zejtin", "Olive oil"},
-	Kiselina:  {"Kiselina", "Acid"},
-	SlanaVoda: {"Slana voda", "Saltwater"},
-	Para:      {"Para", "Steam"},
-	Vatra:     {"Vatra", "Fire"},
-	Dim:       {"Dim", "Smoke"},
-	TecniAzot: {"Tecni Azot", "Liquid nitrogen"},
-	Plazma:    {"Plazma", "Plazma"},
-	Toplo:     {"Toplo", "Warm"},
-	Hladno:    {"Hladno", "Cold"},
-	Zid:       {"Zid", "Wall"},
+	Prazno:    {"Prazno", "Nothing", "Nic"},
+	Metal:     {"Metal", "Metal", "Metal"},
+	Led:       {"Led", "Ice", "Lod"},
+	Kamen:     {"Kamen", "Rock", "Skala"},
+	Drvo:      {"Drvo", "Wood", "Drewno"},
+	Sljunak:   {"Sljunak", "Gravel", "Zwir"},
+	Pesak:     {"Pesak", "Sand", "Piasek"},
+	So:        {"So", "Salt", "Sol"},
+	Rdja:      {"Rdja", "Rust", "Rdza"},
+	Lava:      {"Lava", "Lava", "Lawa"},
+	Voda:      {"Voda", "Water", "Woda"},
+	Zejtin:    {"Zejtin", "Olive oil", "Olej"},
+	Kiselina:  {"Kiselina", "Acid", "Kwas"},
+	SlanaVoda: {"Slana voda", "Saltwater", "Slona woda"},
+	Para:      {"Para", "Steam", "Para"},
+	Vatra:     {"Vatra", "Fire", "Ogien"},
+	Dim:       {"Dim", "Smoke", "Dym"},
+	TecniAzot: {"Tecni Azot", "Liquid nitrogen", "Ciekly azot"},
+	Plazma:    {"Plazma", "Plazma", "Plazma"},
+	Toplo:     {"Toplo", "Warm", "Cieple"},
+	Hladno:    {"Hladno", "Cold", "Zimne"},
+	Zid:       {"Zid", "Wall", "Sciana"},
 }
 
 //Boja cestice (za neke materijale se zove funkcija koja u obzir uzima druge osobine)

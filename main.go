@@ -252,10 +252,18 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				mat.Obrnuto *= -1
 			}
 			if keystates[sdl.SCANCODE_F1] != 0 {
-				mat.IzabraniJezik = 0
+				if mat.IzabraniJezik > 0 {
+					mat.IzabraniJezik--
+				} else {
+					mat.IzabraniJezik = mat.BrJezika-1
+				}
 			}
 			if keystates[sdl.SCANCODE_F2] != 0 {
-				mat.IzabraniJezik = 1
+				if mat.IzabraniJezik < mat.BrJezika-1 {
+					mat.IzabraniJezik++
+				} else {
+					mat.IzabraniJezik = 0
+				}
 			}
 			if keystates[sdl.SCANCODE_LCTRL] != 0 {
 				mat.GravityRukavica = true
