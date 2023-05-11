@@ -4,6 +4,7 @@ package screenPack
 import (
 	"main/src/mat"
 	"main/src/matrixPack"
+	"main/src/languagePack"
 
 	"fmt"
 	"image"
@@ -48,7 +49,7 @@ func SaveImage(matrix [][]mat.Cestica, scaleFactor int) {
 	// pravimo dir za sejv ako ga nemamo
 	imgDir := "res/images"
 	if err := os.MkdirAll(imgDir, os.ModePerm); err != nil {
-		fmt.Println("Failed to create image directory:", err)
+		fmt.Println(languagePack.NeuspehDirTekst[mat.IzabraniJezik], err)
 		return
 	}
 
@@ -67,13 +68,13 @@ func SaveImage(matrix [][]mat.Cestica, scaleFactor int) {
 	// jeeeej
 	file, err := os.Create(filepath.Join(imgDir, fileName))
 	if err != nil {
-		log.Panic("Failed to create output file")
+		log.Panic(languagePack.NeuspehFajlTekst[mat.IzabraniJezik])
 	}
 	defer file.Close()
 
 	err = png.Encode(file, newImg)
 	if err != nil {
-		log.Panic("Failed to encode PNG")
+		log.Panic(languagePack.NeuspehPNGTekst[mat.IzabraniJezik])
 	}
 
 	// njanja: ovo je jezivo sporo i moraćemo da ga kompresujemo plus ubrzamo samo nz kako

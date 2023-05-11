@@ -9,6 +9,7 @@ import (
 	"main/src/musicPack"
 	"main/src/matrixPack"
 	"main/src/screenPack"
+	"main/src/languagePack"
 
 	//"fmt"
 	"math/rand"
@@ -302,7 +303,7 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 
 				err := screenPack.UcitajSliku(filePath, matrix)
 				if err != nil {
-					sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "pesak", "rade samo png jpg bmp jbg webp itd slike", nil)
+					sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "Pesak", languagePack.KojiFormatiRadeTekst[mat.IzabraniJezik], nil)
 				}
 
 			}

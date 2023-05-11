@@ -4,6 +4,7 @@ package screenPack
 import (
 	"main/src/mat"
 	"main/src/matrixPack"
+	"main/src/languagePack"
 
 	"math"
 
@@ -80,9 +81,8 @@ func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
 
 		// SEJV
 		if y > VisinaProzora-2*(VisinaDugmeta+VisinaUIMargine) && y < VisinaProzora-2*(VisinaDugmeta+VisinaUIMargine)+VisinaDugmeta {
-			sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "pesak", "čuvamo sliku.. molim vas ne gasite struju", nil)
+			sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "Pesak", languagePack.SlikaSeCuvaTekst[mat.IzabraniJezik], nil)
 			go SaveImage(matrix, int(matrixPack.BrPiksPoCestici))
-			//sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "pesak", "sačuvan B)", nil)
 		}
 
 		// RESET

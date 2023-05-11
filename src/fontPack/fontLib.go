@@ -5,6 +5,7 @@ import (
 	"main/src/mat"
 	"main/src/matrixPack"
 	"main/src/screenPack"
+	"main/src/languagePack"
 
 	"fmt"
 	"strconv"
@@ -55,19 +56,19 @@ func TextMaker(font *ttf.Font, renderer *sdl.Renderer, matrica [][]mat.Cestica) 
 		}
 		// CHANGE BRUSH
 		if mat.KursorPoslednjiY > screenPack.VisinaProzora-4*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && mat.KursorPoslednjiY < screenPack.VisinaProzora-4*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
-			infoText = "Change Brush"
+			infoText = languagePack.PromeniOblikCetkeTekst[mat.IzabraniJezik]
 		}
 		// PAUZA
 		if mat.KursorPoslednjiY > screenPack.VisinaProzora-3*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && mat.KursorPoslednjiY < screenPack.VisinaProzora-3*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
-			infoText = "Pause"
+			infoText = languagePack.ZaustaviTekst[mat.IzabraniJezik]
 		}
 		// SEJV
 		if mat.KursorPoslednjiY > screenPack.VisinaProzora-2*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && mat.KursorPoslednjiY < screenPack.VisinaProzora-2*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
-			infoText = "Save"
+			infoText = languagePack.SacuvajTekst[mat.IzabraniJezik]
 		}
 		// RESET
 		if mat.KursorPoslednjiY > screenPack.VisinaProzora-1*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && mat.KursorPoslednjiY < screenPack.VisinaProzora-1*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
-			infoText = "Clear"
+			infoText = languagePack.OcistiTekst[mat.IzabraniJezik]
 		}
 
 	}

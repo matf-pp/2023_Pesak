@@ -63,7 +63,7 @@ var Ime = map[Materijal][]string {
 	Rdja:      {"Rdja", "Rust", "Rdza"},
 	Lava:      {"Lava", "Lava", "Lawa"},
 	Voda:      {"Voda", "Water", "Woda"},
-	Zejtin:    {"Zejtin", "Olive oil", "Olej"},
+	Zejtin:    {"Zejtin", "Oil", "Olej"},
 	Kiselina:  {"Kiselina", "Acid", "Kwas"},
 	SlanaVoda: {"Slana voda", "Saltwater", "Slona woda"},
 	Para:      {"Para", "Steam", "Para"},
