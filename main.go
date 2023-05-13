@@ -31,7 +31,7 @@ var keystates = sdl.GetKeyboardState()
 
 func main() {
 	if screenPack.AutoFitScreen {
-		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
+		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(40)
 	}
 
 	screenPack.UpdateRazmere()
@@ -268,12 +268,19 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				}
 			}
 			if keystates[sdl.SCANCODE_LCTRL] != 0 {
-				gravityPack.GRuka = !gravityPack.GRuka
+				gravityPack.GRuka = true
+				gravityPack.GTacka = false
+			} else {
+				gravityPack.GRuka = false
+			}
+			if keystates[sdl.SCANCODE_Q] != 0 {
+				gravityPack.GTacka = !gravityPack.GTacka
+				if gravityPack.GTacka {
+					gravityPack.GRuka = false
+				}
 				x, y, _ := sdl.GetMouseState()
 				gravityPack.CentarGravitacijeX = int(x)
 				gravityPack.CentarGravitacijeY = int(y)
-			} else {
-			//	gravityPack.GRuka = false
 			}
 
 		case *sdl.MouseButtonEvent:

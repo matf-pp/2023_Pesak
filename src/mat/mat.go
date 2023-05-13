@@ -54,10 +54,10 @@ var Ime = map[Materijal][]string {
 	Prazno:    {"Prazno", "Nothing", "Nic"},
 	Metal:     {"Metal", "Metal", "Metal"},
 	Led:       {"Led", "Ice", "Lod"},
-	SlaniLed:  {"Slani led", "Saltice", "Sloni lod"},
+	SlaniLed:  {"Slani led", "Saltice", "Slony lod"},
 	Kamen:     {"Kamen", "Rock", "Skala"},
 	Drvo:      {"Drvo", "Wood", "Drewno"},
-	Biljka:    {"Biljka", "Plant", "Biljka"},
+	Biljka:    {"Biljka", "Plant", "Roslina"},
 	Sljunak:   {"Sljunak", "Gravel", "Zwir"},
 	Pesak:     {"Pesak", "Sand", "Piasek"},
 	So:        {"So", "Salt", "Sol"},
@@ -139,7 +139,7 @@ var GustinaBoja = map[Materijal]uint32 {
 	SlaniLed:   0x004000,
 	Kamen:  	0x00b400,
 	Drvo:      	0x00b400,
-	Biljka:     0x000000, //molim dopuni @luka -s
+	Biljka:     0x00b400,
 	Sljunak:   	0x00a000,
 	Pesak:  	0x007800,
 	So:        	0x00a000,
@@ -611,8 +611,12 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	smerI, smerJ := 0, 1
 	smerILevo, smerJLevo, smerIDesno, smerJDesno := -1, 1, 1, 1
 	smerILevo2, smerJLevo2, smerIDesno2, smerJDesno2 := -1, 0, 1, 0
-	if gravityPack.GRuka {
-		oktant = gravityPack.ProveriOktant(i*10, j*10, int(gravityPack.CentarGravitacijeX), int(gravityPack.CentarGravitacijeY))
+	if gravityPack.GRuka || gravityPack.GTacka {
+		if gravityPack.GRuka {
+			oktant = gravityPack.ProveriOktant(i*6, j*6, int(KursorPoslednjiX), int(KursorPoslednjiY))
+		} else {
+			oktant = gravityPack.ProveriOktant(i*6, j*6, int(gravityPack.CentarGravitacijeX), int(gravityPack.CentarGravitacijeY))
+		}
 		smerI, smerJ = gravityPack.GdePadaDole(oktant)
 		smerILevo, smerJLevo, smerIDesno, smerJDesno = gravityPack.GdePadaUkosoDole(oktant)
 		smerILevo2, smerJLevo2, smerIDesno2, smerJDesno2 = gravityPack.GdeIdeLevoDesno(oktant)

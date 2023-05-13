@@ -9,6 +9,9 @@ import (
 var Obrnuto = 1
 //GRuka određuje da li je mis centar gravitacije
 var GRuka bool = false
+//GTacka određuje da li je fiksna tačka centar gravitacije
+var GTacka bool = false
+//(CentarGravitacijeX, CentarGravitacijeY) je tačka u kojoj je miš bio kada je pritisnut Q
 var CentarGravitacijeX int
 var CentarGravitacijeY int
 
