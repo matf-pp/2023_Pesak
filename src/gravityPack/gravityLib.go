@@ -9,6 +9,8 @@ import (
 var Obrnuto = 1
 //GRuka određuje da li je mis centar gravitacije
 var GRuka bool = false
+var CentarGravitacijeX int
+var CentarGravitacijeY int
 
 /*
 	4  5  6

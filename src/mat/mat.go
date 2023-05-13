@@ -25,24 +25,26 @@ const (
 	Prazno    Materijal = 0
 	Metal     Materijal = 1
 	Led       Materijal = 2
+	SlaniLed  Materijal = 252
 	Kamen     Materijal = 3
 	Drvo      Materijal = 4
-	Sljunak   Materijal = 5
-	Pesak     Materijal = 6
-	So        Materijal = 7
+	Biljka    Materijal = 5
+	Sljunak   Materijal = 6
+	Pesak     Materijal = 7
+	So        Materijal = 8
 	Rdja      Materijal = 253
-	Lava      Materijal = 8
-	Voda      Materijal = 9
-	Zejtin    Materijal = 10
-	Kiselina  Materijal = 11
+	Lava      Materijal = 9
+	Voda      Materijal = 10
+	Zejtin    Materijal = 11
+	Kiselina  Materijal = 12
 	SlanaVoda Materijal = 254
-	Para      Materijal = 12
-	Vatra     Materijal = 13
+	Para      Materijal = 13
+	Vatra     Materijal = 14
 	Dim       Materijal = 255
-	TecniAzot Materijal = 14
-	Plazma    Materijal = 15
-	Toplo     Materijal = 16
-	Hladno    Materijal = 17
+	TecniAzot Materijal = 15
+	Plazma    Materijal = 16
+	Toplo     Materijal = 17
+	Hladno    Materijal = 18
 	Zid       Materijal = 256
 )
 
@@ -52,8 +54,10 @@ var Ime = map[Materijal][]string {
 	Prazno:    {"Prazno", "Nothing", "Nic"},
 	Metal:     {"Metal", "Metal", "Metal"},
 	Led:       {"Led", "Ice", "Lod"},
+	SlaniLed:  {"Slani led", "Saltice", "Sloni lod"},
 	Kamen:     {"Kamen", "Rock", "Skala"},
 	Drvo:      {"Drvo", "Wood", "Drewno"},
+	Biljka:    {"Biljka", "Plant", "Biljka"},
 	Sljunak:   {"Sljunak", "Gravel", "Zwir"},
 	Pesak:     {"Pesak", "Sand", "Piasek"},
 	So:        {"So", "Salt", "Sol"},
@@ -78,8 +82,10 @@ var Boja = map[Materijal]uint32{
 	Prazno:    0x000000,
 	Metal:     0x33334b,
 	Led:       0xaaaaff,
+	SlaniLed:  0xababff,
 	Kamen:     0x999988,
 	Drvo:      0x994400,
+	Biljka:    0x00ff00,
 	Sljunak:   0x888877,
 	Pesak:     0xffff66,
 	So:        0xeeeeee,
@@ -104,8 +110,10 @@ var Gustina = map[Materijal]int32{
 	Prazno:    0,
 	Metal:     0,
 	Led:       0,
+	SlaniLed:  0,
 	Kamen:     0,
 	Drvo:      0,
+	Biljka:    0,
 	Sljunak:   5,
 	Pesak:     5,
 	So:        5,
@@ -128,8 +136,10 @@ var GustinaBoja = map[Materijal]uint32 {
 	Prazno: 	0xc8c8c8,
 	Metal:  	0x00ff00,
 	Led:    	0x004600,
+	SlaniLed:   0x004000,
 	Kamen:  	0x00b400,
 	Drvo:      	0x00b400,
+	Biljka:     0x000000, //molim dopuni @luka -s
 	Sljunak:   	0x00a000,
 	Pesak:  	0x007800,
 	So:        	0x00a000,
@@ -158,8 +168,10 @@ var AStanje = map[Materijal]int{
 	Prazno:    0b1111,
 	Metal:     0b0000,
 	Led:       0b0000,
+	SlaniLed:  0b0000,
 	Kamen:     0b0000,
 	Drvo:      0b0000,
+	Biljka:    0b0000,
 	Sljunak:   0b0001,
 	Pesak:     0b0011,
 	So:        0b0011,
@@ -202,8 +214,10 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Prazno:    {TecniAzot, Plazma, 5315, 627315},
 	Metal:     {Metal, Lava, MinTemp, 177315}, //1500.00c
 	Led:       {Led, Voda, MinTemp, 27315},    //0.00c
+	SlaniLed:  {SlaniLed, SlanaVoda, MinTemp, 25315}, //-20.00c
 	Kamen:     {Kamen, Lava, MinTemp, 157315}, //1300.00c
-	Drvo:      {Drvo, Vatra, MinTemp, 87315}, //600.00c spontano zapaljenje
+	Drvo:      {Drvo, Vatra, MinTemp, 77315}, //500.00c spontano zapaljenje
+	Biljka:    {Biljka, Vatra, MinTemp, 87312}, //600.00c -||-
 	Sljunak:   {Sljunak, Lava, MinTemp, 157312}, //kamen
 	Pesak:     {Pesak, Lava, MinTemp, 197315}, //1700.00c
 	So:        {So, Lava, MinTemp, 107315},    //800.00c
@@ -211,7 +225,7 @@ var MapaFaza = map[Materijal]FaznaPromena{
 	Lava:      {Lava, Lava, MinTemp, MaxTemp},
 	Voda:      {Led, Para, 27315, 37315},          //0.00c, 100.00c
 	Zejtin:    {Zejtin, Vatra, MinTemp, 67315}, //TODO: mast? 400.00c
-	SlanaVoda: {Led, Para, 25315, 37315},          //-20.00c, 100c
+	SlanaVoda: {SlaniLed, Para, 25315, 37315},          //-20.00c, 100c
 	Kiselina:  {Kiselina, Kiselina, MinTemp, MaxTemp},
 	Para:      {Voda, Para, 37315, MaxTemp},       //100.00c
 	Vatra:     {Dim, Plazma, 57315, 527315},    //300.00c, 5000.00c
@@ -231,8 +245,10 @@ var Zapaljiv = map[Materijal]bool{
 	Prazno:    false,
 	Metal:     false,
 	Led:       false,
+	SlaniLed:  false,
 	Kamen:     false,
 	Drvo:      true,
+	Biljka:    true,
 	Sljunak:   false,
 	Pesak:     false,
 	So:        false,
@@ -273,8 +289,15 @@ func NewCestica(materijal Materijal) Cestica {
 		zrno.SekMat = Voda
 		zrno.Temperatura = 24315 //-30.00c
 	}
+	if materijal == SlaniLed {
+		zrno.SekMat = SlanaVoda
+		zrno.Temperatura = 24315 //-30.00c
+	}
 	if materijal == Drvo {
 		zrno.Ticker = 64
+	}
+	if materijal == Biljka {
+		zrno.Ticker = 16
 	}
 	if materijal == Zejtin {
 		zrno.Ticker = 4
@@ -425,9 +448,9 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 			}
 		} else if temperatura > MapaFaza[materijal].TackaKljucanja {
 			matrix[i][j].Materijal = MapaFaza[materijal].Vise
-			if matrix[i][j].SekMat == SlanaVoda {
-				matrix[i][j].Materijal = SlanaVoda
-			}
+//			if matrix[i][j].SekMat == SlanaVoda {
+//				matrix[i][j].Materijal = SlanaVoda
+//			}
 			matrix[i][j].SekMat = materijal
 		}
 	}
@@ -546,6 +569,20 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 
 	}
 
+	if materijal == Biljka {
+		for k := -1; k < 2; k++ {
+			for l := -1; l < 2; l++ {
+				raste := rand.Intn(2)
+				if raste == 1 {
+					if matrix[i+k][j+l].Materijal == Voda {
+						matrix[i+k][j+l].Materijal = Biljka
+						matrix[i+k][j+l].Ticker = 16
+					}
+				}
+			}
+		}
+	}
+
 	if matrix[i][j].Ticker < 0 {
 		matrix[i][j].Materijal = Prazno
 	}
@@ -575,7 +612,7 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	smerILevo, smerJLevo, smerIDesno, smerJDesno := -1, 1, 1, 1
 	smerILevo2, smerJLevo2, smerIDesno2, smerJDesno2 := -1, 0, 1, 0
 	if gravityPack.GRuka {
-		oktant = gravityPack.ProveriOktant(6 * i, 6 * j, int(KursorPoslednjiX), int(KursorPoslednjiY))
+		oktant = gravityPack.ProveriOktant(i*10, j*10, int(gravityPack.CentarGravitacijeX), int(gravityPack.CentarGravitacijeY))
 		smerI, smerJ = gravityPack.GdePadaDole(oktant)
 		smerILevo, smerJLevo, smerIDesno, smerJDesno = gravityPack.GdePadaUkosoDole(oktant)
 		smerILevo2, smerJLevo2, smerIDesno2, smerJDesno2 = gravityPack.GdeIdeLevoDesno(oktant)

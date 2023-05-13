@@ -12,7 +12,7 @@ import (
 	"main/src/gravityPack"
 	"main/src/languagePack"
 
-	//"fmt"
+	"fmt"
 	"math/rand"
 
 	// ako mix zabaguje, $export CGO_CFLAGS=-I/usr/include/SDL2 	/limun
@@ -31,7 +31,7 @@ var keystates = sdl.GetKeyboardState()
 
 func main() {
 	if screenPack.AutoFitScreen {
-		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(40)
+		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
 	}
 
 	screenPack.UpdateRazmere()
@@ -134,7 +134,7 @@ func main() {
 				sdl.Delay(uint32(expectedFrameTime - realFrameTime))
 			}
 		}
-		//fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
+		fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
 	}
 
 }
@@ -268,9 +268,12 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				}
 			}
 			if keystates[sdl.SCANCODE_LCTRL] != 0 {
-				gravityPack.GRuka = true
+				gravityPack.GRuka = !gravityPack.GRuka
+				x, y, _ := sdl.GetMouseState()
+				gravityPack.CentarGravitacijeX = int(x)
+				gravityPack.CentarGravitacijeY = int(y)
 			} else {
-				gravityPack.GRuka = false
+			//	gravityPack.GRuka = false
 			}
 
 		case *sdl.MouseButtonEvent:
