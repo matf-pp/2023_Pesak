@@ -1,46 +1,57 @@
-//Package matrixPack sadrzi f-je za pravljenje platna, racunanje boje cestica,
-//crtanje platna i varijiable koje odredjuju sta ce se crtati na ekranu
+// Package matrixPack sadrzi f-je za pravljenje platna, racunanje boje cestica,
+// crtanje platna i varijiable koje odredjuju sta ce se crtati na ekranu
 package matrixPack
 
 import (
 	"main/src/mat"
 	"main/src/mathPack"
 
-	"unsafe"
 	"strconv"
+	"unsafe"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-//BrPiksPoCestici je konstanta i odredjuje koliko je svaka cestica "fina"
+// BrPiksPoCestici je konstanta i odredjuje koliko je svaka cestica "fina"
 var BrPiksPoCestici int32 = 9000
-//SirinaKan je sirina rezolucije prozora
+
+// SirinaKan je sirina rezolucije prozora
 const SirinaKan = 240
-//VisinaKan je visina rezolucije prozora
+
+// VisinaKan je visina rezolucije prozora
 const VisinaKan = 135
 
-//Pause odredjuje da li je igra pauzirana
+// FpsCap određuje maksimalni fps simulacije
+var FpsCap = 60
+
+// Pause odredjuje da li je igra pauzirana
 var Pause = false
-//TMode je temperaturni mod
+
+// TMode je temperaturni mod
 var TMode = false
-//NMode je normalan mod
+
+// NMode je normalan mod
 var NMode = false
-//DMode je gustina(density) mod
+
+// DMode je gustina(density) mod
 var DMode = false
-//TxtMode je tekst mod(nezavisan od TMode, NMode i DMode)
+
+// TxtMode je tekst mod(nezavisan od TMode, NMode i DMode)
 var TxtMode = true
-//ResetSound pusta pesmu od pocetka
+
+// ResetSound pusta pesmu od pocetka
 var ResetSound = false
-//KruzniBrush odredjuje da li je Brush krug ili kvadrat
+
+// KruzniBrush odredjuje da li je Brush krug ili kvadrat
 var KruzniBrush = true
 
-//ClampCoords prima koordinate i ukoliko su one van kanvasa vraca njihove projekcije na ivice
+// ClampCoords prima koordinate i ukoliko su one van kanvasa vraca njihove projekcije na ivice
 func ClampCoords(x int32, y int32) (int32, int32) {
 	return mathPack.MinInt32(mathPack.MaxInt32(x, 0), SirinaKan-1),
 		mathPack.MinInt32(mathPack.MaxInt32(y, 0), VisinaKan-1)
 }
 
-//ZazidajMatricu dodaje dva sloja piksela Zida oko celog platna
+// ZazidajMatricu dodaje dva sloja piksela Zida oko celog platna
 func ZazidajMatricu(matrix [][]mat.Cestica) [][]mat.Cestica {
 	for i := 0; i < SirinaKan; i++ {
 		matrix[i][0], matrix[i][VisinaKan-1] = mat.NewCestica(mat.Zid), mat.NewCestica(mat.Zid)
@@ -53,7 +64,7 @@ func ZazidajMatricu(matrix [][]mat.Cestica) [][]mat.Cestica {
 	return matrix
 }
 
-//NapraviSlajs je konstruktor matrice Cestica
+// NapraviSlajs je konstruktor matrice Cestica
 func NapraviSlajs() [][]mat.Cestica {
 	slajs := make([][]mat.Cestica, SirinaKan)
 	for i := 0; i < SirinaKan; i++ {
@@ -66,7 +77,7 @@ func NapraviSlajs() [][]mat.Cestica {
 	return slajs
 }
 
-//Render slika matricu na ekran
+// Render slika matricu na ekran
 func Render(matrix [][]mat.Cestica, renderer *sdl.Renderer, texture *sdl.Texture, pixels []byte, simWidth, simHeight int32) {
 
 	var count int
@@ -102,12 +113,13 @@ func Render(matrix [][]mat.Cestica, renderer *sdl.Renderer, texture *sdl.Texture
 	renderer.Copy(texture, nil, &sdl.Rect{X: 0, Y: 0, W: simWidth, H: simHeight})
 }
 
-//MinTempRendered je minimalna promenljiva granica za temeraturu koju renderujemo u TMode
+// MinTempRendered je minimalna promenljiva granica za temeraturu koju renderujemo u TMode
 var MinTempRendered uint64 = 29315
-//MaxTempRendered je maksimalna promenljiva granica za temeraturu koju renderujemo u TMode
+
+// MaxTempRendered je maksimalna promenljiva granica za temeraturu koju renderujemo u TMode
 var MaxTempRendered uint64 = 29316
 
-//IzracunajBoju racuna boju cestica za one koje se specilajno racunaju
+// IzracunajBoju racuna boju cestica za one koje se specilajno racunaju
 func IzracunajBoju(zrno mat.Cestica) uint32 {
 
 	var boja uint32
@@ -141,7 +153,7 @@ func IzracunajBoju(zrno mat.Cestica) uint32 {
 
 }
 
-//IzracunajTempBoju racuna boju cestica u zavisnosti od njihove temperature
+// IzracunajTempBoju racuna boju cestica u zavisnosti od njihove temperature
 func IzracunajTempBoju(zrno mat.Cestica) uint32 {
 	temperatura := zrno.Temperatura
 
@@ -166,7 +178,7 @@ func IzracunajTempBoju(zrno mat.Cestica) uint32 {
 	return boja
 }
 
-//IzracunajGustBoju racuna boju cestica u zavisnosti od njihove "gustine"
+// IzracunajGustBoju racuna boju cestica u zavisnosti od njihove "gustine"
 func IzracunajGustBoju(gust int32) uint32 {
 	if gust > 0 {
 		gust *= 255 / 10
