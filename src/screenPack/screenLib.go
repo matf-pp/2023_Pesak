@@ -77,7 +77,7 @@ func FitToScreen(screenPercentage int) (int32, int32, int32) {
 func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
 
 	if x > SirinaProzora-MarginaZaGumbad+SirinaUIMargine && x < SirinaProzora-SirinaUIMargine {
-		if y < (VisinaUIMargine+VisinaDugmeta)*int32(mat.PoslMat-1) && y%(VisinaUIMargine+VisinaDugmeta) > VisinaUIMargine {
+		if y < (VisinaUIMargine+VisinaDugmeta)*int32(mat.PoslMat+1) && y%(VisinaUIMargine+VisinaDugmeta) > VisinaUIMargine {
 			TrenutniMat = mat.Materijal(y / (VisinaUIMargine + VisinaDugmeta))
 		}
 
