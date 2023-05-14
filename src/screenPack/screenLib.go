@@ -19,13 +19,13 @@ var AutoFitScreen = true
 var SirinaUIMargine int32 = 10
 
 // VisinaUIMargine je konstanta visine ui margine
-var VisinaUIMargine int32 = 10
+var VisinaUIMargine int32 = 9
 
 // SirinaDugmeta je konstanta sirine dugmeta
 var SirinaDugmeta int32 = 40
 
 // VisinaDugmeta je konstanta visine dugmeta
-var VisinaDugmeta int32 = 20
+var VisinaDugmeta int32 = 19
 
 // BrojMaterijala je broj svih postojecih materijala + promena temperature na toplije i na hladnije
 var BrojMaterijala = len(mat.Boja) + 2
@@ -75,8 +75,9 @@ func FitToScreen(screenPercentage int) (int32, int32, int32) {
 
 // ProveriPritisakNaGumb proverava da li se desio pritisak vezan za neki deo Gumba
 func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
+
 	if x > SirinaProzora-MarginaZaGumbad+SirinaUIMargine && x < SirinaProzora-SirinaUIMargine {
-		if y < (VisinaUIMargine+VisinaDugmeta)*int32(len(mat.Boja)-1) && y%(VisinaUIMargine+VisinaDugmeta) > VisinaUIMargine {
+		if y < (VisinaUIMargine+VisinaDugmeta)*int32(mat.PoslMat-1) && y%(VisinaUIMargine+VisinaDugmeta) > VisinaUIMargine {
 			TrenutniMat = mat.Materijal(y / (VisinaUIMargine + VisinaDugmeta))
 		}
 

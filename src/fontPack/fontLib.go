@@ -1,11 +1,11 @@
-//Package fontPack sluzi za podesavanje fonta i ispisivanje teksta na ekranu
+// Package fontPack sluzi za podesavanje fonta i ispisivanje teksta na ekranu
 package fontPack
 
 import (
+	"main/src/languagePack"
 	"main/src/mat"
 	"main/src/matrixPack"
 	"main/src/screenPack"
-	"main/src/languagePack"
 
 	"fmt"
 	"strconv"
@@ -18,7 +18,7 @@ const fontPath = "./res/fonts/Minecraft.ttf"
 const fontSize = 40
 const outlineSize = 2
 
-//SetFont ne prima nista; vraca font
+// SetFont ne prima nista; vraca font
 func SetFont() *ttf.Font {
 	font, err := ttf.OpenFont(fontPath, int(screenPack.VisinaProzora)/fontSize)
 	if err != nil {
@@ -27,7 +27,7 @@ func SetFont() *ttf.Font {
 	return font
 }
 
-//FontInit nagadjam da inicijalizuje font
+// FontInit nagadjam da inicijalizuje font
 func FontInit() *ttf.Font {
 	var font *ttf.Font
 	err := ttf.Init()
@@ -37,18 +37,19 @@ func FontInit() *ttf.Font {
 	return font
 }
 
-//TextMaker prima font, renderer i matricu Cestica; ne vraca nista; ispisuje odgovarajuci tekst na ekranu
+// TextMaker prima font, renderer i matricu Cestica; ne vraca nista; ispisuje odgovarajuci tekst na ekranu
 func TextMaker(font *ttf.Font, renderer *sdl.Renderer, matrica [][]mat.Cestica) {
 	var infoText = ""
 	// PESAK
 	if mat.KursorPoslednjiX < matrixPack.SirinaKan*matrixPack.BrPiksPoCestici {
-		var poslednjiPiksel = matrica[mat.KursorPoslednjiX/matrixPack.BrPiksPoCestici][mat.KursorPoslednjiY/matrixPack.BrPiksPoCestici]
-		infoText = mat.Ime[poslednjiPiksel.Materijal][mat.IzabraniJezik] + " @ " + fmt.Sprintf("%.2f", float32((-27315+int32(poslednjiPiksel.Temperatura))/100)) + "C, SekMat: " + mat.Ime[poslednjiPiksel.SekMat][mat.IzabraniJezik] + ", Ticker: " + strconv.Itoa(int(poslednjiPiksel.Ticker))
-
+		if mat.KursorPoslednjiY < (screenPack.VisinaUIMargine+screenPack.VisinaDugmeta)*int32(len(mat.Boja)-1) && mat.KursorPoslednjiY%(screenPack.VisinaUIMargine+screenPack.VisinaDugmeta) > screenPack.VisinaUIMargine {
+			var poslednjiPiksel = matrica[mat.KursorPoslednjiX/matrixPack.BrPiksPoCestici][mat.KursorPoslednjiY/matrixPack.BrPiksPoCestici]
+			infoText = mat.Ime[poslednjiPiksel.Materijal][mat.IzabraniJezik] + " @ " + fmt.Sprintf("%.2f", float32((-27315+int32(poslednjiPiksel.Temperatura))/100)) + "C, SekMat: " + mat.Ime[poslednjiPiksel.SekMat][mat.IzabraniJezik] + ", Ticker: " + strconv.Itoa(int(poslednjiPiksel.Ticker))
+		}
 		// UI
 	} else {
 		if mat.KursorPoslednjiY < (screenPack.VisinaUIMargine+screenPack.VisinaDugmeta)*int32(len(mat.Boja)-1) && mat.KursorPoslednjiY%(screenPack.VisinaUIMargine+screenPack.VisinaDugmeta) > screenPack.VisinaUIMargine {
-			visinaY := mat.KursorPoslednjiY/(screenPack.VisinaUIMargine+screenPack.VisinaDugmeta)
+			visinaY := mat.KursorPoslednjiY / (screenPack.VisinaUIMargine + screenPack.VisinaDugmeta)
 			someMat := mat.Materijal(visinaY)
 			if len(mat.Ime[someMat]) > 0 {
 				infoText = mat.Ime[someMat][mat.IzabraniJezik]

@@ -1,4 +1,4 @@
-//Package mat sadzi osobine svih materijala (u globalnim mapama) i njihove interakcije (u funkcijama Update_) nalaze se ovde
+// Package mat sadzi osobine svih materijala (u globalnim mapama) i njihove interakcije (u funkcijama Update_) nalaze se ovde
 package mat
 
 import (
@@ -9,21 +9,25 @@ import (
 	"github.com/theodesp/unionfind"
 )
 
-
-//KursorPoslednjiX je posledja x koordinata misa
+// KursorPoslednjiX je posledja x koordinata misa
 var KursorPoslednjiX = int32(0)
-//KursorPoslednjiY je posledja y koordinata misa
+
+// KursorPoslednjiY je posledja y koordinata misa
 var KursorPoslednjiY = int32(0)
 
-//IzabraniJezik: srpski, engleski, poljski, ...
+// IzabraniJezik: srpski, engleski, poljski, ...
 var IzabraniJezik = 0
-//BrJezika je broj jezika
+
+// BrJezika je broj jezika
 var BrJezika = 3
 
-//Materijal je gradivna jedinica celog projekta
+// PoslMat je poslednji materijal koji se prikazuje
+var PoslMat = 18
+
+// Materijal je gradivna jedinica celog projekta
 type Materijal int
 
-//materijali sa kojima radimo
+// materijali sa kojima radimo
 const (
 	Prazno    Materijal = 0
 	Metal     Materijal = 1
@@ -51,9 +55,9 @@ const (
 	Zid       Materijal = 256
 )
 
-//Ime materijala koje se ispisuje pri haverovanju misem preko cestice ili dugmeta
-var Ime = map[Materijal][]string {
-			  // srpski   engleski
+// Ime materijala koje se ispisuje pri haverovanju misem preko cestice ili dugmeta
+var Ime = map[Materijal][]string{
+	// srpski   engleski
 	Prazno:    {"Prazno", "Nothing", "Nic"},
 	Metal:     {"Metal", "Metal", "Metal"},
 	Led:       {"Led", "Ice", "Lod"},
@@ -80,7 +84,7 @@ var Ime = map[Materijal][]string {
 	Zid:       {"Zid", "Wall", "Sciana"},
 }
 
-//Boja cestice (za neke materijale se zove funkcija koja u obzir uzima druge osobine)
+// Boja cestice (za neke materijale se zove funkcija koja u obzir uzima druge osobine)
 var Boja = map[Materijal]uint32{
 	Prazno:    0x000000,
 	Metal:     0x33334b,
@@ -108,7 +112,7 @@ var Boja = map[Materijal]uint32{
 	Zid:       0xffffff,
 }
 
-//Gustina je broj koji odredjuje prioritet plutanja
+// Gustina je broj koji odredjuje prioritet plutanja
 var Gustina = map[Materijal]int32{
 	Prazno:    0,
 	Metal:     0,
@@ -134,39 +138,39 @@ var Gustina = map[Materijal]int32{
 	Zid:       0,
 }
 
-//GustinaBoja je boja cestica u takozvanom Gustina modu
-var GustinaBoja = map[Materijal]uint32 {
-	Prazno: 	0xc8c8c8,
-	Metal:  	0x00ff00,
-	Led:    	0x004600,
-	SlaniLed:   0x004000,
-	Kamen:  	0x00b400,
-	Drvo:      	0x00b400,
-	Biljka:     0x00b400,
-	Sljunak:   	0x00a000,
-	Pesak:  	0x007800,
-	So:        	0x00a000,
-	Rdja:      	0x00ff00,
-	Lava:   	0x00c800,
-	Voda:   	0x005000,
-	Zejtin:     0x00aa00,
-	Kiselina:   0x005800,
-	SlanaVoda: 	0x005a00,
-	Para:   	0xc800c8,
-	Vatra:     	0xc800c8,
-	Dim:        0xfa00fa,
-	TecniAzot: 	0x006400,
-	Plazma:    	0xff00ff,
-	Zid:		0,
+// GustinaBoja je boja cestica u takozvanom Gustina modu
+var GustinaBoja = map[Materijal]uint32{
+	Prazno:    0xc8c8c8,
+	Metal:     0x00ff00,
+	Led:       0x004600,
+	SlaniLed:  0x004000,
+	Kamen:     0x00b400,
+	Drvo:      0x00b400,
+	Biljka:    0x00b400,
+	Sljunak:   0x00a000,
+	Pesak:     0x007800,
+	So:        0x00a000,
+	Rdja:      0x00ff00,
+	Lava:      0x00c800,
+	Voda:      0x005000,
+	Zejtin:    0x00aa00,
+	Kiselina:  0x005800,
+	SlanaVoda: 0x005a00,
+	Para:      0xc800c8,
+	Vatra:     0xc800c8,
+	Dim:       0xfa00fa,
+	TecniAzot: 0x006400,
+	Plazma:    0xff00ff,
+	Zid:       0,
 }
 
-//AStanje je odredjeno pravilima:
-//0000 ne pomera se
-//---1 pada direktno
-//--1- pada dijagonalno
-//-1-- curi horizontalno
-//1--- pomera se nasumicno svuda
-//u zavisnosti od bitova materijal se ponasa drugacije u funkciji UpdatePosition
+// AStanje je odredjeno pravilima:
+// 0000 ne pomera se
+// ---1 pada direktno
+// --1- pada dijagonalno
+// -1-- curi horizontalno
+// 1--- pomera se nasumicno svuda
+// u zavisnosti od bitova materijal se ponasa drugacije u funkciji UpdatePosition
 var AStanje = map[Materijal]int{
 	Prazno:    0b1111,
 	Metal:     0b0000,
@@ -192,7 +196,7 @@ var AStanje = map[Materijal]int{
 	Zid:       0b0000,
 }
 
-//FaznaPromena odredjuje pri kojim temperaturama koj materijal prelazi u koj drugi
+// FaznaPromena odredjuje pri kojim temperaturama koj materijal prelazi u koj drugi
 type FaznaPromena struct {
 	Nize           Materijal
 	Vise           Materijal
@@ -200,8 +204,7 @@ type FaznaPromena struct {
 	TackaKljucanja uint64
 }
 
-
-//MapaFaza zavisi od FaznaPromena strukture
+// MapaFaza zavisi od FaznaPromena strukture
 var MapaFaza = map[Materijal]FaznaPromena{
 
 	//k(c) = c+273.15
@@ -215,35 +218,35 @@ var MapaFaza = map[Materijal]FaznaPromena{
 
 	//	materijali	{Nize,	Vise,	TackaT,		TackaK}
 	Prazno:    {TecniAzot, Plazma, 5315, 627315},
-	Metal:     {Metal, Lava, MinTemp, 177315}, //1500.00c
-	Led:       {Led, Voda, MinTemp, 27315},    //0.00c
+	Metal:     {Metal, Lava, MinTemp, 177315},        //1500.00c
+	Led:       {Led, Voda, MinTemp, 27315},           //0.00c
 	SlaniLed:  {SlaniLed, SlanaVoda, MinTemp, 25315}, //-20.00c
-	Kamen:     {Kamen, Lava, MinTemp, 157315}, //1300.00c
-	Drvo:      {Drvo, Vatra, MinTemp, 77315}, //500.00c spontano zapaljenje
-	Biljka:    {Biljka, Vatra, MinTemp, 87312}, //600.00c -||-
-	Sljunak:   {Sljunak, Lava, MinTemp, 157312}, //kamen
-	Pesak:     {Pesak, Lava, MinTemp, 197315}, //1700.00c
-	So:        {So, Lava, MinTemp, 107315},    //800.00c
-	Rdja:      {Rdja, Lava, MinTemp, 177315},  // metal
+	Kamen:     {Kamen, Lava, MinTemp, 157315},        //1300.00c
+	Drvo:      {Drvo, Vatra, MinTemp, 77315},         //500.00c spontano zapaljenje
+	Biljka:    {Biljka, Vatra, MinTemp, 87312},       //600.00c -||-
+	Sljunak:   {Sljunak, Lava, MinTemp, 157312},      //kamen
+	Pesak:     {Pesak, Lava, MinTemp, 197315},        //1700.00c
+	So:        {So, Lava, MinTemp, 107315},           //800.00c
+	Rdja:      {Rdja, Lava, MinTemp, 177315},         // metal
 	Lava:      {Lava, Lava, MinTemp, MaxTemp},
-	Voda:      {Led, Para, 27315, 37315},          //0.00c, 100.00c
+	Voda:      {Led, Para, 27315, 37315},       //0.00c, 100.00c
 	Zejtin:    {Zejtin, Vatra, MinTemp, 67315}, //TODO: mast? 400.00c
-	SlanaVoda: {SlaniLed, Para, 25315, 37315},          //-20.00c, 100c
+	SlanaVoda: {SlaniLed, Para, 25315, 37315},  //-20.00c, 100c
 	Kiselina:  {Kiselina, Kiselina, MinTemp, MaxTemp},
 	Para:      {Voda, Para, 37315, MaxTemp},       //100.00c
-	Vatra:     {Dim, Plazma, 57315, 527315},    //300.00c, 5000.00c
-	Dim:       {Prazno, Vatra, 32315, MaxTemp}, //50.00c, 600.00c
+	Vatra:     {Dim, Plazma, 57315, 527315},       //300.00c, 5000.00c
+	Dim:       {Prazno, Vatra, 32315, MaxTemp},    //50.00c, 600.00c
 	TecniAzot: {TecniAzot, Prazno, MinTemp, 7315}, //-200.00c
-	Plazma:    {Vatra, Plazma, 527315, MaxTemp},  //5000.00c
+	Plazma:    {Vatra, Plazma, 527315, MaxTemp},   //5000.00c
 	Zid:       {Zid, Zid, MinTemp, MaxTemp},
 }
 
-//MinTemp koju dozvoljavamo
-const MinTemp uint64 = 0      // 0.00k
-//MaxTemp koju dozvoljavamo
+// MinTemp koju dozvoljavamo
+const MinTemp uint64 = 0 // 0.00k
+// MaxTemp koju dozvoljavamo
 const MaxTemp uint64 = 827315 //8000.00c
 
-//Zapaljiv daje true ako je zapaljiv
+// Zapaljiv daje true ako je zapaljiv
 var Zapaljiv = map[Materijal]bool{
 	Prazno:    false,
 	Metal:     false,
@@ -269,19 +272,16 @@ var Zapaljiv = map[Materijal]bool{
 	Zid:       false,
 }
 
-
-
-//Cestica je struktura u kojoj cuvamo sve potrebne informacije o cestici
+// Cestica je struktura u kojoj cuvamo sve potrebne informacije o cestici
 type Cestica struct {
 	Materijal   Materijal
 	Temperatura uint64
 	BaferTemp   uint64
 	SekMat      Materijal
 	Ticker      int32
-
 }
 
-//NewCestica prima Materijal, konstruise novu Cesticu i vraca je
+// NewCestica prima Materijal, konstruise novu Cesticu i vraca je
 func NewCestica(materijal Materijal) Cestica {
 	zrno := Cestica{
 		Materijal:   materijal,
@@ -289,7 +289,7 @@ func NewCestica(materijal Materijal) Cestica {
 		BaferTemp:   0,
 		SekMat:      Prazno,
 		Ticker:      1023, //za rdju, gorivo i druge, opada po principu nuklearnog raspada
-						   //(svaki frejm ima x% sanse da ga dekrementira, na 0 prelazi u drugo stanje)
+		//(svaki frejm ima x% sanse da ga dekrementira, na 0 prelazi u drugo stanje)
 	}
 	if materijal == Led {
 		zrno.SekMat = Voda
@@ -333,7 +333,7 @@ func NewCestica(materijal Materijal) Cestica {
 	return zrno
 }
 
-//UpdateTemp prima matricu Cestica i koordinate jedne, na osnovu trenutnih temperatura sebe i suseda racuna narednu temperaturu, smesta je u BaferTemp (unutar mejna se BaferTemp primenjuje)
+// UpdateTemp prima matricu Cestica i koordinate jedne, na osnovu trenutnih temperatura sebe i suseda racuna narednu temperaturu, smesta je u BaferTemp (unutar mejna se BaferTemp primenjuje)
 func UpdateTemp(matrix [][]Cestica, i int, j int) {
 	if matrix[i][j].Materijal == Zid {
 		matrix[i][j].BaferTemp = 29315
@@ -346,18 +346,18 @@ func UpdateTemp(matrix [][]Cestica, i int, j int) {
 	for k := -1; k < 2; k++ {
 		for l := -1; l < 2; l++ {
 			if matrix[i+k][j+l].Materijal != Zid {
-				if matrix[i+k][j+l].Materijal == Prazno && matrix[i][j].Materijal == Prazno{
-					matrix[i+k][j+l].BaferTemp += uint64(parcePice/10)
+				if matrix[i+k][j+l].Materijal == Prazno && matrix[i][j].Materijal == Prazno {
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice / 10)
 					temperatura = temperatura - uint64(parcePice/10)
 				}
 				if matrix[i+k][j+l].Materijal == Prazno || matrix[i][j].Materijal == Prazno {
-					matrix[i+k][j+l].BaferTemp += uint64(parcePice/100)
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice / 100)
 					temperatura = temperatura - uint64(parcePice/100)
 				} else if matrix[i][j].Materijal == Vatra && matrix[i+k][j+l].Materijal == Voda {
-					matrix[i+k][j+l].BaferTemp += uint64(parcePice/100)
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice / 100)
 					temperatura = temperatura - uint64(parcePice/100)
 				} else {
-					matrix[i+k][j+l].BaferTemp += uint64(parcePice/2)
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice / 2)
 					temperatura = temperatura - uint64(parcePice/2)
 				}
 			}
@@ -369,13 +369,13 @@ func UpdateTemp(matrix [][]Cestica, i int, j int) {
 const vatraTiker = 16
 const dimTiker = 64
 
-//UpdatePhaseOfMatter vrsi promenu cestica iz jednog u drugi materijal, ukoliko je to potrebno
-//agregatno stanje u odnosu na temperaturu
-//nagrizanje kiseline
-//gorenje zapaljivih materijala
-//itd
+// UpdatePhaseOfMatter vrsi promenu cestica iz jednog u drugi materijal, ukoliko je to potrebno
+// agregatno stanje u odnosu na temperaturu
+// nagrizanje kiseline
+// gorenje zapaljivih materijala
+// itd
 func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
-// ono sto je bitno je da radi (:
+	// ono sto je bitno je da radi (:
 	if matrix[i][j].Materijal == Zid {
 		return
 	}
@@ -405,12 +405,12 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 			matrix[i][j].Ticker--
 		}
 		for k := -1; k < 2; k++ {
-				for l := -1; l < 2; l++ {
-					if matrix[i+k][j+l].Materijal == Voda || matrix[i+k][j+l].Materijal == Para{
-						matrix[i][j].Materijal = Prazno
-					}
+			for l := -1; l < 2; l++ {
+				if matrix[i+k][j+l].Materijal == Voda || matrix[i+k][j+l].Materijal == Para {
+					matrix[i][j].Materijal = Prazno
 				}
 			}
+		}
 	}
 
 	if materijal == Lava {
@@ -449,14 +449,14 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 	} else {
 		if temperatura < MapaFaza[materijal].TackaTopljenja {
 			matrix[i][j].Materijal = MapaFaza[materijal].Nize
-			if matrix[i][j].Materijal == Vatra && matrix[i][j].Ticker > vatraTiker{
+			if matrix[i][j].Materijal == Vatra && matrix[i][j].Ticker > vatraTiker {
 				matrix[i][j].Ticker = vatraTiker
 			}
 		} else if temperatura > MapaFaza[materijal].TackaKljucanja {
 			matrix[i][j].Materijal = MapaFaza[materijal].Vise
-//			if matrix[i][j].SekMat == SlanaVoda {
-//				matrix[i][j].Materijal = SlanaVoda
-//			}
+			//			if matrix[i][j].SekMat == SlanaVoda {
+			//				matrix[i][j].Materijal = SlanaVoda
+			//			}
 			matrix[i][j].SekMat = materijal
 		}
 	}
@@ -528,8 +528,8 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 
 	//gorenje
 	if Zapaljiv[materijal] {
-		
-		if sekmat != Vatra{
+
+		if sekmat != Vatra {
 			for k := -1; k < 2; k++ {
 				for l := -1; l < 2; l++ {
 					if matrix[i+k][j+l].Materijal == Vatra {
@@ -540,10 +540,10 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 		}
 
 		if sekmat == Vatra {
-			for k:=-1; k < 2; k++ {
+			for k := -1; k < 2; k++ {
 				random := rand.Intn(10)
 				if random > 6 {
-				matrix[i][j].Ticker = matrix[i][j].Ticker - 1
+					matrix[i][j].Ticker = matrix[i][j].Ticker - 1
 					if matrix[i+k][j-1*gravityPack.Obrnuto].Materijal == Prazno {
 						matrix[i+k][j-1*gravityPack.Obrnuto].Materijal = Vatra
 						matrix[i+k][j-1*gravityPack.Obrnuto].Temperatura = 87315 //600.00c
@@ -562,7 +562,7 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 					}
 				}
 			}
-			if !imaVazduha{
+			if !imaVazduha {
 				matrix[i][j].SekMat = Prazno
 			}
 		}
@@ -597,15 +597,15 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 
 var komponentePovezanostiVode = unionfind.New(10000)
 
-var Nedostizna  = Cestica {
-		Materijal:   Voda,
-		Temperatura: 29315,
-		BaferTemp:   0,
-		SekMat:      Prazno,
-		Ticker:      1023,
-		}
+var Nedostizna = Cestica{
+	Materijal:   Voda,
+	Temperatura: 29315,
+	BaferTemp:   0,
+	SekMat:      Prazno,
+	Ticker:      1023,
+}
 
-//UpdatePosition radi promenu pozicije cestice ukoliko je moguce i potrebno
+// UpdatePosition radi promenu pozicije cestice ukoliko je moguce i potrebno
 func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	//padanje
 
@@ -622,7 +622,7 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	} else {
 		smer = -1
 	}
-	
+
 	oktant := 1
 	smerI, smerJ := 0, 1
 	smerILevo, smerJLevo, smerIDesno, smerJDesno := -1, 1, 1, 1
