@@ -363,11 +363,6 @@ func update(matrix [][]mat.Cestica) {
 			}
 		}
 	}
-	for j := 1; j < matrixPack.VisinaKan-1; j++ {
-		for i := 1; i < matrixPack.SirinaKan-1; i++ {
-			mat.UpdatePhaseOfMatter(matrix, i, j)
-		}
-	}
 
 	ja := make([]int, matrixPack.VisinaKan)
 	for j := range ja {
@@ -379,6 +374,12 @@ func update(matrix [][]mat.Cestica) {
 	}
 	rand.Shuffle(len(ja), func(i, j int) { ja[i], ja[j] = ja[j], ja[i] })
 	rand.Shuffle(len(ia), func(i, j int) { ia[i], ia[j] = ia[j], ia[i] })
+
+	for j := 1; j < matrixPack.VisinaKan-1; j++ {
+		for i := 1; i < matrixPack.SirinaKan-1; i++ {
+			mat.UpdatePhaseOfMatter(matrix, ia[i], ja[j])
+		}
+	}
 
 	for j := 1; j < matrixPack.VisinaKan-1; j++ {
 		for i := 1; i < matrixPack.SirinaKan-1; i++ {

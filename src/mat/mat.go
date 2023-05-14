@@ -576,13 +576,25 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 	}
 
 	if materijal == Biljka {
+		brojKomsVoda := 0
 		for k := -1; k < 2; k++ {
 			for l := -1; l < 2; l++ {
-				raste := rand.Intn(2)
-				if raste == 1 {
-					if matrix[i+k][j+l].Materijal == Voda {
-						matrix[i+k][j+l].Materijal = Biljka
-						matrix[i+k][j+l].Ticker = 16
+				if matrix[i+k][j+l].Materijal == Voda {
+					brojKomsVoda++
+				}
+			}
+		}
+		if brojKomsVoda < 2 {
+
+		} else {
+			for k := -1; k < 2; k++ {
+				for l := -1; l < 2; l++ {
+					raste := rand.Intn(10-brojKomsVoda)
+					if raste == 1 {
+						if matrix[i+k][j+l].Materijal == Voda {
+							matrix[i+k][j+l].Materijal = Biljka
+							matrix[i+k][j+l].Ticker = 16
+						}
 					}
 				}
 			}

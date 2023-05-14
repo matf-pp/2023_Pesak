@@ -22,25 +22,28 @@ var CentarGravitacijeY int
 */
 //ProveriOktant vraća oktant kome pripada Cestica u odnosu na položaj miša
 func ProveriOktant(x int, y int, xMis int, yMis int) int {
-	if (y - yMis) >= 3 * (x - xMis) && 3 * (y - yMis) < (x - xMis) {
+	dy := float64(y-yMis)
+	dx := float64(x-xMis)
+	koeff := 2.4142135623730950488016
+	if dy >= koeff * (dx) && koeff * (dy) < (dx) {
 		return 8
 	}
-	if 3 * (y - yMis) >= (x - xMis) && 3 * (y - yMis) < -(x - xMis) {
+	if koeff * (dy) >= (dx) && koeff * (dy) < -(dx) {
 		return 7
 	}
-	if 3 * (y - yMis) >= -(x - xMis) && y - yMis < -3 * (x - xMis) {
+	if koeff * (dy) >= -(dx) && dy < -koeff * (dx) {
 		return 6
 	}
-	if y - yMis >= -3 * (x - xMis) && y - yMis >= 3 * (x - xMis) {
+	if dy >= -koeff * (dx) && dy >= koeff * (dx) {
 		return 5
 	} 
-	if y - yMis < 3 * (x - xMis) && 3 * (y - yMis) >= (x - xMis) {
+	if dy < koeff * (dx) && koeff * (dy) >= (dx) {
 		return 4
 	}
-	if 3 * (y - yMis) < (x - xMis) && 3 * (y - yMis) >= -(x - xMis) {
+	if koeff * (dy) < (dx) && koeff * (dy) >= -(dx) {
 		return 3
 	}
-	if 3 * (y - yMis) < -(x - xMis) && (y - yMis) >= -3 * (x - xMis) {
+	if koeff * (dy) < -(dx) && (dy) >= -koeff * (dx) {
 		return 2
 	}
 	return 1
