@@ -28,7 +28,7 @@ var keystates = sdl.GetKeyboardState()
 
 func main() {
 	if screenPack.AutoFitScreen {
-		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(40)
+		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
 	}
 
 	screenPack.UpdateRazmere()

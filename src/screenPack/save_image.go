@@ -1,10 +1,10 @@
-//Package screenPack sadrzi razne f-je vezane za prikaz slike
+// Package screenPack sadrzi razne f-je vezane za prikaz slike
 package screenPack
 
 import (
+	"main/src/languagePack"
 	"main/src/mat"
 	"main/src/matrixPack"
-	"main/src/languagePack"
 
 	"fmt"
 	"image"
@@ -15,7 +15,7 @@ import (
 	"path/filepath"
 )
 
-//SaveImage čuva kanvas kao sliku apskejlovanu na veličinu ekrana
+// SaveImage čuva kanvas kao sliku apskejlovanu na veličinu ekrana
 func SaveImage(matrix [][]mat.Cestica, scaleFactor int) {
 	// pravimo praznu sliku pa je popunjavamo
 	width := len(matrix)
@@ -31,7 +31,7 @@ func SaveImage(matrix [][]mat.Cestica, scaleFactor int) {
 	for y := 0; y < targetHeight; y++ {
 		for x := 0; x < targetWidth; x++ {
 
-			if matrix[x/scaleFactor][y/scaleFactor].Materijal == mat.Vatra || matrix[x/scaleFactor][y/scaleFactor].Materijal == mat.Drvo || matrix[x/scaleFactor][y/scaleFactor].Materijal == mat.Dim {
+			if matrix[x/scaleFactor][y/scaleFactor].Materijal == mat.Vatra || (matrix[x/scaleFactor][y/scaleFactor].Materijal == mat.Drvo && matrix[x/scaleFactor][y/scaleFactor].Temperatura > 47315) || matrix[x/scaleFactor][y/scaleFactor].Materijal == mat.Dim {
 
 				hexColor = matrixPack.IzracunajBoju(matrix[x/scaleFactor][y/scaleFactor])
 			} else {
@@ -47,7 +47,7 @@ func SaveImage(matrix [][]mat.Cestica, scaleFactor int) {
 	}
 
 	// pravimo dir za sejv ako ga nemamo
-	imgDir := "res/images"
+	imgDir := "images"
 	if err := os.MkdirAll(imgDir, os.ModePerm); err != nil {
 		fmt.Println(languagePack.NeuspehDirTekst[mat.IzabraniJezik], err)
 		return
