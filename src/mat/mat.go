@@ -665,6 +665,7 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 			matrix[i+lRand][j+rRand] = trenutna
 			pomeren = true
 		}
+		return
 	}
 
 	if pomeren {
