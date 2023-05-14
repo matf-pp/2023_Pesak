@@ -13,6 +13,11 @@ require (
 require github.com/sajberk/steganography v0.0.0-20230501003847-9a1be84766f7
 
 require (
+	github.com/moorara/algo v0.4.4 // indirect
+	github.com/theodesp/unionfind v0.0.0-20200112172429-2bf90fd5b8c5 // indirect
+)
+
+require (
 	github.com/hugolgst/rich-go v0.0.0-20210925091458-d59fb695d9c0 // indirect
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e // indirect
 	golang.org/x/sys v0.7.0 // indirect; indirects

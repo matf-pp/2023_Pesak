@@ -5,7 +5,10 @@ import (
 	"main/src/gravityPack"
 
 	"math/rand"
+
+	"github.com/theodesp/unionfind"
 )
+
 
 //KursorPoslednjiX je posledja x koordinata misa
 var KursorPoslednjiX = int32(0)
@@ -266,6 +269,8 @@ var Zapaljiv = map[Materijal]bool{
 	Zid:       false,
 }
 
+
+
 //Cestica je struktura u kojoj cuvamo sve potrebne informacije o cestici
 type Cestica struct {
 	Materijal   Materijal
@@ -273,6 +278,7 @@ type Cestica struct {
 	BaferTemp   uint64
 	SekMat      Materijal
 	Ticker      int32
+
 }
 
 //NewCestica prima Materijal, konstruise novu Cesticu i vraca je
@@ -589,6 +595,16 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 
 }
 
+var komponentePovezanostiVode = unionfind.New(10000)
+
+var Nedostizna  = Cestica {
+		Materijal:   Voda,
+		Temperatura: 29315,
+		BaferTemp:   0,
+		SekMat:      Prazno,
+		Ticker:      1023,
+		}
+
 //UpdatePosition radi promenu pozicije cestice ukoliko je moguce i potrebno
 func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	//padanje
@@ -613,9 +629,9 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	smerILevo2, smerJLevo2, smerIDesno2, smerJDesno2 := -1, 0, 1, 0
 	if gravityPack.GRuka || gravityPack.GTacka {
 		if gravityPack.GRuka {
-			oktant = gravityPack.ProveriOktant(i*6, j*6, int(KursorPoslednjiX), int(KursorPoslednjiY))
+			oktant = gravityPack.ProveriOktant(i*10, j*10, int(KursorPoslednjiX), int(KursorPoslednjiY))
 		} else {
-			oktant = gravityPack.ProveriOktant(i*6, j*6, int(gravityPack.CentarGravitacijeX), int(gravityPack.CentarGravitacijeY))
+			oktant = gravityPack.ProveriOktant(i*10, j*10, int(gravityPack.CentarGravitacijeX), int(gravityPack.CentarGravitacijeY))
 		}
 		smerI, smerJ = gravityPack.GdePadaDole(oktant)
 		smerILevo, smerJLevo, smerIDesno, smerJDesno = gravityPack.GdePadaUkosoDole(oktant)

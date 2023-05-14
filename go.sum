@@ -6,12 +6,16 @@ github.com/hugolgst/rich-go v0.0.0-20210925091458-d59fb695d9c0 h1:IkZfZBWufGFLvc
 github.com/hugolgst/rich-go v0.0.0-20210925091458-d59fb695d9c0/go.mod h1:nGaW7CGfNZnhtiFxMpc4OZdqIexGXjUlBnlmpZmjEKA=
 github.com/lxn/win v0.0.0-20210218163916-a377121e959e h1:H+t6A/QJMbhCSEH5rAuRxh+CtW96g0Or0Fxa9IKr4uc=
 github.com/lxn/win v0.0.0-20210218163916-a377121e959e/go.mod h1:KxxjdtRkfNoYDCUP5ryK7XJJNTnpC8atvtmTheChOtk=
+github.com/moorara/algo v0.4.4 h1:WzZNcWTW8syW4YStHuVlC5I3dBqlZATXlWFGCE4vFBE=
+github.com/moorara/algo v0.4.4/go.mod h1:IOvo7VripkMP9raakxVWeDHpb11N7nhHkBwdJI/SlDo=
 github.com/sajberk/rich-go v0.0.0-20230426132632-eabe51b71683 h1:c6BKdkq4o0ZITi71vLHaSPVnJgAdG32wFKC6HOo29es=
 github.com/sajberk/rich-go v0.0.0-20230426132632-eabe51b71683/go.mod h1:JKYIUUBCH9PjLDSjdmi4ZinOOJez9bxseb2KkyxIAcs=
 github.com/sajberk/steganography v0.0.0-20230501003847-9a1be84766f7 h1:tnOS0r+2lsCuUp9SYMeu/8JTQHNKRW8rvTKXvHQjJIE=
 github.com/sajberk/steganography v0.0.0-20230501003847-9a1be84766f7/go.mod h1:P/Fr7Ph5a99pmfJVlegbjrssHmhhZ9uPIKm5AZA1BLY=
 github.com/sergeymakinen/go-bmp v1.0.0-beta.1 h1:6f85uJkYkOrDE6nVI+G1CmS7qa89KfeDyXe4YDIRWfE=
 github.com/sergeymakinen/go-bmp v1.0.0-beta.1/go.mod h1:/mxlAQZRLxSvJFNIEGGLBE/m40f3ZnUifpgVDlcUIEY=
+github.com/theodesp/unionfind v0.0.0-20200112172429-2bf90fd5b8c5 h1:1dKIEUOsOeeK4N1GNeQmdsCR1OXoSrDaphIHjrg90tA=
+github.com/theodesp/unionfind v0.0.0-20200112172429-2bf90fd5b8c5/go.mod h1:1YbOQ/RED6w5UOYsaWLb346ayQhuDN5xE5Tv31r1n38=
 github.com/veandco/go-sdl2 v0.4.35 h1:NohzsfageDWGtCd9nf7Pc3sokMK/MOK+UA2QMJARWzQ=
 github.com/veandco/go-sdl2 v0.4.35/go.mod h1:OROqMhHD43nT4/i9crJukyVecjPNYYuCofep6SNiAjY=
 golang.org/x/sys v0.0.0-20201018230417-eeed37f84f13/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
