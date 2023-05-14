@@ -1,18 +1,17 @@
-//Package main je glavni paket Peska
+// Package main je glavni paket Peska
 package main
 
 import (
-	"main/src/mat"
-	"main/src/rpcPack"
-	"main/src/fontPack"
 	"main/src/brushPack"
-	"main/src/musicPack"
-	"main/src/matrixPack"
-	"main/src/screenPack"
+	"main/src/fontPack"
 	"main/src/gravityPack"
 	"main/src/languagePack"
+	"main/src/mat"
+	"main/src/matrixPack"
+	"main/src/musicPack"
+	"main/src/rpcPack"
+	"main/src/screenPack"
 
-	"fmt"
 	"math/rand"
 
 	// ako mix zabaguje, $export CGO_CFLAGS=-I/usr/include/SDL2 	/limun
@@ -22,8 +21,6 @@ import (
 )
 
 var boja = mat.Boja
-
-var fpsCap = 0
 
 var pozadinaGuia uint32 = 0x111122
 
@@ -94,6 +91,11 @@ func main() {
 		screenPack.RenderujGumbZaSveMaterijale(renderer)
 		var hexColor uint32
 
+		fpsGumb := screenPack.CreateSpecialGumb(5)
+		hexColor = 0xabcdef
+		renderer.SetDrawColor(uint8(hexColor>>16), uint8(hexColor>>8), uint8(hexColor), 255)
+		renderer.FillRect(&fpsGumb)
+
 		brushGumb := screenPack.CreateSpecialGumb(4)
 		hexColor = 0x00ffff
 		renderer.SetDrawColor(uint8(hexColor>>16), uint8(hexColor>>8), uint8(hexColor), 255)
@@ -127,14 +129,13 @@ func main() {
 		renderer.SetDrawColor(uint8(pozadinaGuia>>16), uint8(pozadinaGuia>>8), uint8(pozadinaGuia), 255)
 		renderer.Present()
 
-		if fpsCap > 0 {
-			expectedFrameTime := uint64(1000 / fpsCap)
-			realFrameTime := sdl.GetTicks64() - startTime
-			if expectedFrameTime > realFrameTime {
-				sdl.Delay(uint32(expectedFrameTime - realFrameTime))
-			}
+		expectedFrameTime := uint64(1000 / matrixPack.FpsCap)
+		realFrameTime := sdl.GetTicks64() - startTime
+		if expectedFrameTime > realFrameTime {
+			sdl.Delay(uint32(expectedFrameTime - realFrameTime))
 		}
-		fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
+
+		//fmt.Printf("FPS: %d\n", int(1000.0/float64(sdl.GetTicks64()-startTime)))
 	}
 
 }
@@ -257,7 +258,7 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				if mat.IzabraniJezik > 0 {
 					mat.IzabraniJezik--
 				} else {
-					mat.IzabraniJezik = mat.BrJezika-1
+					mat.IzabraniJezik = mat.BrJezika - 1
 				}
 			}
 			if keystates[sdl.SCANCODE_F2] != 0 {
@@ -338,7 +339,6 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 	return running
 
 }
-
 
 func update(matrix [][]mat.Cestica) {
 
