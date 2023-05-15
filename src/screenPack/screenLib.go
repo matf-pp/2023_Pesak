@@ -102,6 +102,7 @@ func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
 		if y > VisinaProzora-2*(VisinaDugmeta+VisinaUIMargine) && y < VisinaProzora-2*(VisinaDugmeta+VisinaUIMargine)+VisinaDugmeta {
 			sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "Pesak", languagePack.SlikaSeCuvaTekst[mat.IzabraniJezik], nil)
 			go SaveImage(matrix, int(matrixPack.BrPiksPoCestici))
+			sdl.ShowSimpleMessageBox(sdl.MESSAGEBOX_INFORMATION, "Pesak", languagePack.SlikaSeSacuvalaTekst[mat.IzabraniJezik], nil)
 		}
 
 		// RESET

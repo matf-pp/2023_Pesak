@@ -43,7 +43,7 @@ func TextMaker(font *ttf.Font, renderer *sdl.Renderer, matrica [][]mat.Cestica) 
 	// PESAK
 	if mat.KursorPoslednjiX < matrixPack.SirinaKan*matrixPack.BrPiksPoCestici {
 		var poslednjiPiksel = matrica[mat.KursorPoslednjiX/matrixPack.BrPiksPoCestici][mat.KursorPoslednjiY/matrixPack.BrPiksPoCestici]
-		infoText = mat.Ime[poslednjiPiksel.Materijal][mat.IzabraniJezik] + " @ " + fmt.Sprintf("%.2f", float32((-27315+int32(poslednjiPiksel.Temperatura))/100)) + "C, SekMat: " + mat.Ime[poslednjiPiksel.SekMat][mat.IzabraniJezik] + ", Ticker: " + strconv.Itoa(int(poslednjiPiksel.Ticker))
+		infoText = mat.Ime[poslednjiPiksel.Materijal][mat.IzabraniJezik] + " @ " + fmt.Sprintf("%.2f", float32((-27315+int32(poslednjiPiksel.Temperatura))/100)) + "C, SekMat: " + mat.Ime[poslednjiPiksel.SekMat][mat.IzabraniJezik] + ", Ticker: " + strconv.Itoa(int(poslednjiPiksel.Ticker)) + ", Speed: " + fmt.Sprintf("%.1f", float64(matrixPack.FpsCap)/60.0) + "x"
 
 		// UI
 	} else {
@@ -53,6 +53,10 @@ func TextMaker(font *ttf.Font, renderer *sdl.Renderer, matrica [][]mat.Cestica) 
 			if len(mat.Ime[someMat]) > 0 {
 				infoText = mat.Ime[someMat][mat.IzabraniJezik]
 			}
+		}
+		// CHANGE BRUSH
+		if mat.KursorPoslednjiY > screenPack.VisinaProzora-5*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && mat.KursorPoslednjiY < screenPack.VisinaProzora-5*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
+			infoText = languagePack.BrzinaTekst[mat.IzabraniJezik] + fmt.Sprintf("%.1f", float64((matrixPack.FpsCap*2)%210)/60.0) + "x"
 		}
 		// CHANGE BRUSH
 		if mat.KursorPoslednjiY > screenPack.VisinaProzora-4*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine) && mat.KursorPoslednjiY < screenPack.VisinaProzora-4*(screenPack.VisinaDugmeta+screenPack.VisinaUIMargine)+screenPack.VisinaDugmeta {
