@@ -7,7 +7,7 @@ Pesak is a 2D [falling-sand](https://en.wikipedia.org/wiki/Falling-sand_game) si
 
 Now with Discord Rich Presence support!
 
-![tuta](./tuta.gif)
+![tuta](./docs/tuta.gif)
 
 ## Get yourself a Pesak
 The most recent stable and well-tested binaries of Pesak for Linux and Windows are available in the [releases](https://github.com/matf-pp/2023_Pesak/releases) section of this repo. To get started with Pesak, we strongly encourage downloading the executables over compiling them on your machine.
@@ -47,7 +47,11 @@ $ ./main
 * G  -  change the direction of gravity
 * M  -  mute/unmute sound
 * R  -  restart music from the begining
+* G  -  change the way of gravity
+* Q  -  change the direction of gravity
+* M  -  mute/unmute sound
 * Z/X  -  change volume
+* hold ctrl - hold Q
 * esc  -  exit
 
 <!-- ![GUI](https://i.imgur.com/JoI7s4I.png) -->
