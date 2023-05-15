@@ -59,6 +59,7 @@ func main() {
 	defer font.Close()
 
 	go rpcPack.ConnectToDiscord()
+	go rpcPack.UpdateRPC(mat.Ime[screenPack.TrenutniMat][0])
 
 	var matrica [][]mat.Cestica = matrixPack.NapraviSlajs()
 

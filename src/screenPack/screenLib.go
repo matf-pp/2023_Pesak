@@ -5,6 +5,7 @@ import (
 	"main/src/languagePack"
 	"main/src/mat"
 	"main/src/matrixPack"
+	"main/src/rpcPack"
 
 	"math"
 
@@ -79,6 +80,7 @@ func ProveriPritisakNaGumb(matrix [][]mat.Cestica, x, y int32) {
 	if x > SirinaProzora-MarginaZaGumbad+SirinaUIMargine && x < SirinaProzora-SirinaUIMargine {
 		if y < (VisinaUIMargine+VisinaDugmeta)*int32(mat.PoslMat+1) && y%(VisinaUIMargine+VisinaDugmeta) > VisinaUIMargine {
 			TrenutniMat = mat.Materijal(y / (VisinaUIMargine + VisinaDugmeta))
+			go rpcPack.UpdateRPC(mat.Ime[TrenutniMat][0])
 		}
 
 		// FPS LIMIT
