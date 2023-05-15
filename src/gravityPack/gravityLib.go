@@ -22,9 +22,9 @@ var CentarGravitacijeY int
 */
 //ProveriOktant vraća oktant kome pripada Cestica u odnosu na položaj miša
 func ProveriOktant(x int, y int, xMis int, yMis int) int {
-	dy := float64(y-yMis)
-	dx := float64(x-xMis)
-	koeff := 2.4142135623730950488016
+	dy := (y-yMis)
+	dx := (x-xMis)
+	koeff := 2//2.4142135623730950488016
 	if dy >= koeff * (dx) && koeff * (dy) < (dx) {
 		return 8
 	}
