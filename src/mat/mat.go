@@ -58,30 +58,30 @@ const (
 // Ime materijala koje se ispisuje pri haverovanju misem preko cestice ili dugmeta
 var Ime = map[Materijal][]string{
 	// srpski   engleski
-	Prazno:    {"Prazno", "Nothing", "Nic"},
-	Metal:     {"Metal", "Metal", "Metal"},
-	Led:       {"Led", "Ice", "Lod"},
-	SlaniLed:  {"Slani led", "Saltice", "Slony lod"},
-	Kamen:     {"Kamen", "Rock", "Skala"},
-	Drvo:      {"Drvo", "Wood", "Drewno"},
-	Biljka:    {"Biljka", "Plant", "Roslina"},
-	Sljunak:   {"Sljunak", "Gravel", "Zwir"},
-	Pesak:     {"Pesak", "Sand", "Piasek"},
-	So:        {"So", "Salt", "Sol"},
-	Rdja:      {"Rdja", "Rust", "Rdza"},
-	Lava:      {"Lava", "Lava", "Lawa"},
-	Voda:      {"Voda", "Water", "Woda"},
-	Zejtin:    {"Zejtin", "Oil", "Olej"},
-	Kiselina:  {"Kiselina", "Acid", "Kwas"},
-	SlanaVoda: {"Slana voda", "Saltwater", "Slona woda"},
-	Para:      {"Para", "Steam", "Para"},
-	Vatra:     {"Vatra", "Fire", "Ogien"},
-	Dim:       {"Dim", "Smoke", "Dym"},
-	TecniAzot: {"Tecni Azot", "Liquid nitrogen", "Ciekly azot"},
-	Plazma:    {"Plazma", "Plazma", "Plazma"},
-	Toplo:     {"Toplo", "Warm", "Cieple"},
-	Hladno:    {"Hladno", "Cold", "Zimne"},
-	Zid:       {"Zid", "Wall", "Sciana"},
+	Prazno:    {"Prazno", "Nothing", "Nic", "لا شئ"},
+	Metal:     {"Metal", "Metal", "Metal", "معدن"},
+	Led:       {"Led", "Ice", "Lod", "جليد"},
+	SlaniLed:  {"Slani led", "Saltice", "Slony lod", "ملح"},
+	Kamen:     {"Kamen", "Rock", "Skala", "صخر"},
+	Drvo:      {"Drvo", "Wood", "Drewno", "خشب"},
+	Biljka:    {"Biljka", "Plant", "Roslina", "نبات"},
+	Sljunak:   {"Sljunak", "Gravel", "Zwir", "حصى"},
+	Pesak:     {"Pesak", "Sand", "Piasek", "رمل"},
+	So:        {"So", "Salt", "Sol", "ملح"},
+	Rdja:      {"Rdja", "Rust", "Rdza", "الصدأ"},
+	Lava:      {"Lava", "Lava", "Lawa", "حمم بركانية"},
+	Voda:      {"Voda", "Water", "Woda", "ماء"},
+	Zejtin:    {"Zejtin", "Oil", "Olej", "زيت"},
+	Kiselina:  {"Kiselina", "Acid", "Kwas", "حامض"},
+	SlanaVoda: {"Slana voda", "Saltwater", "Slona woda", "ماء مالح"},
+	Para:      {"Para", "Steam", "Para", "بخار"},
+	Vatra:     {"Vatra", "Fire", "Ogien", "نار"},
+	Dim:       {"Dim", "Smoke", "Dym", "دخان"},
+	TecniAzot: {"Tecni Azot", "Liquid nitrogen", "Ciekly azot", "نيتروجين سائل"},
+	Plazma:    {"Plazma", "Plazma", "Plazma", "بلازما"},
+	Toplo:     {"Toplo", "Warm", "Cieple", "دافيء"},
+	Hladno:    {"Hladno", "Cold", "Zimne", "بارد"},
+	Zid:       {"Zid", "Wall", "Sciana", "حائط"},
 }
 
 // Boja cestice (za neke materijale se zove funkcija koja u obzir uzima druge osobine)
@@ -576,25 +576,21 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 	}
 
 	if materijal == Biljka {
-		brojKomsVoda := 0
+		brojKomsVoda := 1
 		for k := -1; k < 2; k++ {
 			for l := -1; l < 2; l++ {
 				if matrix[i+k][j+l].Materijal == Voda {
-					brojKomsVoda++
+					brojKomsVoda *= 10
 				}
 			}
 		}
-		if brojKomsVoda < 2 {
-
-		} else {
-			for k := -1; k < 2; k++ {
-				for l := -1; l < 2; l++ {
-					raste := rand.Intn(10-brojKomsVoda)
-					if raste == 1 {
-						if matrix[i+k][j+l].Materijal == Voda {
-							matrix[i+k][j+l].Materijal = Biljka
-							matrix[i+k][j+l].Ticker = 16
-						}
+		for k := -1; k < 2; k++ {
+			for l := -1; l < 2; l++ {
+				raste := rand.Intn(100000000/brojKomsVoda)
+				if raste == 0 {
+					if matrix[i+k][j+l].Materijal == Voda {
+						matrix[i+k][j+l].Materijal = Biljka
+						matrix[i+k][j+l].Ticker = 16
 					}
 				}
 			}
@@ -688,6 +684,7 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 
 	/**/
 	if (astanje & 0b0010) != 0 {
+		trenutna = matrix[i][j]
 		rFaktor := rand.Intn(2)*2 - 1 //{-1, 1}
 		// koristi rFaktor da izabere smerILevo ili smerIDesno
 		// ali ujedno i postavlja rFaktor na izabrani
@@ -714,8 +711,10 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 			}
 		}
 	}
+
 	// proverava moze li se zameniti ne samo sa horizontalnim susedom vec i sa dva odjednom, da bi se brze iznivelisala
 	if (astanje & 0b0100) != 0 {
+		trenutna = matrix[i][j]
 		rFaktor := rand.Intn(2)*2 - 1 //{-1, 1}
 		lFaktor := 0
 		if rFaktor == -1 {
@@ -725,20 +724,22 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 			rFaktor = smerIDesno2
 			lFaktor = smerJDesno2
 		}
-		komsija := matrix[i+rFaktor][j+lFaktor]
-//		komsijaDalji := matrix[i+rFaktor+rFaktor][j+lFaktor]
-		if (AStanje[komsija.Materijal] & 0b0100) != 0 {
-//			if (AStanje[komsijaDalji.Materijal] & 0b0100) != 0 {
-//				matrix[i+rFaktor+rFaktor][j+lFaktor+lFaktor], matrix[i][j] = trenutna, matrix[i+rFaktor+rFaktor][j+lFaktor+lFaktor]
-//			} else {
+		komsija1 := matrix[i+rFaktor][j+lFaktor]
+		komsijaDalji1 := matrix[i+rFaktor+rFaktor][j+lFaktor+lFaktor]
+		komsija2 := matrix[i-rFaktor][j-lFaktor]
+		komsijaDalji2 := matrix[i-rFaktor-rFaktor][j-lFaktor-lFaktor]
+		if (AStanje[komsija1.Materijal] & 0b0100) != 0 {
+			if (AStanje[komsijaDalji1.Materijal] & 0b0100) != 0 {
+				matrix[i+rFaktor+rFaktor][j+lFaktor+lFaktor], matrix[i][j] = trenutna, matrix[i+rFaktor+rFaktor][j+lFaktor+lFaktor]
+			} else {
 				matrix[i+rFaktor][j+lFaktor], matrix[i][j] = trenutna, matrix[i+rFaktor][j+lFaktor]
-//			}
-		} else if (AStanje[komsija.Materijal] & 0b0100) != 0 {
-//			if (AStanje[komsijaDalji.Materijal] & 0b0100) != 0 {
-//				matrix[i-rFaktor-rFaktor][j-lFaktor], matrix[i][j] = trenutna, matrix[i-rFaktor-rFaktor][j+lFaktor]
-//			} else {
-				matrix[i-rFaktor][j+lFaktor], matrix[i][j] = trenutna, matrix[i-rFaktor][j+lFaktor]
-//			}
+			}
+		} else if (AStanje[komsija2.Materijal] & 0b0100) != 0 {
+			if (AStanje[komsijaDalji2.Materijal] & 0b0100) != 0 {
+				matrix[i-rFaktor-rFaktor][j-lFaktor-lFaktor], matrix[i][j] = trenutna, matrix[i-rFaktor-rFaktor][j-lFaktor-lFaktor]
+			} else {
+				matrix[i-rFaktor][j-lFaktor], matrix[i][j] = trenutna, matrix[i-rFaktor][j-lFaktor]
+			}
 		}
 		pomeren = true
 
@@ -747,5 +748,4 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	if pomeren {
 		return
 	}
-
 }

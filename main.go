@@ -26,9 +26,11 @@ var pozadinaGuia uint32 = 0x111122
 
 var keystates = sdl.GetKeyboardState()
 
+var font *ttf.Font
+
 func main() {
 	if screenPack.AutoFitScreen {
-		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
+		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(40)
 	}
 
 	screenPack.UpdateRazmere()
@@ -71,6 +73,8 @@ func main() {
 	for running {
 		// fps counter
 		var startTime = sdl.GetTicks64()
+
+		font = fontPack.SetFont()
 
 		running = pollEvents(matrica)
 		if !matrixPack.Pause {
