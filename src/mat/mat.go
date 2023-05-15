@@ -726,19 +726,19 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 			lFaktor = smerJDesno2
 		}
 		komsija := matrix[i+rFaktor][j+lFaktor]
-		komsijaDalji := matrix[i+rFaktor+rFaktor][j+lFaktor]
+//		komsijaDalji := matrix[i+rFaktor+rFaktor][j+lFaktor]
 		if (AStanje[komsija.Materijal] & 0b0100) != 0 {
-			if (AStanje[komsijaDalji.Materijal] & 0b0100) != 0 {
-				matrix[i+rFaktor+rFaktor][j+lFaktor], matrix[i][j] = trenutna, matrix[i+rFaktor+rFaktor][j+lFaktor]
-			} else {
+//			if (AStanje[komsijaDalji.Materijal] & 0b0100) != 0 {
+//				matrix[i+rFaktor+rFaktor][j+lFaktor+lFaktor], matrix[i][j] = trenutna, matrix[i+rFaktor+rFaktor][j+lFaktor+lFaktor]
+//			} else {
 				matrix[i+rFaktor][j+lFaktor], matrix[i][j] = trenutna, matrix[i+rFaktor][j+lFaktor]
-			}
+//			}
 		} else if (AStanje[komsija.Materijal] & 0b0100) != 0 {
-			if (AStanje[komsijaDalji.Materijal] & 0b0100) != 0 {
-				matrix[i-rFaktor-rFaktor][j+lFaktor], matrix[i][j] = trenutna, matrix[i-rFaktor-rFaktor][j+lFaktor]
-			} else {
+//			if (AStanje[komsijaDalji.Materijal] & 0b0100) != 0 {
+//				matrix[i-rFaktor-rFaktor][j-lFaktor], matrix[i][j] = trenutna, matrix[i-rFaktor-rFaktor][j+lFaktor]
+//			} else {
 				matrix[i-rFaktor][j+lFaktor], matrix[i][j] = trenutna, matrix[i-rFaktor][j+lFaktor]
-			}
+//			}
 		}
 		pomeren = true
 
