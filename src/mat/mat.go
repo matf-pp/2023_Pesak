@@ -15,11 +15,11 @@ var KursorPoslednjiX = int32(0)
 // KursorPoslednjiY je posledja y koordinata misa
 var KursorPoslednjiY = int32(0)
 
-// IzabraniJezik: srpski, engleski, poljski, ...
-var IzabraniJezik = 0
+// IzabraniJezik: српски, srpski, engleski, poljski, tagalog, ...
+var IzabraniJezik = 1
 
 // BrJezika je broj jezika
-var BrJezika = 3
+var BrJezika = 5
 
 // PoslMat je poslednji materijal koji se prikazuje
 var PoslMat = 18
@@ -57,31 +57,31 @@ const (
 
 // Ime materijala koje se ispisuje pri haverovanju misem preko cestice ili dugmeta
 var Ime = map[Materijal][]string{
-	// srpski   engleski
-	Prazno:    {"Prazno", "Nothing", "Nic", "لا شئ"},
-	Metal:     {"Metal", "Metal", "Metal", "معدن"},
-	Led:       {"Led", "Ice", "Lod", "جليد"},
-	SlaniLed:  {"Slani led", "Saltice", "Slony lod", "ملح"},
-	Kamen:     {"Kamen", "Rock", "Skala", "صخر"},
-	Drvo:      {"Drvo", "Wood", "Drewno", "خشب"},
-	Biljka:    {"Biljka", "Plant", "Roslina", "نبات"},
-	Sljunak:   {"Sljunak", "Gravel", "Zwir", "حصى"},
-	Pesak:     {"Pesak", "Sand", "Piasek", "رمل"},
-	So:        {"So", "Salt", "Sol", "ملح"},
-	Rdja:      {"Rdja", "Rust", "Rdza", "الصدأ"},
-	Lava:      {"Lava", "Lava", "Lawa", "حمم بركانية"},
-	Voda:      {"Voda", "Water", "Woda", "ماء"},
-	Zejtin:    {"Zejtin", "Oil", "Olej", "زيت"},
-	Kiselina:  {"Kiselina", "Acid", "Kwas", "حامض"},
-	SlanaVoda: {"Slana voda", "Saltwater", "Slona woda", "ماء مالح"},
-	Para:      {"Para", "Steam", "Para", "بخار"},
-	Vatra:     {"Vatra", "Fire", "Ogien", "نار"},
-	Dim:       {"Dim", "Smoke", "Dym", "دخان"},
-	TecniAzot: {"Tecni Azot", "Liquid nitrogen", "Ciekly azot", "نيتروجين سائل"},
-	Plazma:    {"Plazma", "Plazma", "Plazma", "بلازما"},
-	Toplo:     {"Toplo", "Warm", "Cieple", "دافيء"},
-	Hladno:    {"Hladno", "Cold", "Zimne", "بارد"},
-	Zid:       {"Zid", "Wall", "Sciana", "حائط"},
+	// српски, srpski, engleski, poljski, tagalog
+	Prazno:    {"Празно", "Prazno", "Nothing", "Nic", "Wala", "لا شيئ"},
+	Metal:     {"Метал", "Metal", "Metal", "Metal", "Metal", "معدن"},
+	Led:       {"Лед", "Led", "Ice", "Lód", "Yelo", "ملح"},
+	SlaniLed:  {"Слани лед", "Slani led", "Salty ice", "Słony lód", "Maalat na yelo", "جليد مالح"},
+	Kamen:     {"Камен", "Kamen", "Rock", "Skała", "Bato", "صخر"},
+	Drvo:      {"Дрво", "Drvo", "Wood", "Drewno", "Kahoy", "خشب"},
+	Biljka:    {"Биљка", "Biljka", "Plant", "Roślina", "Halaman", "نبات"},
+	Sljunak:   {"Шљунак", "Šljunak", "Gravel", "Żwir", "Graba", "حصى"},
+	Pesak:     {"Песак", "Pesak", "Sand", "Piasek", "Buhangin", "رمل"},
+	So:        {"Со", "So", "Salt", "Sól", "Asin", "ملح"},
+	Rdja:      {"Рђа", "Rđa", "Rust", "Rdza", "Kalawang", "الصدأ"},
+	Lava:      {"Лава", "Lava", "Lava", "Lawa", "Lava", "حمم بركانية"},
+	Voda:      {"Вода", "Voda", "Water", "Woda", "Tubig", "ماء"},
+	Zejtin:    {"Зејтин", "Zejtin", "Oil", "Olej", "Krudo", "زيت"},
+	Kiselina:  {"Киселина", "Kiselina", "Acid", "Kwas", "Asido", "حمض"},
+	SlanaVoda: {"Слана вода", "Slana voda", "Saltwater", "Słona woda", "Tubig alat", "ماء مالح"},
+	Para:      {"Пара", "Para", "Steam", "Para", "Singaw", "بخار"},
+	Vatra:     {"Ватра", "Vatra", "Fire", "Ogień", "Apoy", "نار"},
+	Dim:       {"Дим", "Dim", "Smoke", "Dym", "Usok", "دخان"},
+	TecniAzot: {"Течни азот", "Tečni Azot", "Liquid nitrogen", "Ciekły azot", "Liquid nitrogen", "نيتروجين سائل"},
+	Plazma:    {"Плазма", "Plazma", "Plasma", "Plazma", "Plasma", "بلازما"},
+	Toplo:     {"Топло", "Toplo", "Warm", "Ciepłe", "Painitin", "دافئ"},
+	Hladno:    {"Хладно", "Hladno", "Cold", "Zimne", "Palamigin", "بارد"},
+	Zid:       {"Зид", "Zid", "Wall", "Ściana", "Pader", "حائط"},
 }
 
 // Boja cestice (za neke materijale se zove funkcija koja u obzir uzima druge osobine)
