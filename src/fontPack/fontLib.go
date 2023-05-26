@@ -51,7 +51,7 @@ func TextMaker(font *ttf.Font, renderer *sdl.Renderer, matrica [][]mat.Cestica) 
 	// PESAK
 	if mat.KursorPoslednjiX < matrixPack.SirinaKan*matrixPack.BrPiksPoCestici {
 		var poslednjiPiksel = matrica[mat.KursorPoslednjiX/matrixPack.BrPiksPoCestici][mat.KursorPoslednjiY/matrixPack.BrPiksPoCestici]
-		infoText = mat.Ime[poslednjiPiksel.Materijal][mat.IzabraniJezik] + " @ " + fmt.Sprintf("%.2f", float32((-27315+int32(poslednjiPiksel.Temperatura))/100)) + "C, SekMat: " + mat.Ime[poslednjiPiksel.SekMat][mat.IzabraniJezik] + ", Ticker: " + strconv.Itoa(int(poslednjiPiksel.Ticker)) + ", Speed: " + fmt.Sprintf("%.1f", float64(matrixPack.FpsCap)/60.0) + "x"
+		infoText = "M: " + mat.Ime[poslednjiPiksel.Materijal][mat.IzabraniJezik] + " @ " + fmt.Sprintf("%.2f", float32((-27315+int32(poslednjiPiksel.Temperatura))/100)) + "C, SM: " + mat.Ime[poslednjiPiksel.SekMat][mat.IzabraniJezik] + ", T: " + strconv.Itoa(int(poslednjiPiksel.Ticker))// + ", Speed: " + fmt.Sprintf("%.1f", float64(matrixPack.FpsCap)/60.0) + "x"
 
 		// UI
 	} else {
