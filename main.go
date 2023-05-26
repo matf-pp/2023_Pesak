@@ -28,7 +28,7 @@ var font *ttf.Font
 
 func main() {
 	if screenPack.AutoFitScreen {
-		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)//ne menjaj ili ako menjas vrati na 80 kada zavrsis
+		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
 	}
 
 	screenPack.UpdateRazmere()
@@ -71,8 +71,6 @@ func main() {
 	for running {
 		// fps counter
 		var startTime = sdl.GetTicks64()
-
-	//	font = fontPack.SetFont()
 
 		running = pollEvents(matrica)
 		if !matrixPack.Pause {

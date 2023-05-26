@@ -16,7 +16,7 @@ import (
 //ShiftOn pamti da li je Shift trenutno pritisnut
 var ShiftOn = false
 
-//ObojCesticu boji cesticu //postoji li gluplji komentar u istoriji komentara
+//ObojCesticu boji cesticu
 func ObojCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32) {
 	if screenPack.TrenutniMat != mat.Toplo && screenPack.TrenutniMat != mat.Hladno {
 		if matrix[tx][ty].Materijal == mat.Prazno || (screenPack.TrenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid) {
