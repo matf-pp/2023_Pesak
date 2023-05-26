@@ -16,7 +16,7 @@ import (
 //ShiftOn pamti da li je Shift trenutno pritisnut
 var ShiftOn = false
 
-//ObojCesticu boji cesticu
+//ObojCesticu boji cesticu //postoji li gluplji komentar u istoriji komentara
 func ObojCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32) {
 	if screenPack.TrenutniMat != mat.Toplo && screenPack.TrenutniMat != mat.Hladno {
 		if matrix[tx][ty].Materijal == mat.Prazno || (screenPack.TrenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid) {
@@ -60,6 +60,11 @@ func ObrisiCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32){
 				}
 			}
 		}
+	}else{
+		if tx > 1 && tx < matrixPack.SirinaKan-2 && ty > 1 && ty < matrixPack.VisinaKan-2 {
+			matrix[tx][ty] = mat.NewCestica(mat.Prazno)
+		}
+		
 	}
 }
 

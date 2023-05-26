@@ -321,7 +321,7 @@ func NewCestica(materijal Materijal) Cestica {
 		zrno.Ticker = dimTiker
 	}
 	if materijal == Lava {
-		zrno.SekMat = Kamen
+		zrno.SekMat = Sljunak
 		zrno.Temperatura = 227315 //2000.00c
 	}
 	if materijal == TecniAzot {
@@ -347,8 +347,8 @@ func UpdateTemp(matrix [][]Cestica, i int, j int) {
 		for l := -1; l < 2; l++ {
 			if matrix[i+k][j+l].Materijal != Zid {
 				if matrix[i+k][j+l].Materijal == Prazno && matrix[i][j].Materijal == Prazno {
-					matrix[i+k][j+l].BaferTemp += uint64(parcePice / 10)
-					temperatura = temperatura - uint64(parcePice/10)
+					matrix[i+k][j+l].BaferTemp += uint64(parcePice / 5)
+					temperatura = temperatura - uint64(parcePice/5)
 				}
 				if matrix[i+k][j+l].Materijal == Prazno || matrix[i][j].Materijal == Prazno {
 					matrix[i+k][j+l].BaferTemp += uint64(parcePice / 100)
@@ -418,6 +418,8 @@ func UpdatePhaseOfMatter(matrix [][]Cestica, i int, j int) {
 			if sekmat == Rdja {
 				matrix[i][j].Materijal = Metal
 				matrix[i][j].Ticker = 127
+			} else if sekmat == Kamen {
+				matrix[i][j].Materijal = Sljunak
 			} else {
 				matrix[i][j].Materijal = sekmat
 			}

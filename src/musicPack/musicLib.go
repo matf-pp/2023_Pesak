@@ -6,7 +6,7 @@ import (
 )
 
 // Mutirana odredjuje da li je muzika utisana na 0 ili nije
-var Mutirana = false
+var Mutirana = true
 
 // Zvuk odredjuje jacinu muzike
 var Zvuk = 33

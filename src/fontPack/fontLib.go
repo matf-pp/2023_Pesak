@@ -16,7 +16,7 @@ import (
 
 var fontPath = []string {
 	//"./res/fonts/Minecraft_Cyrillic.ttf",
-	"./res/fonts/Minecraft.ttf",
+	"./res/fonts/Minecraft.ttf",//ne menjaj eng i srp koji rade
 	"./res/fonts/Minecraft.ttf",
 	"./res/fonts/Minecraft.ttf",
 	//"./res/fonts/Minecraft_Arabic.ttf",
@@ -44,6 +44,8 @@ func FontInit() *ttf.Font {
 }
 
 // TextMaker prima font, renderer i matricu Cestica; ne vraca nista; ispisuje odgovarajuci tekst na ekranu
+//ko je ovaj komentar napisao debilan je sta znaci "odgovarajuci tekst"
+//f ja ispisuje info o cestici na kojoj je kursor, ukoliko je dibag modupaljen.
 func TextMaker(font *ttf.Font, renderer *sdl.Renderer, matrica [][]mat.Cestica) {
 	var infoText = ""
 	// PESAK
@@ -112,4 +114,5 @@ func TextMaker(font *ttf.Font, renderer *sdl.Renderer, matrica [][]mat.Cestica) 
 		defer texture.Destroy()
 	}
 	defer text.Free()
+
 }
