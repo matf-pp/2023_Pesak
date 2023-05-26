@@ -20,6 +20,8 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
+var boja = mat.Boja
+
 var pozadinaGuia uint32 = 0x111122
 
 var keystates = sdl.GetKeyboardState()

@@ -14,13 +14,19 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-var fontPath = "./res/fonts/PixeloidSans-Bold.ttf"
-var FontSize = 48
+var fontPath = []string {
+	//"./res/fonts/Minecraft_Cyrillic.ttf",
+	"./res/fonts/Minecraft.ttf",
+	"./res/fonts/Minecraft.ttf",
+	"./res/fonts/Minecraft.ttf",
+	//"./res/fonts/Minecraft_Arabic.ttf",
+}
+var FontSize = 40
 const outlineSize = 2
 
 // SetFont ne prima nista; vraca font
 func SetFont() *ttf.Font {
-	font, err := ttf.OpenFont(fontPath, int(screenPack.VisinaProzora)/FontSize)
+	font, err := ttf.OpenFont(fontPath[mat.IzabraniJezik], int(screenPack.VisinaProzora)/FontSize)
 	if err != nil {
 		panic(err)
 	}

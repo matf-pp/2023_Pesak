@@ -47,7 +47,7 @@ func SaveImage(matrix [][]mat.Cestica, scaleFactor int) {
 	}
 
 	// pravimo dir za sejv ako ga nemamo
-	imgDir := "res/images"
+	imgDir := "images"
 	if err := os.MkdirAll(imgDir, os.ModePerm); err != nil {
 		fmt.Println(languagePack.NeuspehDirTekst[mat.IzabraniJezik], err)
 		return

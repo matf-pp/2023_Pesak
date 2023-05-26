@@ -3,77 +3,61 @@ package languagePack
 
 //null
 
-// jezici: српски, srpski, engleski, poljski, tagalog, ...
+// jezici: srpski, engleski, poljski, ...
 var BrzinaTekst = []string{
-	"Промени брзину симулације на ",
 	"Promeni brzinu simulacije na ",
 	"Change simulation speed to ",
-	"Zmień prędkość symulacji na ",
-	"Baguhin ang bilis ng simulation to ",
+	"Zmien predkosc symulacji na",
 	"تغيير سرعة المحاكاة إلى",
 }
 var PromeniOblikCetkeTekst = []string{
-	"Промени облик четке",
-	"Promeni oblik četke",
+	"Promeni oblik cetke",
 	"Change brush shape",
-	"Zmień kształt pędzla",
-	"Baguhin ang hugis ng brush",
+	"Zmien ksztalt pedzla",
 	"تغيير شكل الفرشاة",
 }
 var ZaustaviTekst = []string{
-	"Заустави", "Zaustavi", "Pause", "Wstrzymaj", "I-pause", "إيقاف",
+	"Zaustavi", "Pause", "Wstrzymaj", "يوقف",
 }
 var SacuvajTekst = []string{
-	"Сачувај", "Sačuvaj", "Save", "Zapisz", "I-save", "حفظ",
+	"Sacuvaj", "Save", "Zapisz", "يحفظ",
 }
 var OcistiTekst = []string{
-	"Очисти", "Očisti", "Clear", "Wyczyść", "Linisin", "ازالة",
+	"Ocisti", "Clear", "Oczysc", "واضح",
 }
 var SlikaSeCuvaTekst = []string{
-	"Чувамо слику... молим не искључујте струју",
-	"Čuvamo sliku... molim ne isključujte struju",
+	"Cuvamo sliku... molim vas ne gasite struju",
 	"Saving image... please don't turn off the power",
-	"Zapisywanie obrazu... proszę nie wyłączać zasilania",
-	"Sine-save ang larawan... huwag i-off ang power",
+	"Zapisywanie obrazu... prosze nie wylaczac zasilania",
 	"جارٍ حفظ الصورة ... من فضلك لا تقم بإيقاف تشغيل الطاقة",
 }
 var SlikaSeSacuvalaTekst = []string{
-	"Сачувано у images фолдер!",
-	"Sačuvano u images folder!",
-	"Saved to the images folder!",
-	"Zapisano w folderze obrazów!",
-	"Nai-save sa folder ng mga larawan!",
-	"تم الحفظ في مجلد الصور!",
+	"sačuvano u images folder!",
+	"saved to the images folder!",
+	"zapisane w folderze obrazow!",
+	"حفظها في مجلد الصور!",
 }
 var NeuspehDirTekst = []string{
-	"Креирање директоријума није успело:",
-	"Kreiranje direktorijuma nije uspelo:",
+	"Neuspesno pravljenje direktorijuma:",
 	"Failed to create image directory:",
-	"Nie udało się utworzyć katalogu obrazów:",
-	"Nabigong lumikha ng direktoryo ng larawan:",
+	"Nie udalo sie utworzyc katalogu obrazow:",
 	"فشل إنشاء دليل الصور:",
 }
 var NeuspehFajlTekst = []string{
-	"Креирање излазне датотеке није успело",
-	"Kreniranje izlazne datoteke nije uspelo",
+	"Neuspesno pravljenje izlaznog fajla",
 	"Failed to create output file",
-	"Nie udało się utworzyć pliku wyjściowego",
-	"Nabigong lumikha ng output file",
+	"Nie udalo sie utworzyc plik wyjściowy",
 	"فشل إنشاء ملف الإخراج",
 }
 var NeuspehPNGTekst = []string{
-	"Неуспешно енкодирање PNG-а",
-	"Neuspešno enkodiranje PNG-a",
+	"Neuspelo enkodiranje PNG-a",
 	"Failed to encode PNG",
 	"Nie udało się zakodować PNG",
-	"Nabigong i-encode ang PNG",
 	"فشل ترميز PNG",
 }
 var KojiFormatiRadeTekst = []string{
-	"Раде: png, jpg, bmp, jbg i webp",
 	"Rade: png, jpg, bmp, jbg i webp",
 	"Working: png, jpg, bmp, jbg & webp",
-	"Działające: png, jpg, bmp, jbg i webp",
-	"Gumagana: png, jpg, bmp, jbg at webp",
-	"يعمل: png و jpg و bmp و jbg و webp",
+	"Dzialaja: png, jpg, bmp, jbg i webp",
+	"العمل: png و jpg و bmp و jbg و webp",
 }
