@@ -28,7 +28,7 @@ var font *ttf.Font
 
 func main() {
 	if screenPack.AutoFitScreen {
-		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(80)
+		matrixPack.BrPiksPoCestici, screenPack.SirinaProzora, screenPack.VisinaProzora = screenPack.FitToScreen(40)
 	}
 
 	screenPack.UpdateRazmere()
