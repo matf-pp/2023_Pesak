@@ -2,7 +2,7 @@
 package gravityPack
 
 import (
-
+	"math"
 )
 
 //Obrnuto odredjuje smer gravitacije
@@ -11,6 +11,8 @@ var Obrnuto = 1
 var GRuka bool = false
 //GTacka određuje da li je fiksna tačka centar gravitacije
 var GTacka bool = false
+//CrnaRupa određuje da li je crna rupa uključena
+var CrnaRupa bool = false
 //(CentarGravitacijeX, CentarGravitacijeY) je tačka u kojoj je miš bio kada je pritisnut Q
 var CentarGravitacijeX int
 var CentarGravitacijeY int
@@ -22,31 +24,21 @@ var CentarGravitacijeY int
 */
 //ProveriOktant vraća oktant kome pripada Cestica u odnosu na položaj miša
 func ProveriOktant(x int, y int, xMis int, yMis int) int {
-	dy := (y-yMis)
-	dx := (x-xMis)
-	koeff := 2//2.4142135623730950488016
-	if dy >= koeff * (dx) && koeff * (dy) < (dx) {
-		return 8
+	dy := float64(y-yMis)
+	dx := float64(x-xMis)
+	
+	alfa := math.Atan2(dy, dx)
+	alfaDeg := alfa * 180 / math.Pi
+
+	oktant := int(math.Ceil(alfaDeg/45)) + 3 % 8
+	if CrnaRupa {
+		oktant = (oktant + 1)
 	}
-	if koeff * (dy) >= (dx) && koeff * (dy) < -(dx) {
-		return 7
+	if oktant == 0 {
+		oktant = 8
 	}
-	if koeff * (dy) >= -(dx) && dy < -koeff * (dx) {
-		return 6
-	}
-	if dy >= -koeff * (dx) && dy >= koeff * (dx) {
-		return 5
-	} 
-	if dy < koeff * (dx) && koeff * (dy) >= (dx) {
-		return 4
-	}
-	if koeff * (dy) < (dx) && koeff * (dy) >= -(dx) {
-		return 3
-	}
-	if koeff * (dy) < -(dx) && (dy) >= -koeff * (dx) {
-		return 2
-	}
-	return 1
+
+	return oktant
 }
 //GdePada vraća smerI i smerJ prema kome Cestica pada
 func GdePadaDole(oktant int) (int, int) {
@@ -89,4 +81,24 @@ func GdeIdeLevoDesno(oktant int) (int, int, int, int) {
 		case 8:	return -1, 1,		1, -1
 		default: return -1, 0,		1, 0
 	}
+}
+//UpadaUCrnuRupu vraća da li koordinata upada u crnu rupu veličine četkice
+func UpadaUCrnuRupu1(i int, j int, velKur int) bool {
+	x := i - CentarGravitacijeX
+	y := j - CentarGravitacijeY
+	if x*x + y*y <= velKur*velKur {
+		return true
+	}
+
+	return false
+}
+
+func UpadaUCrnuRupu2(i int, j int, velKur int, a int, b int) bool {
+	x := i - a
+	y := j - b
+	if x*x + y*y <= velKur*velKur {
+		return true
+	}
+
+	return false
 }

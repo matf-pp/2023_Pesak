@@ -7,6 +7,7 @@ import (
 	"main/src/mat"
 	"main/src/matrixPack"
 	"main/src/screenPack"
+	"main/src/gravityPack"
 
 	"math"
 
@@ -20,6 +21,11 @@ var ShiftOn = false
 func ObojCesticu(matrix [][]mat.Cestica, tx int32, ty int32, state uint32) {
 	if screenPack.TrenutniMat != mat.Toplo && screenPack.TrenutniMat != mat.Hladno {
 		if matrix[tx][ty].Materijal == mat.Prazno || (screenPack.TrenutniMat == mat.Prazno && matrix[tx][ty].Materijal != mat.Zid) {
+			if gravityPack.GRuka && gravityPack.CrnaRupa {
+				return
+			} else if gravityPack.GTacka && gravityPack.CrnaRupa && gravityPack.UpadaUCrnuRupu1(int(6*tx), int(6*ty), 6*(mat.VelRupe+1)) {
+				return
+			}
 			matrix[tx][ty] = mat.NewCestica(screenPack.TrenutniMat)
 		}
 	} else {

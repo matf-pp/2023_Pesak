@@ -194,11 +194,13 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				if screenPack.VelicinaKursora > 1 {
 					screenPack.VelicinaKursora = screenPack.VelicinaKursora - 1
 				}
+				mat.VelRupe = int(screenPack.VelicinaKursora)
 			}
 			if keystates[sdl.SCANCODE_UP] != 0 {
 				if screenPack.VelicinaKursora < screenPack.MaxKursor {
 					screenPack.VelicinaKursora = screenPack.VelicinaKursora + 1
 				}
+				mat.VelRupe = int(screenPack.VelicinaKursora)
 			}
 			if keystates[sdl.SCANCODE_C] != 0 {
 				for j := 0; j < matrixPack.VisinaKan; j++ {
@@ -284,6 +286,9 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 				gravityPack.CentarGravitacijeX = int(x)
 				gravityPack.CentarGravitacijeY = int(y)
 			}
+			if keystates[sdl.SCANCODE_BACKSPACE] != 0 {
+				gravityPack.CrnaRupa = !gravityPack.CrnaRupa
+			}
 
 		case *sdl.MouseButtonEvent:
 			if t.State == sdl.PRESSED {
@@ -307,6 +312,7 @@ func pollEvents(matrix [][]mat.Cestica) bool {
 						screenPack.VelicinaKursora = screenPack.VelicinaKursora - 1
 					}
 				}
+				mat.VelRupe = int(screenPack.VelicinaKursora)
 			}
 
 		case *sdl.DropEvent:
