@@ -736,6 +736,19 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 		return
 	}
 
+	// pomeranje čvrstih ka crnoj rupi
+	if gravityPack.CrnaRupa && (gravityPack.GTacka || gravityPack.GRuka) {
+		komsija := matrix[i+smerI][j+smerJ]
+
+		if komsija.Materijal != Zid {
+			matrix[i+smerI][j+smerJ] = trenutna
+			matrix[i][j] = komsija
+		}
+	}
+	if pomeren {
+		return
+	}
+
 	if (astanje & 0b0001) != 0 {
 		komsija := matrix[i+smerI][j+smerJ]
 		//												( 1  *      G[v] = 2             <  1  *      g[ps] =  5) == True
@@ -744,6 +757,35 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 			matrix[i+smerI][j+smerJ] = trenutna
 			matrix[i][j] = komsija
 			pomeren = true
+		}
+	}
+	if pomeren {
+		return
+	}
+
+	if gravityPack.CrnaRupa && (gravityPack.GTacka || gravityPack.GRuka) {
+		trenutna = matrix[i][j]
+		rFaktor := rand.Intn(2)*2 - 1 //{-1, 1}
+		if rFaktor == -1 {
+			rFaktor = smerILevo
+			smerJ = smerJLevo
+			komsija := matrix[i+rFaktor][j+smerJ]
+			if komsija.Materijal != Zid {
+				matrix[i+rFaktor][j+smerJ] = trenutna
+				matrix[i][j] = komsija
+				pomeren = true
+				return
+			}
+		} else {
+			rFaktor = smerIDesno
+			smerJ = smerJDesno
+			komsija := matrix[i+rFaktor][j+smerJ]
+			if komsija.Materijal != Zid {
+				matrix[i+rFaktor][j+smerJ] = trenutna
+				matrix[i][j] = komsija
+				pomeren = true
+				return
+			}
 		}
 	}
 	if pomeren {
@@ -778,6 +820,40 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 				return
 			}
 		}
+	}
+
+	if gravityPack.CrnaRupa && (gravityPack.GTacka || gravityPack.GRuka) {
+		trenutna = matrix[i][j]
+		rFaktor := rand.Intn(2)*2 - 1 //{-1, 1}
+		lFaktor := 0
+		if rFaktor == -1 {
+			rFaktor = smerILevo2
+			lFaktor = smerJLevo2
+		} else {
+			rFaktor = smerIDesno2
+			lFaktor = smerJDesno2
+		}
+		komsija1 := matrix[i+rFaktor][j+lFaktor]
+		komsijaDalji1 := matrix[i+rFaktor+rFaktor][j+lFaktor+lFaktor]
+		komsija2 := matrix[i-rFaktor][j-lFaktor]
+		komsijaDalji2 := matrix[i-rFaktor-rFaktor][j-lFaktor-lFaktor]
+		if komsija1.Materijal != Zid {
+			if komsijaDalji1.Materijal != Zid {
+				matrix[i+rFaktor+rFaktor][j+lFaktor+lFaktor], matrix[i][j] = trenutna, matrix[i+rFaktor+rFaktor][j+lFaktor+lFaktor]
+			} else {
+				matrix[i+rFaktor][j+lFaktor], matrix[i][j] = trenutna, matrix[i+rFaktor][j+lFaktor]
+			}
+		} else if komsija2.Materijal != Zid {
+			if komsijaDalji2.Materijal != Zid {
+				matrix[i-rFaktor-rFaktor][j-lFaktor-lFaktor], matrix[i][j] = trenutna, matrix[i-rFaktor-rFaktor][j-lFaktor-lFaktor]
+			} else {
+				matrix[i-rFaktor][j-lFaktor], matrix[i][j] = trenutna, matrix[i-rFaktor][j-lFaktor]
+			}
+		}
+		pomeren = true
+	}
+	if pomeren {
+		return
 	}
 
 	// proverava moze li se zameniti ne samo sa horizontalnim susedom vec i sa dva odjednom, da bi se brze iznivelisala

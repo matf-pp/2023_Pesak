@@ -24,15 +24,17 @@ var CentarGravitacijeY int
 */
 //ProveriOktant vraća oktant kome pripada Cestica u odnosu na položaj miša
 func ProveriOktant(x int, y int, xMis int, yMis int) int {
-	dy := float64(y-yMis)
 	dx := float64(x-xMis)
-	
+	dy := float64(y-yMis)
+
 	alfa := math.Atan2(dy, dx)
 	alfaDeg := alfa * 180 / math.Pi
 
-	oktant := int(math.Ceil(alfaDeg/45)) + 3 % 8
+	oktant := (int(math.Ceil(alfaDeg/45)) + 3) % 8
 	if CrnaRupa {
-		oktant = (oktant + 1)
+		// veće zakrivljenje daje kompaktnije crne rupe, e (0, 90)
+		zakrivljenje := 55.0
+		oktant = (int(math.Ceil((zakrivljenje + alfaDeg)/45)) + 3) % 8
 	}
 	if oktant == 0 {
 		oktant = 8
