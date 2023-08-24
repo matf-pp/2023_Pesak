@@ -653,7 +653,8 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	if gravityPack.CrnaRupa {
 		if matrix[i][j].Materijal != Radijacija {
 			if gravityPack.GTacka {
-				if gravityPack.UpadaUCrnuRupu1(6*i, 6*j, 6*VelRupe) {
+				// #TODO popraviti da ne mora da se menja stalno: 10/6		/limun
+				if gravityPack.UpadaUCrnuRupu1(10*i, 10*j, 10*VelRupe) {
 					random := rand.Intn(36*VelRupe)
 					if random != 0 {
 						matrix[i][j] = NewCestica(Prazno)
@@ -662,7 +663,8 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 					}
 				}
 			} else if gravityPack.GRuka {
-				if gravityPack.UpadaUCrnuRupu2(6*i, 6*j, 6*VelRupe, int(KursorPoslednjiX), int(KursorPoslednjiY)) {
+				// #TODO popraviti da ne mora da se menja stalno: 10/6		/limun
+				if gravityPack.UpadaUCrnuRupu2(10*i, 10*j, 10*VelRupe, int(KursorPoslednjiX), int(KursorPoslednjiY)) {
 					random := rand.Intn(36*VelRupe)
 					if random != 0 {
 						matrix[i][j] = NewCestica(Prazno)
@@ -705,9 +707,11 @@ func UpdatePosition(matrix [][]Cestica, i int, j int) {
 	smerILevo2, smerJLevo2, smerIDesno2, smerJDesno2 := -1, 0, 1, 0
 	if gravityPack.GRuka || gravityPack.GTacka {
 		if gravityPack.GRuka {
-			oktant = gravityPack.ProveriOktant(i*6, j*6, int(KursorPoslednjiX), int(KursorPoslednjiY))
+			// #TODO popraviti da ne mora da se menja stalno: 10/6		/limun
+			oktant = gravityPack.ProveriOktant(i*10, j*10, int(KursorPoslednjiX), int(KursorPoslednjiY))
 		} else {
-			oktant = gravityPack.ProveriOktant(i*6 , j*6, int(gravityPack.CentarGravitacijeX), int(gravityPack.CentarGravitacijeY))
+			// #TODO popraviti da ne mora da se menja stalno: 10/6		/limun
+			oktant = gravityPack.ProveriOktant(i*10 , j*10, int(gravityPack.CentarGravitacijeX), int(gravityPack.CentarGravitacijeY))
 		}
 		smerI, smerJ = gravityPack.GdePadaDole(oktant)
 		smerILevo, smerJLevo, smerIDesno, smerJDesno = gravityPack.GdePadaUkosoDole(oktant)
