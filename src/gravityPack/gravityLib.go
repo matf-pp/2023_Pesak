@@ -33,7 +33,7 @@ func ProveriOktant(x int, y int, xMis int, yMis int) int {
 	oktant := (int(math.Ceil(alfaDeg/45)) + 3) % 8
 	if CrnaRupa {
 		// veće zakrivljenje daje kompaktnije crne rupe, e (0, 90)
-		zakrivljenje := 55.0
+		zakrivljenje := 40.0
 		oktant = (int(math.Ceil((zakrivljenje + alfaDeg)/45)) + 3) % 8
 	}
 	if oktant == 0 {
